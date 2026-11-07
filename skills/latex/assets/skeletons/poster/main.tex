@@ -1,0 +1,92 @@
+% A0 portrait poster in the Laboratory house style: Beamer with beamerposter.
+% Three columns of blocks, read top to bottom and left to right; a figure is
+% drawn at the column width. Replace the pendulum with the work and keep the
+% conventions. Build with build.py, which reads latexmkrc.
+\documentclass{beamer}
+\usepackage[size=a0, orientation=portrait, scale=1.4]{beamerposter}
+\usetheme{LaboratoryPoster}
+
+\title{Measuring the gravitational acceleration with a simple pendulum}
+\author{Author Name}
+\date{\today}
+% The repository, notebook or data folder behind the poster; delete to omit.
+\source{github.com/author/pendulum}
+
+\begin{document}
+
+\begin{frame}[t]
+  \begin{columns}[t, totalwidth=\linewidth]
+    \begin{column}{0.31\linewidth}
+      \begin{block}{Question}
+        A mass on a light string of length $L$ swings with a period that depends only on $L$ and the gravitational acceleration $g$ when the amplitude is small~\cite{nelson1986}. Timing the period at several lengths therefore measures $g$, and the spread of the measurements about the model tests the small-angle approximation.
+      \end{block}
+
+      \begin{block}{Model}
+        The angle $\theta$ of the string from the vertical obeys
+        \begin{equation}
+          \frac{\dd^2\theta}{\dd t^2} = -\frac{g}{L} \sin\theta ,
+          \label{eq:motion}
+        \end{equation}
+        which for small $\theta$ gives simple harmonic motion with period
+        \begin{equation}
+          T = 2\pi \sqrt{L/g} .
+          \label{eq:period}
+        \end{equation}
+        At the \qty{3}{\degree} release used here, the finite amplitude lengthens the period by \num{1.7e-4}~\cite{nelson1986}.
+      \end{block}
+
+      \begin{block}{Method}
+        A steel bob on a clamped string was released from rest. A light gate timed 20 oscillations at each of nine lengths, and each period is the mean of five runs with a standard error of \qty{1}{\milli\second}.
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.31\linewidth}
+      \begin{block}{Results}
+        Figure~\ref{fig:period} shows the measured periods with the fit of Equation~\eqref{eq:period}, and Table~\ref{tab:period} lists them at selected lengths.
+
+        \begin{figure}
+          \includegraphics[width=\linewidth]{figures/pendulum}
+          \caption{Period against length with the fitted model (a), and residuals from the fit (b). Error bars are one standard error.}
+          \label{fig:period}
+        \end{figure}
+
+        \begin{table}
+          \caption{Measured and fitted periods at selected lengths.}
+          \label{tab:period}
+          \begin{tabular}{
+            S[table-format=1.1]
+            S[table-format=1.4(2)]
+            S[table-format=1.4]
+          }
+            \toprule
+            {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+            \midrule
+            0.2 & 0.8983(10) & 0.8972 \\
+            0.4 & 1.2692(10) & 1.2688 \\
+            0.6 & 1.5548(10) & 1.5540 \\
+            0.8 & 1.7937(10) & 1.7943 \\
+            1.0 & 2.0057(10) & 2.0061 \\
+            \bottomrule
+          \end{tabular}
+        \end{table}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.31\linewidth}
+      \begin{block}{Conclusion}
+        A least-squares fit of $T = a \sqrt{L}$ gives
+        \begin{equation*}
+          g = \qty{9.809(4)}{\metre\per\second\squared} ,
+        \end{equation*}
+        within one standard error of the local value. The fit has $\chi^2 = 6.9$ for 8 degrees of freedom, so the timing error accounts for the scatter~\cite{taylor1997}, and the residuals show no trend with length.
+      \end{block}
+
+      \begin{block}{References}
+        \bibliographystyle{apsrev4-2}
+        \bibliography{refs}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}

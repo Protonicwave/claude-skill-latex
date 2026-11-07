@@ -1,0 +1,21 @@
+\chapter{Model and method}
+\label{ch:method}
+
+\section{Model}
+
+The angle $\theta$ of the string from the vertical obeys
+\begin{equation}
+  \frac{\dd^2\theta}{\dd t^2} = -\frac{g}{L} \sin\theta .
+  \label{eq:motion}
+\end{equation}
+For small $\theta$, $\sin\theta \approx \theta$ and \cref{eq:motion} describes simple harmonic motion with period
+\begin{equation}
+  T = 2\pi \sqrt{L/g} .
+  \label{eq:period}
+\end{equation}
+At an amplitude $\theta_0$ the true period is longer by a factor of about $1 + \theta_0^2/16$~\cite{nelson1986}, which is \num{1.7e-4} at the \qty{0.052}{\radian} used here.
+
+\section{Measurement}
+
+% Apparatus, procedure and how each uncertainty was estimated.
+A steel bob hung from a clamped string, released from rest at \qty{3}{\degree}. A light gate timed 20 oscillations at each length, and each period is the mean of five such runs with a standard error of \qty{1}{\milli\second}. Lengths were measured from the clamp to the centre of the bob with a metre rule to \qty{1}{\milli\metre}.

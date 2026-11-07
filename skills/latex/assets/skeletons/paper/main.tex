@@ -1,0 +1,83 @@
+% Journal paper set with REVTeX 4.2 for the APS journals and built with
+% pdfLaTeX, as the journals and arXiv expect. The class owns the design, so
+% the house style is not loaded; the conventions for maths, units, floats and
+% references still apply. For another journal, start from its own template.
+\documentclass[aps,prb,reprint,superscriptaddress]{revtex4-2}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage[hidelinks]{hyperref}
+% APS style: "Fig. 1" and "Eq. (1)" in running text, spelled out at the start of a sentence.
+\usepackage[capitalise]{cleveref}
+
+% ISO 80000-2 sets the differential upright, with a thin space before it.
+\newcommand{\dd}{\mathop{}\!\mathrm{d}}
+
+\begin{document}
+
+\title{Measuring the gravitational acceleration with a simple pendulum}
+\author{Author Name}
+\affiliation{Department of Physics, University Name, City, Country}
+\date{\today}
+
+\begin{abstract}
+We timed a simple pendulum at nine lengths between \qtylist{0.2;1.0}{\metre} and fitted the small-angle period to the measurements. The fit gives $g = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value. The residuals show no trend with length, so the small-angle model describes the pendulum to the timing precision of \qty{1}{\milli\second}.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+A mass on a light string of length $L$ swings with a period that depends only on $L$ and the gravitational acceleration $g$ when the amplitude is small~\cite{nelson1986}. Timing the period at several lengths therefore measures $g$, and the spread of the measurements about the model tests whether the small-angle approximation holds.
+
+\section{Model and method}
+
+The angle $\theta$ of the string from the vertical obeys
+\begin{equation}
+  \frac{\dd^2\theta}{\dd t^2} = -\frac{g}{L} \sin\theta ,
+  \label{eq:motion}
+\end{equation}
+which for small $\theta$ gives simple harmonic motion with period
+\begin{equation}
+  T = 2\pi \sqrt{L/g} .
+  \label{eq:period}
+\end{equation}
+A steel bob on a clamped string was released from rest at \qty{3}{\degree}, where the finite-amplitude correction to \cref{eq:period} is \num{1.7e-4}~\cite{nelson1986}. A light gate timed 20 oscillations at each length, and each period is the mean of five runs with a standard error of \qty{1}{\milli\second}.
+
+\section{Results}
+
+\Cref{fig:period} shows the measured periods with the fit of \cref{eq:period}, and \cref{tab:period} lists them at selected lengths. A least-squares fit of $T = a \sqrt{L}$ gives $g = 4\pi^2 / a^2 = \qty{9.809(4)}{\metre\per\second\squared}$ with $\chi^2 = 6.9$ for 8 degrees of freedom, so the timing error accounts for the scatter~\cite{taylor1997}.
+
+\begin{figure}[tbp]
+  \includegraphics[width=\linewidth]{figures/pendulum}
+  \caption{Period against length (a), with the fitted small-angle model, and residuals from the fit (b). Error bars are one standard error.}
+  \label{fig:period}
+\end{figure}
+
+\begin{table}[tbp]
+  \caption{Measured and fitted periods at selected lengths.}
+  \label{tab:period}
+  \begin{tabular}{
+    S[table-format=1.1]
+    S[table-format=1.4(2)]
+    S[table-format=1.4]
+  }
+    \toprule
+    {$L$ (\unit{\metre})} & {$T$ (\unit{\second})} & {$T_\mathrm{fit}$ (\unit{\second})} \\
+    \midrule
+    0.2 & 0.8983(10) & 0.8972 \\
+    0.4 & 1.2692(10) & 1.2688 \\
+    0.6 & 1.5548(10) & 1.5540 \\
+    0.8 & 1.7937(10) & 1.7943 \\
+    1.0 & 2.0057(10) & 2.0061 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+The residuals scatter about zero with no trend in length, and the fitted $g$ agrees with the local value, so the small-angle model describes the period at every length measured.
+
+\bibliography{refs}
+
+\end{document}

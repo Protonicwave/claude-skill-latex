@@ -1,0 +1,111 @@
+% Direction C, Laboratory: Erewhon text and maths, Source Sans for every piece of
+% document furniture, Prussian blue as the one accent, a record strip under the title.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{specimen-laboratory}[2026/11/07 Laboratory specimen direction]
+
+\RequirePackage{specimen-base}
+\RequirePackage[a4paper, textwidth=175mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
+\RequirePackage{fancyhdr}
+\RequirePackage{tabularx}
+
+\setmainfont{Erewhon}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-Bold,
+  ItalicFont = *-Italic,
+  BoldItalicFont = *-BoldItalic,
+  Scale = 0.95,
+]
+\setmathfont{Erewhon-Math.otf}[Scale = 0.95]
+
+% Erewhon Math's solidus carries wide side-bearings, so J/k reads as "J / k".
+% Every maths slash is pulled in by 2 mu on each side; text slashes are untouched.
+\AtBeginDocument{%
+  \Umathcharnumdef\erewhonslash=\Umathcodenum`\/\relax
+  \begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\erewhonslash\mkern-2mu}%
+  \mathcode`\/="8000\relax
+}
+\setsansfont{SourceSans3}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-Semibold,
+  ItalicFont = *-RegularIt,
+  BoldItalicFont = *-SemiboldIt,
+  Scale = MatchUppercase,
+]
+\setmonofont{IBMPlexMono}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-SemiBold,
+  ItalicFont = *-Italic,
+  Scale = MatchLowercase,
+]
+
+\definecolor{prussian}{HTML}{1F4A73}
+\definecolor{rulegrey}{gray}{0.6}
+
+\titleformat{\section}{\normalfont\sffamily\bfseries\Large}{\color{prussian}\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\sffamily\bfseries}{\color{prussian}\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.5\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.3\baselineskip}
+
+\captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=quad, justification=justified, singlelinecheck=false}
+\captionsetup[table]{position=top, skip=6pt}
+
+% Table headings are furniture too, so they take the sans face.
+\renewcommand{\head}[1]{{\sffamily\bfseries #1}}
+
+\lstset{
+  basicstyle = \ttfamily\small,
+  keywordstyle = \color{prussian}\bfseries,
+  commentstyle = \color{rulegrey},
+  backgroundcolor = \color{prussian!5},
+  frame = leftline,
+  rulecolor = \color{prussian},
+  framerule = 1.2pt,
+  framesep = 0.8em,
+  xleftmargin = 1.2em,
+  numbers = none,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\makeatletter
+\fancyhead[L]{\sffamily\small\color{rulegrey}\@title}
+\makeatother
+\fancyhead[R]{\sffamily\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{{\color{rulegrey}\hrule height \headrulewidth}}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[R]{\sffamily\small\thepage}}
+
+\makeatletter
+\newcommand{\recordfield}[2]{%
+  {\sffamily\footnotesize\color{prussian}\MakeUppercase{#1}}\par
+  {\sffamily\small #2}%
+}
+\renewcommand{\maketitle}{%
+  \thispagestyle{plain}%
+  \begingroup
+  \raggedright
+  {\sffamily\bfseries\fontsize{22}{26}\selectfont \@title\par}
+  \vspace{1.2\baselineskip}
+  {\color{prussian}\hrule height 1.2pt}
+  \vspace{0.6\baselineskip}
+  \noindent
+  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.22\linewidth}X@{}}
+    \recordfield{Author}{\@author} & \recordfield{Date}{\@date} & \recordfield{Source}{\texttt{\specimensource}}
+  \end{tabularx}
+  \vspace{0.6\baselineskip}
+  {\color{rulegrey}\hrule height 0.4pt}
+  \vspace{1.4\baselineskip}
+  \endgroup
+}
+\makeatother
+
+\renewenvironment{abstract}{%
+  \small
+  \list{}{\leftmargin=0pt \rightmargin=0pt}%
+  \item\relax{\sffamily\bfseries\color{prussian}Abstract}\enspace\ignorespaces
+}{\endlist\vspace{0.6\baselineskip}}
+
+\specimenlinks{prussian}

@@ -1,0 +1,91 @@
+% Lab report in the Laboratory house style. Every element below shows the
+% house convention for its kind: replace the pendulum with the experiment and
+% keep the conventions. Build with build.py, which reads latexmkrc.
+\documentclass[11pt]{article}
+\usepackage{laboratory}
+
+\title{Measuring the gravitational acceleration with a simple pendulum}
+\author{Author Name}
+\date{\today}
+% The repository, notebook or data folder behind the report; delete to omit.
+\source{analysis/pendulum.py}
+
+\begin{document}
+
+\maketitle
+
+% Four sentences: aim, method, main result with its uncertainty, and what it means.
+\begin{abstract}
+We timed a simple pendulum at nine lengths between \qtylist{0.2;1.0}{\metre} and fitted the small-angle period to the measurements. The fit gives $g = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value of \qty{9.81}{\metre\per\second\squared}. The residuals show no trend with length, so the small-angle model describes the pendulum to the timing precision of \qty{1}{\milli\second}.
+\end{abstract}
+
+\section{Introduction}
+
+% What is measured, why, and the model the measurement tests.
+A mass on a light string of length $L$ swings with a period that depends only on $L$ and the gravitational acceleration $g$ when the amplitude is small~\cite{nelson1986}. Timing the period at several lengths therefore measures $g$, and the spread of the measurements about the model tests whether the small-angle approximation holds.
+
+\section{Theory}
+
+The angle $\theta$ of the string from the vertical obeys
+\begin{equation}
+  \frac{\dd^2\theta}{\dd t^2} = -\frac{g}{L} \sin\theta .
+  \label{eq:motion}
+\end{equation}
+For small $\theta$, $\sin\theta \approx \theta$ and \cref{eq:motion} describes simple harmonic motion with period
+\begin{equation}
+  T = 2\pi \sqrt{L/g} .
+  \label{eq:period}
+\end{equation}
+At an amplitude $\theta_0$ the true period is longer by a factor of about $1 + \theta_0^2/16$~\cite{nelson1986}, which is \num{1.7e-4} at the \qty{0.052}{\radian} used here, or \qty{0.3}{\milli\second} at the longest length, below the timing precision.
+
+\section{Method}
+
+% Apparatus, procedure and how each uncertainty was estimated.
+A steel bob hung from a clamped string, released from rest at \qty{3}{\degree}. A light gate timed 20 oscillations at each length, and each period is the mean of five such runs with a standard error of \qty{1}{\milli\second}. Lengths were measured from the clamp to the centre of the bob with a metre rule to \qty{1}{\milli\metre}.
+
+\section{Results}
+
+% Lead with the result, then the evidence for it; every float is referred to before it appears.
+\Cref{fig:period} shows the measured periods with the fit of \cref{eq:period}, and \cref{tab:period} lists them at selected lengths. A least-squares fit of $T = a \sqrt{L}$ gives $a = \qty{2.0061(4)}{\second\metre\tothe{-1/2}}$ and hence $g = 4\pi^2 / a^2 = \qty{9.809(4)}{\metre\per\second\squared}$. The fit has $\chi^2 = 6.9$ for 8 degrees of freedom.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/pendulum}
+  \caption{Period against length (a), with the fitted small-angle model, and residuals from the fit (b). Error bars are one standard error.}
+  \label{fig:period}
+\end{figure}
+
+\begin{table}[tbp]
+  \centering
+  \caption{Measured and fitted periods at selected lengths.}
+  \label{tab:period}
+  \begin{tabular}{
+    S[table-format=1.1]
+    S[table-format=1.4(2)]
+    S[table-format=1.4]
+  }
+    \toprule
+    {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+    \midrule
+    0.2 & 0.8983(10) & 0.8972 \\
+    0.4 & 1.2692(10) & 1.2688 \\
+    0.6 & 1.5548(10) & 1.5540 \\
+    0.8 & 1.7937(10) & 1.7943 \\
+    1.0 & 2.0057(10) & 2.0061 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Discussion}
+
+% What the result means, how far to trust it, and what would test it further.
+The residuals scatter about zero with no trend in length, and a $\chi^2$ close to the number of degrees of freedom shows that the quoted timing error accounts for the scatter~\cite{taylor1997}. The fitted $g$ agrees with the local value, so neither the finite amplitude nor the mass of the string shifts the period by more than the timing precision. A constant error in length, such as a misjudged centre of the bob, changes the shape of the curve only slightly over this range, so the residuals test it weakly; measuring to the top and the bottom of the bob would bound it.
+
+\section{Conclusion}
+
+The simple pendulum gives $g = \qty{9.809(4)}{\metre\per\second\squared}$, and the small-angle model describes its period at every length measured.
+
+\bibliographystyle{apsrev4-2}
+\bibliography{refs}
+
+\end{document}

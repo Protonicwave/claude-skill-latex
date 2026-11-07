@@ -1,0 +1,13 @@
+\documentclass[11pt]{article}
+\usepackage{house}
+\input{macros}
+
+\begin{document}
+
+\input{chapter one/intro}
+
+\Cref{fig:intro} is defined in the chapter.
+
+\input{missing} % lint: unread-input
+
+\end{document}

@@ -12,7 +12,7 @@ dev = [
     "ruff==0.16.2",
     "vulture==2.14",
 ]
-# Only the specimen scripts in research/ need these; the skill's own scripts use the standard library.
+# Only the scripts in research/ need these; the skill's own scripts use the standard library.
 research = [
     "matplotlib==3.11.2",
     "numpy==2.5.1",
@@ -34,7 +34,15 @@ max-complexity = 10
 [tool.ruff.lint.per-file-ignores]
 # pytest's assertion rewriting relies on bare assert, and test tables use literal values.
 "tests/**" = ["S101", "PLR2004"]
+# The scripts run TeX tools from argument lists, never through a shell.
+"skills/latex/scripts/**" = ["S603"]
 
 [tool.mypy]
 strict = true
-files = ["research"]
+files = ["research", "skills", "tests"]
+mypy_path = "skills/latex/scripts"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["skills/latex/scripts"]
+markers = ["tex: runs the TeX distribution, so needs latexmk and poppler on PATH"]

@@ -1,0 +1,73 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\setmainfont{Erewhon}
+\usepackage[a4paper, margin=25mm]{geometry}
+\usepackage[T1]{fontenc} % lint: legacy-encoding
+\usepackage{amsmath, subfigure} % lint: obsolete-package
+\usepackage{natbib}
+\usepackage{cleveref}
+
+\begin{document}
+
+\Cref{fig:two,fig:three} show the results.
+
+Old switches such as {\bf bold} still compile. % lint: obsolete-command
+$$ E = mc^2 $$ % lint: obsolete-command
+\begin{eqnarray} % lint: obsolete-command
+  a &=& b
+\end{eqnarray}
+
+The phase is $\phi = sin(\omega t)$, % lint: italic-operator
+the length $5 cm$ % lint: italic-unit
+and the peak $T_{max}$. % lint: italic-subscript-label
+
+Pages 3-5 cover it. % lint: hyphen-range
+A 32 x 32 lattice. % lint: letter-times
+He said "hello" and 'bye'. % lint: straight-quote, straight-quote
+A 50\% rise, "quoted" here. % lint: straight-quote
+And so on... % lint: ellipsis
+
+As shown in Figure \ref{fig:plot}. % lint: breakable-reference
+Earlier work~\cite{a}\cite{b} agrees. % lint: split-citation
+
+The energy is
+
+\begin{equation} % lint: blank-line-before-display
+  E = -J \sum s_i s_j
+\end{equation}
+
+A line ended by hand.\\ % lint: paragraph-ended-by-line-break
+
+TODO: write the conclusion. % lint: leftover-placeholder
+\lipsum[1] % lint: leftover-placeholder
+The date of approval: \TODO{date}. % lint: leftover-placeholder
+
+\begin{figure}[tbp] % lint: float-without-caption
+  \centering
+  \includegraphics[width=\linewidth]{plot.pdf}
+  \label{fig:plot}
+\end{figure}
+
+\begin{figure}[tbp]
+  \label{fig:two} % lint: label-before-caption
+  \caption{A caption.}
+\end{figure}
+
+\begin{figure}[tbp]
+  \begin{center} % lint: centre-environment-in-float
+    \includegraphics[width=0.5\linewidth]{plot.pdf}
+  \end{center}
+  \caption{Another caption.}
+  \label{fig:three}
+\end{figure}
+
+\begin{figure}[tbp] % lint: unreferenced-float
+  \centering
+  \includegraphics[width=\linewidth]{other.pdf}
+  \caption{Never mentioned.}
+  \label{fig:orphan}
+\end{figure}
+
+\input{missing-chapter} % lint: unread-input
+
+\end{document}

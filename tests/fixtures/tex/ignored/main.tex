@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\setmainfont{Erewhon}
+\usepackage[a4paper, margin=25mm]{geometry}
+\usepackage{amsmath, booktabs, graphicx, listings, verbatim, cleveref, siunitx, tikz}
+% \usepackage{a4wide} and {\bf bold} and \sloppy in a comment
+% A macro that marks a gap is tooling; only its uses are leftovers.
+\newcommand{\TODO}[1]{\textbf{[TODO: #1]}\PackageWarning{doc}{TODO left unfilled}}
+\NewDocumentCommand{\FIXME}{m}
+  {\textbf{FIXME: #1}}
+\def\TBD#1{[TBD: #1]}
+% An input inside a definition names a file only when the macro is used.
+\newcommand{\diagram}[1]{\input{figures/#1}}
+
+\begin{document}
+
+% Commented: {\bf x}, $$ y $$, "quoted", 3-5, 32 x 32, ..., TODO, \vspace{1em}
+A line break then a comment.\\% {\bf hidden} "quoted"
+A per cent sign 50\% stays text, as do ``proper'' and `single' quotes.
+Ranges 3--5, a $32 \times 32$ lattice, an ellipsis \dots{} and \qty{5}{\centi\metre}.
+See \cref{fig:clean} and Figure~\ref{fig:clean}, cited together~\cite{a,b}.
+A label key may hold anything: \label{sec:1-2...}.
+Visit \url{https://example.org/a-1-2/"x"...}.
+
+\verb|{\bf x} "q" 3-5 ...| and \lstinline{$$ TODO $$} and \verb*!\sloppy!.
+
+\begin{verbatim}
+{\bf x} $$ y $$ "quoted" 3-5 32 x 32 ... TODO \vspace{1em}
+\begin{figure}[h]
+\end{verbatim}
+
+\begin{lstlisting}[caption={Code}]
+x = "string" ... 3-5 # TODO
+\end{lstlisting}
+
+\begin{comment}
+\begin{figure}[H] {\bf x} TODO
+\end{comment}
+
+The phase $\phi = \sin(\omega t)$ at $T_\mathrm{max}$ and $T_{\mathrm{max}}$,
+with $\operatorname{sinc} x$, $\text{min}$, $\mathrm{e}^{-x}$ and $\int f \, \mathrm{d}x$.
+\begin{equation}
+  W = \min\bigl(1, \mathrm{e}^{-\beta \Delta E}\bigr)
+  \label{eq:max-exp}
+\end{equation}
+
+\begin{tikzpicture}
+  \foreach \k in {0,...,7} {\fill (\k, 0) circle (1pt);}
+  \foreach \x/\y [count=\i] in {0/1, ..., 4/5} {\node at (\x, \y) {\i};}
+  \begin{axis}[xtick={0,...,10}]
+  \end{axis}
+\end{tikzpicture}
+
+Standards such as ISO 80000-2 and IEC 60027-1 keep their hyphens, as do
+music of the '90s and code such as \texttt{open("data.csv")}.
+\begin{itemize}
+  \item \cite{a} as the first word of an item.
+\end{itemize}
+The second figure is reached through \hyperref[fig:linked]{a named link}.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{plot.pdf}
+  \caption{A clean figure.}
+  \label{fig:clean}
+\end{figure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{plot.pdf}
+  \caption{A figure referred to by a named link.}
+  \label{fig:linked}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,80 @@
+% Laboratory house style for Beamer slides: the document faces and accent,
+% Source Sans furniture, and a title slide that carries the record strip.
+% beamerthemeLaboratoryPoster.sty builds the poster on it.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemeLaboratory}[2026/11/07 Laboratory house style: slides]
+
+\RequirePackage{laboratory-base}
+
+\mode<presentation>
+
+% unicode-math sets the maths, so Beamer must leave it alone; body text is the
+% document's serif, and every piece of furniture is set in sans below.
+\usefonttheme{professionalfonts}
+\usefonttheme{serif}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=10mm, text margin right=10mm}
+
+\setbeamercolor{normal text}{fg=black, bg=white}
+\setbeamercolor{structure}{fg=prussian}
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{frametitle}{fg=black}
+\setbeamercolor{block title}{fg=prussian}
+\setbeamercolor{caption name}{fg=prussian}
+\setbeamercolor{footline}{fg=rulegrey}
+
+\setbeamerfont{title}{family=\sffamily, series=\bfseries, size=\LARGE}
+\setbeamerfont{frametitle}{family=\sffamily, series=\bfseries, size=\large}
+\setbeamerfont{block title}{family=\sffamily, series=\bfseries}
+\setbeamerfont{caption}{family=\sffamily, size=\small}
+\setbeamerfont{caption name}{series=\bfseries}
+\setbeamerfont{footline}{family=\sffamily, size=\scriptsize}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+
+\setbeamertemplate{title page}{%
+  \vfill
+  \begingroup
+  \raggedright
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+  \vspace{1.2\baselineskip}
+  \laboratory@recordstrip{\insertauthor}{\insertdate}
+  \endgroup
+  \vfill
+}
+
+\setbeamertemplate{frametitle}{%
+  \vspace{0.6\baselineskip}%
+  {\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}%
+  \vspace{0.3\baselineskip}%
+  {\color{rulegrey}\hrule height 0.4pt}%
+}
+
+% The running head of the documents, moved to the foot: short title left,
+% frame number right, under a hairline.
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, leftskip=10mm, rightskip=10mm]{footline}%
+    {\color{rulegrey}\hrule height 0.4pt}%
+    \vspace{1.2mm}%
+    \usebeamerfont{footline}\insertshorttitle\hfill\insertframenumber\,/\,\inserttotalframenumber
+    \vspace{3mm}%
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{itemize item}{\raisebox{0.25ex}{\rule{0.4em}{0.4em}}}
+\setbeamertemplate{itemize subitem}{\textendash}
+\setbeamertemplate{enumerate item}{\usebeamerfont{block title}\insertenumlabel.}
+
+\setbeamertemplate{block begin}{%
+  \par\vspace{0.4\baselineskip}%
+  {\usebeamerfont{block title}\usebeamercolor[fg]{block title}\insertblocktitle\strut\par}%
+  \vspace{0.2\baselineskip}%
+}
+\setbeamertemplate{block end}{\par\vspace{0.4\baselineskip}}
+
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{\quad}
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+\mode<all>

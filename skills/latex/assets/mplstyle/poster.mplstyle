@@ -1,0 +1,22 @@
+# Overlay on laboratory.mplstyle for a figure one column wide on the A0
+# poster skeleton, 242 mm by 110 mm: 28 pt type against 35 pt body text, and lines and
+# marks heavy enough to read from two metres.
+#     plt.style.use(["figures/laboratory.mplstyle", "figures/poster.mplstyle"])
+
+font.size: 28
+axes.labelsize: 28
+axes.titlesize: 28
+xtick.labelsize: 28
+ytick.labelsize: 28
+legend.fontsize: 28
+axes.titlepad: 10
+
+lines.linewidth: 3
+lines.markersize: 10
+axes.linewidth: 1.5
+xtick.major.width: 1.5
+ytick.major.width: 1.5
+xtick.major.size: 8
+ytick.major.size: 8
+
+figure.figsize: 9.53, 4.33

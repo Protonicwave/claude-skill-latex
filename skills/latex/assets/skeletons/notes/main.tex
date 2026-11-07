@@ -1,0 +1,75 @@
+% Notes in the Laboratory house style: lecture, revision or derivation notes
+% with definitions, worked examples and code. Replace the pendulum with the
+% topic and keep the conventions. Build with build.py, which reads latexmkrc.
+\documentclass[11pt]{article}
+\usepackage{laboratory}
+
+\title{Notes on the simple pendulum}
+\author{Author Name}
+\date{\today}
+% The repository, notebook or lecture behind the notes; delete to omit.
+\source{analysis/pendulum.py}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Equation of motion}
+
+% Open each section with what it establishes, then define, derive and apply.
+\begin{definition}
+  A simple pendulum is a point mass $m$ on a massless, inextensible string of length $L$, swinging in a vertical plane under uniform gravity $g$ without friction.
+  \label{def:pendulum}
+\end{definition}
+
+The bob moves on a circle of radius $L$, so its tangential acceleration is $L \ddot\theta$, and the only tangential force is the component of its weight, $-mg \sin\theta$. Newton's second law along the tangent gives
+\begin{align}
+  m L \frac{\dd^2\theta}{\dd t^2} &= -m g \sin\theta , \notag \\
+  \frac{\dd^2\theta}{\dd t^2} &= -\frac{g}{L} \sin\theta .
+  \label{eq:motion}
+\end{align}
+The mass cancels, so every pendulum of \cref{def:pendulum} with the same length swings alike~\cite{nelson1986}.
+
+\section{Small oscillations}
+
+For $|\theta| \ll 1$, $\sin\theta \approx \theta$ and \cref{eq:motion} becomes simple harmonic motion with angular frequency $\omega_0 = \sqrt{g/L}$ and period
+\begin{equation}
+  T_0 = 2\pi \sqrt{L/g} .
+  \label{eq:period}
+\end{equation}
+
+\begin{example}
+  A pendulum of length \qty{1.000}{\metre} where $g = \qty{9.81}{\metre\per\second\squared}$ has $T_0 = \qty{2.006}{\second}$, which is why a pendulum near a metre long beats seconds.
+\end{example}
+
+\Cref{fig:period} compares \cref{eq:period} with periods timed at nine lengths; the residuals in panel (b) stay within \qty{2}{\milli\second}, consistent with the timing error.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/pendulum}
+  \caption{Measured period against length with the small-angle model (a), and residuals from the fit (b). Error bars are one standard error.}
+  \label{fig:period}
+\end{figure}
+
+\section{Finite amplitude}
+
+Released from rest at $\theta_0$, the pendulum's period is an elliptic integral, which expands as~\cite{nelson1986}
+\begin{equation}
+  T = T_0 \left( 1 + \frac{\theta_0^2}{16} + \frac{11 \theta_0^4}{3072} + \cdots \right) .
+  \label{eq:finite}
+\end{equation}
+The first correction is \qty{0.2}{\percent} at \qty{10}{\degree} and \qty{1.7}{\percent} at \qty{30}{\degree}, so a clock pendulum keeps time only if its amplitude is steady. \Cref{lst:fit} fits \cref{eq:period} to measured periods by least squares~\cite{taylor1997}.
+
+\begin{lstlisting}[caption={Least-squares fit of $T = a \sqrt{L}$ and the resulting $g$.}, label=lst:fit]
+def fit_g(lengths, periods):
+    roots = np.sqrt(lengths)
+    a = np.sum(periods * roots) / np.sum(lengths)
+    return (2 * np.pi / a) ** 2
+\end{lstlisting}
+
+\bibliographystyle{apsrev4-2}
+\bibliography{refs}
+
+\end{document}

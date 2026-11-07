@@ -1,0 +1,19 @@
+# Overlay on laboratory.mplstyle for a figure one journal column wide under
+# pdfLaTeX, as REVTeX and arXiv expect: Computer Modern, 8 pt type, 86 mm
+# wide, the panels stacked.
+#     plt.style.use(["figures/laboratory.mplstyle", "figures/journal.mplstyle"])
+
+pgf.texsystem: pdflatex
+pgf.preamble:
+font.family: serif
+
+font.size: 8
+axes.labelsize: 8
+axes.titlesize: 8
+xtick.labelsize: 8
+ytick.labelsize: 8
+legend.fontsize: 8
+lines.markersize: 2.8
+
+# 86 mm by 92 mm.
+figure.figsize: 3.39, 3.62
