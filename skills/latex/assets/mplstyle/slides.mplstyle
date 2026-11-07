@@ -1,0 +1,19 @@
+# Overlay on laboratory.mplstyle for a figure the full width of a 16:9 Beamer
+# slide: 10 pt type against the slide's 11 pt text, heavier lines and marks
+# for a projector, 140 mm by 50 mm.
+#     plt.style.use(["figures/laboratory.mplstyle", "figures/slides.mplstyle"])
+
+font.size: 10
+axes.labelsize: 10
+axes.titlesize: 10
+xtick.labelsize: 10
+ytick.labelsize: 10
+legend.fontsize: 10
+
+lines.linewidth: 1.4
+lines.markersize: 4.2
+axes.linewidth: 0.8
+xtick.major.width: 0.8
+ytick.major.width: 0.8
+
+figure.figsize: 5.51, 1.97

@@ -1,0 +1,49 @@
+% Laboratory house style for posters, built on the slide theme and sized by
+% beamerposter: the title and record strip across the head of the sheet, and
+% sections as blocks in columns below it.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemeLaboratoryPoster}[2026/11/07 Laboratory house style: posters]
+
+\mode<presentation>
+
+\usetheme{Laboratory}
+
+\newlength{\laboratory@postermargin}
+\setlength{\laboratory@postermargin}{30mm}
+\setbeamersize{text margin left=\laboratory@postermargin, text margin right=\laboratory@postermargin}
+
+\setbeamerfont{title}{family=\sffamily, series=\bfseries, size=\VeryHuge}
+\setbeamerfont{block title}{family=\sffamily, series=\bfseries, size=\Large}
+
+% The record strip at the scale of the sheet.
+\renewcommand{\laboratory@labelsize}{\normalsize}
+\renewcommand{\laboratory@valuesize}{\large}
+\setlength{\laboratory@accentrule}{4pt}
+\setlength{\laboratory@hairline}{1.5pt}
+
+% A minipage, not a colour box with side skips, so the record strip's
+% \linewidth is the width between the margins.
+\setbeamertemplate{headline}{%
+  \vspace{\laboratory@postermargin}%
+  \hspace*{\laboratory@postermargin}%
+  \begin{minipage}{\dimexpr\paperwidth-2\laboratory@postermargin\relax}
+    {\raggedright\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}%
+    \vspace{1.2\baselineskip}%
+    \laboratory@recordstrip{\insertauthor}{\insertdate}%
+  \end{minipage}%
+  \vspace{1.2\baselineskip}%
+}
+\setbeamertemplate{frametitle}{}
+\setbeamertemplate{footline}{\vspace{\laboratory@postermargin}}
+
+% A block on a poster is a section: more air above it, a hairline under its title.
+\setbeamertemplate{block begin}{%
+  \par\vspace{1.2\baselineskip}%
+  {\usebeamerfont{block title}\usebeamercolor[fg]{block title}\insertblocktitle\strut\par}%
+  \vspace{0.3\baselineskip}%
+  {\color{rulegrey}\hrule height \laboratory@hairline}%
+  \vspace{0.6\baselineskip}%
+}
+\setbeamertemplate{block end}{\par}
+
+\mode<all>

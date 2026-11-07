@@ -1,0 +1,18 @@
+{
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (latexmkrc)",
+      "tools": ["latexmk-rc"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-rc",
+      "command": "latexmk",
+      "args": ["-interaction=nonstopmode", "%DOC%"],
+      "env": {}
+    }
+  ],
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.linting.chktex.enabled": false
+}
