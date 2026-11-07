@@ -292,6 +292,37 @@ def test_finds_a_bibliography_beside_the_document_when_building_elsewhere(
     assert "citation" not in output
 
 
+@pytest.mark.tex
+def test_ignores_a_log_left_by_an_earlier_build(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = write(tmp_path / "main.tex", BROKEN_DOCUMENT)
+    assert main([str(document), "--engine", "pdflatex"]) == 1
+    capsys.readouterr()
+    # latexmk now stops before TeX runs, as it does when MiKTeX finds no Perl.
+    write(tmp_path / "latexmkrc", 'print STDERR "latexmkrc refused to run\\n";\nexit 3;\n')
+
+    exit_code = main([str(document), "--engine", "pdflatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 1
+    assert "Undefined control sequence" not in output
+    assert "latexmkrc refused to run" in output
+
+
+def test_reports_pdftex_warnings_wherever_they_start_on_a_line() -> None:
+    log = (
+        b"(./main.tex [1{pdftex.map}] pdfTeX warning (ext4): destination with the same "
+        b"identifier (name{page.1}) has been already used, duplicate ignored\n)\n"
+    )
+
+    (finding,) = parse_log(log)
+
+    assert finding.severity is Severity.WARNING
+    assert finding.file == "main.tex"
+    assert finding.message.startswith("pdfTeX warning (ext4): destination with the same")
+
+
 def test_rejects_a_path_that_is_not_a_tex_file(tmp_path: Path) -> None:
     document = write(tmp_path / "notes.md", "# Notes\n")
 

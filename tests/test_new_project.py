@@ -75,10 +75,13 @@ def test_skeleton_builds_without_defects_and_lints_clean(
     assert main([profile, str(folder)]) == 0
     document = folder / "main.tex"
 
-    exit_code = build.main([str(document), "--engine", PROFILES[profile].engine])
+    # No --engine: the project's latexmkrc chooses it, as it does for an editor.
+    exit_code = build.main([str(document)])
 
     output = capsys.readouterr().out
     assert exit_code == 0, output
+    engine_banner = (folder / "build" / "main.log").read_bytes().split(b"\n", 1)[0]
+    assert (b"pdfTeX" in engine_banner) == (PROFILES[profile].engine == "pdflatex")
     if profile not in CLASS_WARNING_PROFILES:
         assert "0 defects, 0 warnings" in output, output
     assert lint.lint(document).findings == ()

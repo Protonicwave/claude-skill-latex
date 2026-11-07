@@ -6,14 +6,18 @@ Usage:
 
 latexmk runs in the document's folder with nonstop interaction, halting on the
 first error, and writes into DIR (default `build`, relative to the document).
+Every rule runs at least once (latexmk -g), so the log always comes from this
+build; a log, BibTeX log or PDF this run did not write is ignored as left over.
+Without --engine, a latexmkrc or .latexmkrc in the document's folder chooses
+the engine, as it does for an editor; with neither, LuaLaTeX is used.
 The TeX log and any BibTeX log are then read into findings. Defects need
 fixing before the document is handed back: errors, overfull boxes wider than
 OVERFULL_TOLERANCE_PT, underfull boxes at or above UNDERFULL_BADNESS_LIMIT,
 undefined references and citations, multiply defined labels, missing glyphs,
 font substitutions and BibTeX errors. Everything else is a warning to judge.
 
-Exit code 0 means no defects, 1 means defects or a failed build, 2 means the
-document or latexmk could not be found.
+Exit code 0 means no defects, 1 means defects or a failed build, 2 means a
+bad argument or latexmk not found.
 
 Limits: the log is read line by line after rejoining lines TeX wrapped at its
 print width, so a genuine line of 79 bytes or more is joined to the next
@@ -21,7 +25,9 @@ unless the next starts a message. The file
 a finding belongs to comes from the parentheses TeX writes as it opens and
 closes files; unbalanced parentheses in a package's own log output can shift
 it. Biber's log is not read, but citations it fails to resolve still show as
-undefined in the TeX log.
+undefined in the TeX log. Only the first MAX_LOG_BYTES of a log are read. A
+project latexmkrc that sets $aux_dir or $jobname moves or renames the log,
+which is then reported as missing.
 """
 
 from __future__ import annotations
@@ -67,6 +73,10 @@ class Engine(StrEnum):
 
 
 ENGINE_FLAGS = {Engine.LUALATEX: "-lualatex", Engine.PDFLATEX: "-pdf"}
+DEFAULT_ENGINE = Engine.LUALATEX
+LATEXMKRC_NAMES = ("latexmkrc", ".latexmkrc")
+# The files a build writes, read only when this run wrote them.
+OUTPUTS = (".log", ".blg", ".pdf")
 
 
 class Severity(StrEnum):
@@ -120,6 +130,8 @@ WARNING = re.compile(
 CONTINUATION = re.compile(r"^\([A-Za-z][\w@-]*\)\s+(?P<text>.*)$")
 INPUT_LINE = re.compile(r"on input line (\d+)")
 MISSING_GLYPH = re.compile(r"^Missing character: There is no .+ in font .+!$")
+# pdfTeX writes these straight after page numbers, mid-line, without a source.
+PDFTEX_WARNING = re.compile(r"pdfTeX warning(?: \([^)]*\))?: .+$")
 PARENTHESIS = re.compile(r"[()]")
 OPENED_FILE = re.compile(
     r'"(?P<quoted>[^"]+)"|(?P<bare>[^()"\s][^()"]*?\.[A-Za-z][A-Za-z0-9]*)(?=[\s()]|$)'
@@ -172,10 +184,9 @@ def parse_log(log: bytes) -> list[Finding]:
     open_files: list[str | None] = []
     index = 0
     while index < len(lines):
-        current = next((name for name in reversed(open_files) if name), None)
-        entry = _parse_entry(lines, index, current)
+        entry = _parse_entry(lines, index, _current_file(open_files))
         if entry is None:
-            _track_files(lines[index], open_files)
+            findings.extend(_read_plain_line(lines[index], open_files))
             index += 1
             continue
         found, next_index = entry
@@ -184,6 +195,23 @@ def parse_log(log: bytes) -> list[Finding]:
         findings.extend(found)
         index = next_index
     return findings
+
+
+def _current_file(open_files: list[str | None]) -> str | None:
+    return next((name for name in reversed(open_files) if name), None)
+
+
+def _read_plain_line(line: str, open_files: list[str | None]) -> list[Finding]:
+    """Track the files a line opens and closes, and report a pdfTeX warning in it."""
+    warning = PDFTEX_WARNING.search(line)
+    if warning is None:
+        _track_files(line, open_files)
+        return []
+    _track_files(line[: warning.start()], open_files)
+    here = _current_file(open_files)
+    # The warning's own parentheses balance; any after them close files.
+    _track_files(line[warning.start() :], open_files)
+    return [Finding(Kind.WARNING, Severity.WARNING, warning.group(), here)]
 
 
 def _parse_entry(
@@ -344,8 +372,15 @@ class LatexmkRun:
     output: str
 
 
+def engine_flags(engine: Engine | None, folder: Path) -> list[str]:
+    """The latexmk option for the engine; none when the folder's latexmkrc decides."""
+    if engine is None and any((folder / name).is_file() for name in LATEXMKRC_NAMES):
+        return []
+    return [ENGINE_FLAGS[engine or DEFAULT_ENGINE]]
+
+
 def run_latexmk(
-    latexmk: str, document: Path, engine: Engine, outdir: Path, timeout_seconds: float
+    latexmk: str, document: Path, engine: Engine | None, outdir: Path, timeout_seconds: float
 ) -> LatexmkRun:
     """Run latexmk to completion or until the timeout, killing its whole process tree.
 
@@ -353,7 +388,8 @@ def run_latexmk(
     """
     command = [
         latexmk,
-        ENGINE_FLAGS[engine],
+        *engine_flags(engine, document.parent),
+        "-g",
         "-interaction=nonstopmode",
         "-halt-on-error",
         "-file-line-error",
@@ -395,18 +431,26 @@ def _run_process_tree(
                 return _communicate_or_kill(process, timeout_seconds, lambda: _terminate_job(job))
         finally:
             _close_handle(job)
-    with subprocess.Popen(
-        command,
-        cwd=cwd,
-        env=env,
-        stdin=nothing,
-        stdout=pipe,
-        stderr=merge,
-        start_new_session=True,
-    ) as process:
-        return _communicate_or_kill(
-            process, timeout_seconds, lambda: os.killpg(process.pid, signal.SIGKILL)
-        )
+    else:
+        with subprocess.Popen(
+            command,
+            cwd=cwd,
+            env=env,
+            stdin=nothing,
+            stdout=pipe,
+            stderr=merge,
+            start_new_session=True,
+        ) as process:
+            return _communicate_or_kill(process, timeout_seconds, lambda: _kill_group(process.pid))
+
+
+if sys.platform != "win32":
+
+    def _kill_group(pid: int) -> None:
+        try:
+            os.killpg(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            return  # the whole group exited between the timeout and the kill
 
 
 def _communicate_or_kill(
@@ -415,7 +459,12 @@ def _communicate_or_kill(
     try:
         output, _ = process.communicate(timeout=timeout_seconds)
     except subprocess.TimeoutExpired:
-        kill_tree()
+        try:
+            kill_tree()
+        except OSError:
+            # Kill latexmk at least, or leaving the with block waits on it for ever.
+            process.kill()
+            raise
         output, _ = process.communicate(timeout=KILL_TIMEOUT_SECONDS)
         return None, output
     return process.returncode, output
@@ -463,7 +512,7 @@ if sys.platform == "win32":
                 process.kill()
                 raise OSError(f"NtResumeProcess failed with status {status:#x}")
         finally:
-            kernel32.CloseHandle(handle)
+            _close_handle(handle)
 
     def _terminate_job(job: int) -> None:
         if not _kernel32().TerminateJobObject(job, 1):
@@ -500,7 +549,7 @@ def assess(
     return findings
 
 
-def format_report(document: Path, engine: Engine, findings: list[Finding], pdf: Path) -> str:
+def format_report(document: Path, engine: str, findings: list[Finding], pdf: Path | None) -> str:
     counts = Counter(findings)
     # A build stopped by an error leaves every later reference and citation
     # undefined, so the error leads and its consequences follow.
@@ -510,7 +559,7 @@ def format_report(document: Path, engine: Engine, findings: list[Finding], pdf: 
     )
     warnings = [finding for finding in counts if finding.severity is Severity.WARNING]
     lines = [f"{document.name} ({engine}): {len(defects)} defects, {len(warnings)} warnings"]
-    if pdf.is_file():
+    if pdf is not None:
         lines.append(f"PDF: {pdf}")
     for heading, group in (("Defects", defects), ("Warnings", warnings)):
         if group:
@@ -536,8 +585,25 @@ def _format_group(group: list[Finding], counts: Counter[Finding]) -> list[str]:
     return lines
 
 
-def _read_bounded(path: Path) -> bytes | None:
+FileState = tuple[int, int] | None
+
+
+def file_state(path: Path) -> FileState:
+    """Modification time and size, or None when the file is absent."""
     if not path.is_file():
+        return None
+    status = path.stat()
+    return status.st_mtime_ns, status.st_size
+
+
+def is_rewritten(path: Path, before: FileState) -> bool:
+    """Whether the run wrote the file, rather than leaving an earlier build's copy."""
+    after = file_state(path)
+    return after is not None and after != before
+
+
+def _read_rewritten(path: Path, before: FileState) -> bytes | None:
+    if not is_rewritten(path, before):
         return None
     with path.open("rb") as handle:
         return handle.read(MAX_LOG_BYTES)
@@ -546,7 +612,12 @@ def _read_bounded(path: Path) -> bytes | None:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else None)
     parser.add_argument("document", type=Path, help="the main .tex file")
-    parser.add_argument("--engine", type=Engine, choices=list(Engine), default=Engine.LUALATEX)
+    parser.add_argument(
+        "--engine",
+        type=Engine,
+        choices=list(Engine),
+        help="default: the folder's latexmkrc, or lualatex without one",
+    )
     parser.add_argument("--outdir", type=Path, default=Path("build"))
     parser.add_argument("--timeout-seconds", type=float, default=DEFAULT_TIMEOUT_SECONDS)
     args = parser.parse_args(argv)
@@ -567,11 +638,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         # Logs quote characters a Windows console code page cannot encode.
         sys.stdout.reconfigure(errors="replace")
     outdir = document.parent / args.outdir
+    flags = engine_flags(args.engine, document.parent)
+    engine_label = str(args.engine or DEFAULT_ENGINE) if flags else "engine from latexmkrc"
+    log_path, bibtex_path, pdf = (outdir / f"{document.stem}{suffix}" for suffix in OUTPUTS)
+    before = {path: file_state(path) for path in (log_path, bibtex_path, pdf)}
     run = run_latexmk(latexmk, document, args.engine, outdir, args.timeout_seconds)
-    log = _read_bounded(outdir / f"{document.stem}.log")
-    bibtex_log = _read_bounded(outdir / f"{document.stem}.blg")
+    log = _read_rewritten(log_path, before[log_path])
+    bibtex_log = _read_rewritten(bibtex_path, before[bibtex_path])
     findings = assess(run, log, bibtex_log, args.timeout_seconds)
-    print(format_report(document, args.engine, findings, outdir / f"{document.stem}.pdf"))
+    written_pdf = pdf if is_rewritten(pdf, before[pdf]) else None
+    print(format_report(document, engine_label, findings, written_pdf))
     return 1 if any(finding.severity is Severity.DEFECT for finding in findings) else 0
 
 
