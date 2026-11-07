@@ -29,4 +29,4 @@ uv run mypy
 uv run pytest
 ```
 
-Tests marked `tex` build real documents and are skipped when latexmk, pdflatex, lualatex, pdftoppm or pdfinfo is not on `PATH`.
+Tests marked `tex` build real documents and are skipped when latexmk, pdflatex, lualatex, pdftoppm or pdfinfo is not on `PATH`, or when latexmk does not start (MiKTeX without a Perl).
