@@ -20,6 +20,9 @@
 \RequirePackage{caption}
 \RequirePackage{titlesec}
 \RequirePackage{csquotes}
+% A float may appear only after the text that defines it, never above it on the
+% same page, so a table cannot open a section that comes before its own.
+\RequirePackage{flafter}
 
 \graphicspath{{build/}}
 
