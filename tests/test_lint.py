@@ -118,6 +118,27 @@ def test_reports_inputs_beyond_a_limit_as_unread(
     assert reason in finding.excerpt
 
 
+def test_follows_an_input_written_without_braces(tmp_path: Path) -> None:
+    write(tmp_path / "chapter.tex", "Pages 3-5.\n")
+    document = write(tmp_path / "main.tex", "\\input chapter\n")
+
+    result = lint.lint(document)
+
+    assert located(result.findings) == Counter({("chapter.tex", 1, "hyphen-range"): 1})
+    assert result.files_read == 2
+
+
+@pytest.mark.tex
+def test_leaves_an_input_from_the_tex_distribution_unread_but_not_missing(
+    tmp_path: Path,
+) -> None:
+    document = write(tmp_path / "main.tex", "\\input{glyphtounicode}\n\\input{absent}\n")
+
+    (finding,) = lint.lint(document).findings
+
+    assert (finding.rule.rule_id, finding.line) == ("unread-input", 2)
+
+
 def test_reads_the_fonts_set_by_a_local_beamer_theme(tmp_path: Path) -> None:
     document = write(
         tmp_path / "main.tex",

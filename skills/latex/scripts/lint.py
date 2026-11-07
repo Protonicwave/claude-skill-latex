@@ -24,7 +24,10 @@ literally. A `$` left open runs to the end of its file, hiding the rest from
 the prose rules; the build reports the error. Arguments are matched to
 balanced braces up to MAX_ARGUMENT_CHARS. Files reached through \import or
 TEXINPUTS are not followed, so floats referred to only from such files are
-reported as unreferenced.
+reported as unreferenced. An input that is not in the document's folder but
+that kpsewhich finds in the TeX distribution, such as glyphtounicode, is not
+followed and not reported; an \input inside a command definition names a file
+only when the command is used, so it is not followed either.
 """
 
 from __future__ import annotations
@@ -33,6 +36,8 @@ import argparse
 import bisect
 import io
 import re
+import shutil
+import subprocess
 import sys
 from collections import Counter
 from collections.abc import Iterable, Sequence
@@ -47,6 +52,7 @@ MAX_ARGUMENT_CHARS = 20_000
 MAX_SHOWN_PER_RULE = 20
 EXCERPT_CONTEXT_CHARS = 30
 MAX_EXCERPT_CHARS = 90
+KPSEWHICH_TIMEOUT_SECONDS = 30
 # Prose rules see maths as a run of letters, so a quote or digit beside an
 # equation is judged as it would be beside a word.
 MATHS_FILLER = "M"
@@ -390,7 +396,7 @@ NOT_NEWLINE = re.compile(r"[^\n]")
 # Arguments that hold keys, paths or settings rather than prose or maths.
 PROSE_ARGUMENT = re.compile(
     r"(?<!\\)\\(?:label|[A-Za-z]*ref(?:range)?|[cC]ite[A-Za-z]*|input|include|subfile"
-    r"|includegraphics|graphicspath|url|href|usepackage|RequirePackage|documentclass"
+    r"|includegraphics|graphicspath|url|path|texttt|href|usepackage|RequirePackage|documentclass"
     r"|bibliography|bibliographystyle|addbibresource|begin|end|lstinputlisting|num|qty|SI|si"
     r"|unit|ang|numrange|qtyrange|SIrange|tablenum|definecolor|color|textcolor|colorbox"
     r"|hypersetup|setlength|setcounter|newcommand|renewcommand|providecommand|newenvironment"
@@ -398,8 +404,9 @@ PROSE_ARGUMENT = re.compile(
     r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont)\*?\s*(?:\[[^\]]*\]\s*)*\{"
 )
 OPTIONAL_ARGUMENT = re.compile(r"(?<!\\)\\[A-Za-z]+\*?\s*(\[[^\]]*\])")
-# A TikZ \foreach list such as {0,...,7} is loop syntax, not prose.
-FOREACH_LIST = re.compile(r"(?<!\\)\\foreach\b[^{}]*?\bin\s*\{")
+# Outside maths, an ellipsis between commas is pgf list syntax, as in a TikZ
+# \foreach list {0,...,7} or a pgfplots key xtick={0,...,10}.
+PGF_LIST_ELLIPSIS = re.compile(r",\s*\.\.\.\s*,")
 # A command definition up to its body; an xparse command has an argument
 # specification in braces between the name and the body.
 DEFINITION = re.compile(
@@ -417,7 +424,10 @@ MATHS_ARGUMENT = re.compile(
 
 BEGIN_DOCUMENT = re.compile(r"\\begin\s*\{document\}")
 DOCUMENT_CLASS = re.compile(r"(?<!\\)\\documentclass\s*(?:\[[^\]]*\])?\s*\{(?P<name>[^{}]+)\}")
-INPUT = re.compile(r"(?<!\\)\\(?:input|include|subfile)\s*\{(?P<name>[^{}]+)\}")
+INPUT = re.compile(
+    r"(?<!\\)(?:\\(?:input|include|subfile)\s*\{(?P<name>[^{}]+)\}"
+    r"|\\input\s+(?P<bare>[\w./-]+))"
+)
 PACKAGE = re.compile(
     r"(?<!\\)\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{(?P<names>[^{}]*)\}"
 )
@@ -439,8 +449,9 @@ LABEL = re.compile(r"(?<!\\)\\label\s*\{(?P<key>[^{}]*)\}")
 TABULAR = re.compile(r"\\begin\{(?:tabular[*xy]?|longtable|tblr)\}")
 CENTER_ENVIRONMENT = re.compile(r"\\begin\{center\}")
 REFERENCE = re.compile(
-    r"(?<!\\)\\(?:[cC]ref|[cC]pageref|ref|eqref|pageref|autoref|vref|nameref|labelcref"
+    r"(?<!\\)(?:\\(?:[cC]ref|[cC]pageref|ref|eqref|pageref|autoref|vref|nameref|labelcref"
     r"|[cC]refrange|[cC]pagerefrange)\*?\s*\{(?P<keys>[^{}]*)\}(?:\s*\{(?P<range_end>[^{}]*)\})?"
+    r"|\\hyperref\s*\[(?P<link_key>[^\]]*)\])"
 )
 FONT_SETUP = re.compile(
     r"\\set(?:main|sans|mono|math)font\b|\\familydefault\b"
@@ -497,7 +508,8 @@ PATTERN_CHECKS = (
     PatternCheck(
         HYPHEN_RANGE,
         View.PROSE,
-        re.compile(r"(?<![\w.-])\d+(?:\.\d+)?-\d+(?:\.\d+)?(?![\w-]|\.\d)"),
+        # A standard's part number, as in ISO 80000-2, follows its body's initials.
+        re.compile(r"(?<![\w.-])(?<![A-Z]{2}[ ~])\d+(?:\.\d+)?-\d+(?:\.\d+)?(?![\w-]|\.\d)"),
     ),
     PatternCheck(
         LETTER_TIMES,
@@ -505,7 +517,10 @@ PATTERN_CHECKS = (
         re.compile(r"(?<![\w.])(?!0x[0-9A-Fa-f])\d+(?:\.\d+)?\s?x\s?\d+(?:\.\d+)?(?!\w|\.\d)"),
     ),
     PatternCheck(
-        STRAIGHT_QUOTE, View.PROSE, re.compile(r"(?:^|(?<=[\s(\[{]))[\"'](?=\w)", re.MULTILINE)
+        STRAIGHT_QUOTE,
+        View.PROSE,
+        # An apostrophe before a digit elides a century, as in '90s.
+        re.compile(r"(?:^|(?<=[\s(\[{]))(?:\"(?=\w)|'(?=[^\W\d]))", re.MULTILINE),
     ),
     PatternCheck(ELLIPSIS, View.PROSE, re.compile(r"(?<!\.)\.\.\.(?!\.)")),
     PatternCheck(ELLIPSIS, View.MATHS, re.compile(r"(?<!\.)\.\.\.(?!\.)")),
@@ -513,7 +528,7 @@ PATTERN_CHECKS = (
         BREAKABLE_REFERENCE,
         View.SOURCE,
         re.compile(
-            r"(?<=[\w.,;:)\]}'$])(?:[ \t]+\n?|\n)[ \t]*"
+            r"(?<=[\w.,;:)\]}'$])(?<!\\item)(?:[ \t]+\n?|\n)[ \t]*"
             r"(?P<at>\\(?:ref|eqref|pageref|cite|citep)(?![A-Za-z]))"
         ),
     ),
@@ -602,7 +617,8 @@ PATTERN_CHECKS = (
         UNIT_BY_HAND,
         View.PROSE,
         re.compile(
-            rf"(?<![\w.{{=-])\d+(?:\.\d+)?(?:[ ~]|\\[,;: ])?(?:{MULTI_LETTER_UNITS}|[KmsgJWVANT])"
+            # A number after an apostrophe is a decade, as in '90s.
+            rf"(?<![\w.{{='-])\d+(?:\.\d+)?(?:[ ~]|\\[,;: ])?(?:{MULTI_LETTER_UNITS}|[KmsgJWVANT])"
             r"(?!\w)"
         ),
     ),
@@ -811,7 +827,7 @@ def make_source(name: str, text: str, *, in_body: bool) -> Source:
     spans = maths_spans(masked)
     prose = _fill(masked, ((span.start, span.end) for span in spans), MATHS_FILLER)
     prose = _fill(prose, _argument_spans(prose, PROSE_ARGUMENT))
-    prose = _fill(prose, _argument_spans(prose, FOREACH_LIST))
+    prose = _fill(prose, (match.span() for match in PGF_LIST_ELLIPSIS.finditer(prose)))
     prose = _fill(prose, (match.span(1) for match in OPTIONAL_ARGUMENT.finditer(prose)))
     maths = _fill(masked, _outside(spans, len(masked)))
     maths = _fill(maths, _argument_spans(maths, MATHS_ARGUMENT))
@@ -882,7 +898,7 @@ def read_document(main: Path) -> Document:
     stack = [(root, 0)]
     while stack:
         source, position = stack.pop()
-        directive = INPUT.search(source.masked, position)
+        directive = INPUT.search(source.outside_definitions, position)
         if directive is None:
             segments.append(Segment(source, position, len(source.masked)))
             continue
@@ -902,9 +918,9 @@ def _read_input(
     folder: Path, parent: Source, directive: re.Match[str], seen: set[Path]
 ) -> Source | Finding | None:
     """Read the file an \\input names, or explain why not; None if it was read already."""
-    name = directive.group("name").strip().strip('"')
+    name = (directive.group("name") or directive.group("bare")).strip().strip('"')
     path = _input_path(folder, name)
-    if path.resolve() in seen:
+    if path.resolve() in seen or (not path.is_file() and _in_distribution(name)):
         return None
     if len(seen) >= MAX_FILES:
         reason = f"not read, the document has more than {MAX_FILES} files"
@@ -916,6 +932,25 @@ def _read_input(
     seen.add(path.resolve())
     in_body = directive.start() >= parent.body_start
     return make_source(_display_name(path, folder), text, in_body=in_body)
+
+
+def _in_distribution(name: str) -> bool:
+    """Whether kpsewhich finds the file in the TeX distribution, as TeX would."""
+    kpsewhich = shutil.which("kpsewhich")
+    if kpsewhich is None:
+        return False
+    candidate = name if name.endswith(".tex") else f"{name}.tex"
+    try:
+        result = subprocess.run(
+            [kpsewhich, candidate],
+            capture_output=True,
+            text=True,
+            timeout=KPSEWHICH_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0 and bool(result.stdout.strip())
 
 
 def _input_path(folder: Path, name: str) -> Path:
@@ -1046,7 +1081,8 @@ def _first_references(document: Document) -> dict[str, Position]:
     for order, segment in enumerate(document.segments):
         masked = segment.source.masked
         for match in REFERENCE.finditer(masked, segment.start, segment.end):
-            keys = f"{match.group('keys')},{match.group('range_end') or ''}".split(",")
+            groups = match.group("keys", "range_end", "link_key")
+            keys = ",".join(group for group in groups if group).split(",")
             for key in (key.strip() for key in keys if key.strip()):
                 first.setdefault(key, (order, match.start()))
     return first

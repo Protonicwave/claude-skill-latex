@@ -9,6 +9,8 @@
 \NewDocumentCommand{\FIXME}{m}
   {\textbf{FIXME: #1}}
 \def\TBD#1{[TBD: #1]}
+% An input inside a definition names a file only when the macro is used.
+\newcommand{\diagram}[1]{\input{figures/#1}}
 
 \begin{document}
 
@@ -45,13 +47,29 @@ with $\operatorname{sinc} x$, $\text{min}$, $\mathrm{e}^{-x}$ and $\int f \, \ma
 \begin{tikzpicture}
   \foreach \k in {0,...,7} {\fill (\k, 0) circle (1pt);}
   \foreach \x/\y [count=\i] in {0/1, ..., 4/5} {\node at (\x, \y) {\i};}
+  \begin{axis}[xtick={0,...,10}]
+  \end{axis}
 \end{tikzpicture}
+
+Standards such as ISO 80000-2 and IEC 60027-1 keep their hyphens, as do
+music of the '90s and code such as \texttt{open("data.csv")}.
+\begin{itemize}
+  \item \cite{a} as the first word of an item.
+\end{itemize}
+The second figure is reached through \hyperref[fig:linked]{a named link}.
 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\linewidth]{plot.pdf}
   \caption{A clean figure.}
   \label{fig:clean}
+\end{figure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{plot.pdf}
+  \caption{A figure referred to by a named link.}
+  \label{fig:linked}
 \end{figure}
 
 \end{document}
