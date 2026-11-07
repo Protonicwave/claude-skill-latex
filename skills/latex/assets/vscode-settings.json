@@ -9,10 +9,8 @@
     {
       "name": "latexmk-rc",
       "command": "latexmk",
-      "args": ["-interaction=nonstopmode", "%DOC%"],
-      "env": {}
+      "args": ["-interaction=nonstopmode", "%DOC%"]
     }
   ],
-  "latex-workshop.latex.outDir": "%DIR%/build",
-  "latex-workshop.linting.chktex.enabled": false
+  "latex-workshop.latex.outDir": "%DIR%/build"
 }
