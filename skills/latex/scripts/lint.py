@@ -435,8 +435,12 @@ PACKAGE = re.compile(
 THEME = re.compile(
     r"(?<!\\)\\use(?P<kind>|color|font|inner|outer)theme\s*(?:\[[^\]]*\])?\s*\{(?P<name>[^{}]+)\}"
 )
+# Built from OBSOLETE_COMMANDS, so a command added there is matched and has a fix.
+OBSOLETE_COMMAND_WORDS = "|".join(
+    name.removeprefix("\\") for name in OBSOLETE_COMMANDS if name.removeprefix("\\").isalpha()
+)
 OBSOLETE_COMMAND_PATTERN = re.compile(
-    r"(?<!\\)(?:\\(?:bf|it|rm|sf|tt|sc|sl|over|atop|centerline|documentstyle)(?![A-Za-z])"
+    rf"(?<!\\)(?:\\(?:{OBSOLETE_COMMAND_WORDS})(?![A-Za-z])"
     r"|\\begin\{eqnarray\*?\}|\$\$[^$]*\$\$)"
 )
 FLOAT = re.compile(
