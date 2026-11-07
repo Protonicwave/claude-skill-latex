@@ -12,7 +12,7 @@ dev = [
     "ruff==0.16.2",
     "vulture==2.14",
 ]
-# Only the specimen scripts in research/ need these; the skill's own scripts use the standard library.
+# Only the scripts in research/ need these; the skill's own scripts use the standard library.
 research = [
     "matplotlib==3.11.2",
     "numpy==2.5.1",

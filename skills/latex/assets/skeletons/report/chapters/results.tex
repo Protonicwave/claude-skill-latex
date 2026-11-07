@@ -1,0 +1,35 @@
+\chapter{Results}
+\label{ch:results}
+
+% Lead with the result, then the evidence for it; every float is referred to before it appears.
+\Cref{fig:period} shows the measured periods with the fit of \cref{eq:period}, and \cref{tab:period} lists them at selected lengths. A least-squares fit of $T = a \sqrt{L}$ gives $a = \qty{2.0061(4)}{\second\metre\tothe{-1/2}}$ and hence $g = 4\pi^2 / a^2 = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value of \qty{9.81}{\metre\per\second\squared}.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/pendulum}
+  \caption{Period against length (a), with the fitted small-angle model, and residuals from the fit (b). Error bars are one standard error.}
+  \label{fig:period}
+\end{figure}
+
+\begin{table}[tbp]
+  \centering
+  \caption{Measured and fitted periods at selected lengths.}
+  \label{tab:period}
+  \begin{tabular}{
+    S[table-format=1.1]
+    S[table-format=1.4(2)]
+    S[table-format=1.4]
+  }
+    \toprule
+    {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+    \midrule
+    0.2 & 0.8983(10) & 0.8972 \\
+    0.4 & 1.2692(10) & 1.2688 \\
+    0.6 & 1.5548(10) & 1.5540 \\
+    0.8 & 1.7937(10) & 1.7943 \\
+    1.0 & 2.0057(10) & 2.0061 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The residuals in panel (b) of \cref{fig:period} scatter about zero with no trend in length. The fit has $\chi^2 = 6.9$ for 8 degrees of freedom, so the quoted timing error accounts for the scatter~\cite{taylor1997}, and the finite amplitude, which lengthens the period by \qty{0.3}{\milli\second} at most, is too small to show.

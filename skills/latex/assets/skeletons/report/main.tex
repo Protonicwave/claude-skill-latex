@@ -1,0 +1,32 @@
+% Report in the Laboratory house style: a project or dissertation report with
+% chapters, one file each. Replace the pendulum with the project and keep the
+% conventions. Build with build.py, which reads latexmkrc.
+\documentclass[11pt]{report}
+\usepackage{laboratory}
+
+\title{Measuring the gravitational acceleration with a simple pendulum}
+\author{Author Name}
+\date{\today}
+% The repository, notebook or data folder behind the report; delete to omit.
+\source{github.com/author/pendulum}
+
+\begin{document}
+
+\maketitle
+
+% Aim, method, main result with its uncertainty, and what it means.
+\begin{abstract}
+This report measures the gravitational acceleration from the period of a simple pendulum timed at nine lengths between \qtylist{0.2;1.0}{\metre}. A least-squares fit of the small-angle period gives $g = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value, and the residuals show no trend with length.
+\end{abstract}
+
+\tableofcontents
+
+\include{chapters/introduction}
+\include{chapters/method}
+\include{chapters/results}
+\include{chapters/conclusions}
+
+\bibliographystyle{apsrev4-2}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,66 @@
+% Slides in the Laboratory house style: 16:9 Beamer with the document faces.
+% One idea per frame, a title that states it, and a figure drawn for the slide.
+% Replace the pendulum with the talk and keep the conventions. Build with
+% build.py, which reads latexmkrc.
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Laboratory}
+
+% Titles become PDF bookmarks, which hold no maths: give a plain-text twin.
+\title{Measuring \texorpdfstring{$g$}{g} with a simple pendulum}
+\author{Author Name}
+\date{\today}
+% The repository, notebook or data folder behind the talk; delete to omit.
+\source{analysis/pendulum.py}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% A frame title is the claim the frame supports, not a topic label.
+\begin{frame}{The period of a small swing depends only on length}
+  \begin{itemize}
+    \item Released from rest at a small angle, a pendulum of length $L$ swings with period
+      \begin{equation*}
+        T = 2\pi \sqrt{L/g}
+      \end{equation*}
+    \item Timing $T$ at several lengths measures $g$ and tests the model~\cite{nelson1986}
+    \item At the \qty{3}{\degree} release used here, the finite amplitude lengthens $T$ by \num{1.7e-4}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The small-angle model fits every length to within the timing error}
+  \includegraphics[width=\linewidth]{figures/pendulum}
+
+  Period against length with the fitted model (a), and residuals from the fit (b), at nine lengths timed to \qty{1}{\milli\second}.
+\end{frame}
+
+\begin{frame}{The fit gives \texorpdfstring{$g$}{g} to four parts in ten thousand}
+  % On a slide a table sits beside its words, so it needs no float, number or reference.
+  \begin{center}
+    \begin{tabular}{
+      S[table-format=1.1]
+      S[table-format=1.4(2)]
+      S[table-format=1.4]
+    }
+      \toprule
+      {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+      \midrule
+      0.2 & 0.8983(10) & 0.8972 \\
+      0.6 & 1.5548(10) & 1.5540 \\
+      1.0 & 2.0057(10) & 2.0061 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \begin{block}{Result}
+    $g = \qty{9.809(4)}{\metre\per\second\squared}$, with $\chi^2 = 6.9$ for 8 degrees of freedom~\cite{taylor1997}
+  \end{block}
+\end{frame}
+
+\begin{frame}{References}
+  \bibliographystyle{apsrev4-2}
+  \bibliography{refs}
+\end{frame}
+
+\end{document}
