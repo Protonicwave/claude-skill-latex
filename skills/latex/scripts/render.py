@@ -9,7 +9,8 @@ written to DIR/<pdf stem>-<page>.png (DIR defaults to `pages` beside the PDF)
 and its path printed.
 
 Exit code 0 means every requested page was written, 1 means pdfinfo or
-pdftoppm failed, 2 means a bad argument or a tool missing from PATH.
+pdftoppm failed, 2 means a bad argument, an unusable output folder or a tool
+missing from PATH.
 """
 
 from __future__ import annotations
@@ -78,7 +79,9 @@ def count_pages(pdfinfo: str, pdf: Path) -> int:
 
 
 def render_page(pdftoppm: str, pdf: Path, page: int, dpi: int, outdir: Path) -> Path:
-    stem = outdir / f"{pdf.stem}-{page}"
+    # pdftoppm appends ".png" to the root it is given, so a stem holding dots
+    # stays whole, which Path.with_suffix would not keep.
+    root = f"{pdf.stem}-{page}"
     subprocess.run(
         [
             pdftoppm,
@@ -92,7 +95,7 @@ def render_page(pdftoppm: str, pdf: Path, page: int, dpi: int, outdir: Path) -> 
             # Names the file exactly, instead of appending a zero-padded page number.
             "-singlefile",
             str(pdf),
-            str(stem),
+            str(outdir / root),
         ],
         capture_output=True,
         check=True,
@@ -100,7 +103,7 @@ def render_page(pdftoppm: str, pdf: Path, page: int, dpi: int, outdir: Path) -> 
         errors="replace",
         timeout=TOOL_TIMEOUT_SECONDS,
     )
-    return stem.with_suffix(".png")
+    return outdir / f"{root}.png"
 
 
 def _dpi(text: str) -> int:
@@ -132,7 +135,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (ValueError, subprocess.SubprocessError) as error:
         return _report_failure(error)
     outdir = args.outdir or pdf.parent / "pages"
-    outdir.mkdir(parents=True, exist_ok=True)
+    try:
+        outdir.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        print(f"cannot use {outdir} as the output folder: {error.strerror}", file=sys.stderr)
+        return 2
     for page in pages:
         try:
             print(render_page(pdftoppm, pdf, page, args.dpi, outdir))

@@ -71,6 +71,28 @@ def test_renders_every_page_beside_the_pdf_by_default(three_page_pdf: Path) -> N
 
 
 @pytest.mark.tex
+def test_prints_the_path_of_each_page_for_a_name_with_dots(
+    three_page_pdf: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    dotted = tmp_path / "thesis-1.0.pdf"
+    dotted.write_bytes(three_page_pdf.read_bytes())
+
+    assert main([str(dotted), "--pages", "2", "--outdir", str(tmp_path / "out")]) == 0
+
+    printed = Path(capsys.readouterr().out.strip())
+    assert printed.name == "thesis-1.0-2.png"
+    assert printed.is_file()
+
+
+@pytest.mark.tex
+def test_rejects_an_output_folder_that_is_a_file(three_page_pdf: Path, tmp_path: Path) -> None:
+    occupied = tmp_path / "pages"
+    occupied.write_text("not a folder", encoding="utf-8")
+
+    assert main([str(three_page_pdf), "--outdir", str(occupied)]) == 2
+
+
+@pytest.mark.tex
 def test_rejects_a_page_past_the_end(three_page_pdf: Path, tmp_path: Path) -> None:
     assert main([str(three_page_pdf), "--pages", "4", "--outdir", str(tmp_path)]) == 2
     assert not list(tmp_path.iterdir())
