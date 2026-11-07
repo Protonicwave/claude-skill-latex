@@ -75,7 +75,7 @@ DIRECTIONS = {
         guide_colour="#8C8C8C",
     ),
     "laboratory": Direction(
-        text_width_mm=150,
+        text_width_mm=160,
         font_family="sans-serif",
         preamble="\n".join(
             [
