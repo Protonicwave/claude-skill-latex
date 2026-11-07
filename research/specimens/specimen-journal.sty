@@ -1,0 +1,68 @@
+% Direction A, Journal: STIX Two text and maths, monochrome, hanging section numbers.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{specimen-journal}[2026/11/07 Journal specimen direction]
+
+\RequirePackage{specimen-base}
+\RequirePackage[a4paper, textwidth=122mm, textheight=232mm, top=32mm, hcentering]{geometry}
+
+\setmainfont{STIXTwoText}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-SemiBold,
+  ItalicFont = *-Italic,
+  BoldItalicFont = *-SemiBoldItalic,
+]
+\setmathfont{STIXTwoMath-Regular.otf}
+\setmonofont{IBMPlexMono}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-SemiBold,
+  ItalicFont = *-Italic,
+  Scale = MatchLowercase,
+]
+
+\definecolor{ink}{HTML}{1B2633}
+\definecolor{rulegrey}{gray}{0.55}
+
+% Section numbers hang in the left margin so every heading starts on the text edge.
+\titleformat{\section}{\normalfont\large\bfseries}{\llap{\thesection\hspace{0.9em}}}{0pt}{}
+\titleformat{\subsection}{\normalfont\itshape}{\llap{\thesubsection\hspace{0.9em}}}{0pt}{}
+\titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.6\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.4\baselineskip}
+
+\captionsetup{font=small, labelfont=bf, labelsep=period, justification=justified, singlelinecheck=false}
+\captionsetup[table]{position=top, skip=6pt}
+
+\lstset{
+  basicstyle = \ttfamily\small,
+  keywordstyle = \bfseries,
+  commentstyle = \itshape\color{rulegrey},
+  frame = lines,
+  rulecolor = \color{rulegrey},
+  framerule = 0.4pt,
+  numbers = left,
+  numberstyle = \footnotesize\color{rulegrey},
+  numbersep = 0.9em,
+  xleftmargin = 0pt,
+}
+
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begingroup
+  \raggedright
+  {\fontsize{19}{23}\selectfont \@title\par}
+  \vspace{0.9\baselineskip}
+  {\scshape\@author\par}
+  {\small\@date\par}
+  \vspace{1.4\baselineskip}
+  \endgroup
+}
+\makeatother
+
+\renewenvironment{abstract}{%
+  \small
+  \list{}{\leftmargin=0pt \rightmargin=2.5em}%
+  \item\relax\textbf{Abstract.}\enspace\ignorespaces
+}{\endlist\vspace{0.6\baselineskip}}
+
+\specimenlinks{ink}

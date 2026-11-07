@@ -1,0 +1,107 @@
+% Shared body of the house-style specimens. Each specimen-<direction>.tex sets the
+% style and inputs this file, so the three directions differ only in design.
+
+\title{Metropolis sampling of the two-dimensional Ising model near its critical point}
+\author{Shlok Bhusal}
+\date{7 November 2026}
+\newcommand{\specimensource}{research/specimens/simulate.py}
+
+\maketitle
+
+\begin{abstract}
+We simulated the ferromagnetic Ising model on a $32 \times 32$ square lattice with periodic boundaries, using single-spin Metropolis updates at 19 temperatures between 1.6 and $3.4\,J/k_\mathrm{B}$. Below the critical temperature the mean absolute magnetisation per spin agrees with the exact spontaneous magnetisation to within 0.7 standard errors at all seven temperatures tested, for example \num{0.95681(15)} against \num{0.95686} at $T = 1.8\,J/k_\mathrm{B}$. The susceptibility peaks at $T = 2.3\,J/k_\mathrm{B}$, the grid point nearest the exact critical temperature of $2.269\,J/k_\mathrm{B}$. For the same number of sweeps, the standard error of the magnetisation there is 190 times larger than at $T = 1.6\,J/k_\mathrm{B}$.
+\end{abstract}
+
+\section{Introduction}
+
+A square lattice of spins that each point up or down, coupled only to their four nearest neighbours, orders spontaneously below a finite temperature. Onsager's exact solution of this two-dimensional Ising model placed the transition at $k_\mathrm{B} T_\mathrm{c} / J = 2 / \ln(1 + \sqrt{2}) \approx 2.269$~\cite{onsager1944}, and Yang later derived the spontaneous magnetisation below it~\cite{yang1952}. Those two results make the model the standard test for a Monte Carlo code, because a simulation can be checked against an exact answer at every temperature.
+
+The Metropolis algorithm samples configurations with Boltzmann weights by proposing single-spin flips and accepting each with a probability set by the change in energy~\cite{metropolis1953}. Near $T_\mathrm{c}$ its successive configurations become strongly correlated, an effect called critical slowing down, so each independent measurement costs more sweeps of the lattice. Swendsen and Wang~\cite{swendsen1987} and later Wolff~\cite{wolff1989} reduced that cost by flipping whole clusters of aligned spins at once. This report measures both the accuracy and the cost of single-spin updates on a lattice of 1024 spins. \Cref{sec:method} sets out the model and the sampler, \cref{sec:results} gives the results and \cref{sec:discussion} discusses them.
+
+\section{Model and method}
+\label{sec:method}
+
+The energy of a configuration of spins $s_i \in \{-1, +1\}$ is
+\begin{equation}
+  E = -J \sum_{\langle ij \rangle} s_i s_j ,
+  \label{eq:hamiltonian}
+\end{equation}
+where the sum runs over nearest-neighbour pairs and $J > 0$ is the coupling energy. We set $J = k_\mathrm{B} = 1$, so temperatures are in units of $J/k_\mathrm{B}$. A Markov chain samples the Boltzmann distribution $P(a) \propto \mathrm{e}^{-\beta E_a}$, with $\beta = 1/T$, if its transition probabilities $W$ satisfy detailed balance,
+\begin{equation}
+  P(a)\, W(a \to b) = P(b)\, W(b \to a) .
+  \label{eq:balance}
+\end{equation}
+The Metropolis choice accepts a proposed move with probability
+\begin{equation}
+  W(a \to b) = \min\bigl(1, \mathrm{e}^{-\beta \Delta E}\bigr), \qquad \Delta E = E_b - E_a ,
+  \label{eq:metropolis}
+\end{equation}
+which satisfies \cref{eq:balance} because the ratio of the forward and reverse acceptance probabilities is $\mathrm{e}^{-\beta \Delta E}$ whatever the sign of $\Delta E$. Flipping spin $i$ changes the energy by
+\begin{equation}
+  \Delta E_i = 2 J s_i \sum_{j \in \mathrm{nn}(i)} s_j ,
+  \label{eq:flip}
+\end{equation}
+which takes one of five values between $-8J$ and $8J$. A flip that aligns a spin with most of its neighbours lowers the energy and is always accepted; a flip against all four neighbours costs $8J$ and is accepted with probability $\mathrm{e}^{-8\beta}$, about \num{1.2e-2} at $T = 1.8$.
+
+\subsection{Implementation}
+
+Sites with $i + j$ even have neighbours only on sites with $i + j$ odd, so each half of the lattice can be updated in parallel with \cref{eq:metropolis} while the other half is held fixed. \Cref{lst:sweep} shows the resulting sweep, which attempts one flip per spin. The run started with every spin up at $T = 1.6$ and raised the temperature in steps of $0.1$, with 2000 sweeps of thermalisation and then 20\,000 sweeps of measurement at each temperature. After every sweep we recorded the absolute magnetisation per spin, $|m| = |\sum_i s_i| / N$ with $N = 1024$.\footnote{The absolute value is needed because on a finite lattice the magnetisation reverses sign over a long run, so $\langle m \rangle$ averages towards zero at every temperature.} The susceptibility per spin follows from its fluctuations,
+\begin{equation}
+  \chi = \beta N \bigl( \langle m^2 \rangle - \langle |m| \rangle^2 \bigr) .
+  \label{eq:susceptibility}
+\end{equation}
+Errors come from dividing each series into 20 blocks of 1000 sweeps: the standard error of the block means for $\langle |m| \rangle$, and a jackknife over the same blocks for $\chi$. The random seed was \num{20261107}.
+
+\begin{lstlisting}[caption={One Metropolis sweep over both halves of the checkerboard.}, label=lst:sweep]
+def sweep(spins, beta, masks, rng):
+    for mask in masks:
+        energy_change = 2 * spins * neighbour_sum(spins)
+        boltzmann = np.exp(-beta * energy_change)
+        accept = rng.random(spins.shape) < boltzmann
+        spins[mask & accept] *= -1
+\end{lstlisting}
+
+\section{Results}
+\label{sec:results}
+
+\Cref{fig:magnetisation} shows the magnetisation falling from \num{0.980} at $T = 1.6$ to \num{0.065} at $T = 3.4$, most steeply between 2.2 and 2.4, and the susceptibility rising to a peak of \num{18.3(12)} at $T = 2.3$. \Cref{tab:results} compares the simulated magnetisation with Yang's exact result. Below $T_\mathrm{c}$ the two agree to within 0.7 standard errors at every one of the seven temperatures.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{magnetisation-\specimendirection}
+  \caption{Mean absolute magnetisation per spin (a) and susceptibility per spin (b) against temperature for a $32 \times 32$ lattice, from 20\,000 Metropolis sweeps per point. The line in (a) is the exact spontaneous magnetisation of the infinite lattice~\cite{yang1952}; the dashed line marks $T_\mathrm{c}$. Error bars smaller than the markers are hidden by them.}
+  \label{fig:magnetisation}
+\end{figure}
+
+\begin{table}[tbp]
+  \centering
+  \caption{Simulated magnetisation and susceptibility per spin at selected temperatures, with the exact spontaneous magnetisation of the infinite lattice, which is zero above $T_\mathrm{c}$.}
+  \label{tab:results}
+  \begin{tabular}{
+    S[table-format=1.1]
+    S[table-format=1.5(3)]
+    S[table-format=1.5]
+    S[table-format=2.4(3)]
+  }
+    \toprule
+    {\head{$T$ ($J/k_\mathrm{B}$)}} & {\head{$\langle |m| \rangle$}} & {\head{Exact $M$}} & {\head{$\chi$}} \\
+    \midrule
+    1.8 & 0.95681(15) & 0.95686 & 0.1148(30) \\
+    2.0 & 0.9113(6)   & 0.91132 & 0.387(25)  \\
+    2.2 & 0.782(4)    & 0.78476 & 4.4(7)     \\
+    2.3 & 0.564(12)   & 0       & 18.3(12)   \\
+    2.4 & 0.305(12)   & 0       & 15.2(5)    \\
+    2.8 & 0.1068(9)   & 0       & 2.32(5)    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Discussion}
+\label{sec:discussion}
+
+The agreement below $T_\mathrm{c}$ shows that the sampler draws from the right distribution, and that 32 spins along each side are already enough for the ordered phase: the finite lattice shifts the magnetisation by less than the statistical error at every temperature up to 2.2. Above $T_\mathrm{c}$ the finite lattice keeps $\langle |m| \rangle$ well above zero. Uncorrelated spins would give $\sqrt{2/\pi N} = 0.025$, so the value of 0.065 at $T = 3.4$ measures the short-range order that survives above the transition. The susceptibility peak sits at the grid point nearest $T_\mathrm{c}$, but a grid spacing of 0.1 cannot resolve the shift of the peak that a finite lattice produces.
+
+The cost of single-spin updates shows in the errors. With the same 20\,000 sweeps, the standard error of $\langle |m| \rangle$ grows from \num{6.4e-5} at $T = 1.6$ to \num{1.2e-2} at $T = 2.3$, a factor of 190. Part of that factor is the larger fluctuation of $|m|$ near the transition and part is the longer correlation time, and this run did not separate the two. It also did not measure the integrated autocorrelation time, so near $T_\mathrm{c}$ the blocks of 1000 sweeps may not be much longer than the time over which configurations stay correlated. If they are not, the errors quoted at $T = 2.3$ and $2.4$ are underestimates, and a repeat with longer blocks is the check that would settle it.
+
+\bibliographystyle{apsrev4-2}
+\bibliography{refs}

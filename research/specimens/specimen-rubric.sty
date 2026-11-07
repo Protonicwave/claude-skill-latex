@@ -1,0 +1,78 @@
+% Direction B, Rubric: Pagella text with Euler maths, old-style figures, red used
+% the way early printers used it, for numbers and labels that guide the eye.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{specimen-rubric}[2026/11/07 Rubric specimen direction]
+
+\RequirePackage{specimen-base}
+\RequirePackage[a4paper, textwidth=130mm, textheight=230mm, top=32mm, hcentering]{geometry}
+
+\setmainfont{texgyrepagella}[
+  Extension = .otf,
+  UprightFont = *-regular,
+  BoldFont = *-bold,
+  ItalicFont = *-italic,
+  BoldItalicFont = *-bolditalic,
+  Numbers = OldStyle,
+]
+\setmathfont{Euler-Math.otf}
+\setmonofont{IBMPlexMono}[
+  Extension = .otf,
+  UprightFont = *-Regular,
+  BoldFont = *-SemiBold,
+  ItalicFont = *-Italic,
+  Scale = MatchLowercase,
+]
+
+\definecolor{rubric}{HTML}{A3301F}
+\definecolor{rulegrey}{gray}{0.5}
+
+\newcommand{\spacedcaps}[1]{{\addfontfeatures{LetterSpace=6}\scshape #1}}
+
+% Tables compare numbers down a column, so they switch to lining, equal-width figures.
+% siunitx would otherwise reselect the main family and restore old-style figures.
+\AddToHook{env/tabular/begin}{%
+  \addfontfeatures{Numbers={Lining,Monospaced}}%
+  \sisetup{reset-text-family = false}%
+}
+\sisetup{mode = text}
+
+\titleformat{\section}{\normalfont\large}{\color{rubric}\thesection}{0.8em}{\spacedcaps}
+\titleformat{\subsection}{\normalfont\itshape}{\color{rubric}\thesubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{1.7\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.7\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.4\baselineskip}
+
+\DeclareCaptionLabelFormat{rubric}{\textcolor{rubric}{\spacedcaps{\MakeLowercase{#1}}~#2}}
+\captionsetup{font=small, labelformat=rubric, labelsep=quad, justification=justified, singlelinecheck=false}
+\captionsetup[table]{position=top, skip=6pt}
+
+\lstset{
+  basicstyle = \ttfamily\small,
+  keywordstyle = \color{rubric},
+  commentstyle = \itshape\color{rulegrey},
+  frame = none,
+  numbers = left,
+  numberstyle = \footnotesize\color{rulegrey},
+  numbersep = 1em,
+  xleftmargin = 0pt,
+}
+
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begingroup
+  \centering
+  {\Large\spacedcaps{\@title}\par}
+  \vspace{1.1\baselineskip}
+  {\itshape\@author\par}
+  {\small\@date\par}
+  \vspace{1.6\baselineskip}
+  \endgroup
+}
+\makeatother
+
+\renewenvironment{abstract}{%
+  \small
+  \begin{center}\textcolor{rubric}{\spacedcaps{abstract}}\end{center}\vspace{-0.6\baselineskip}
+  \list{}{\leftmargin=2.5em \rightmargin=2.5em}\item\relax
+}{\endlist\vspace{0.8\baselineskip}}
+
+\specimenlinks{rubric}

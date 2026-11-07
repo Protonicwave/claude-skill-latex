@@ -1,0 +1,66 @@
+% Packages every specimen direction shares. Design choices live in the direction files.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{specimen-base}[2026/11/07 Shared specimen setup]
+
+\RequirePackage{iftex}
+\RequireLuaTeX
+
+\RequirePackage[british]{babel}
+\RequirePackage{amsmath}
+\RequirePackage{mathtools}
+\RequirePackage{fontspec}
+\RequirePackage{unicode-math}
+\RequirePackage{microtype}
+\RequirePackage{xcolor}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{siunitx}
+\RequirePackage[numbers,sort&compress]{natbib}
+\RequirePackage{listings}
+\RequirePackage{caption}
+\RequirePackage{titlesec}
+\RequirePackage{csquotes}
+
+\graphicspath{{build/}}
+
+% LaTeX's defaults send any float taller than about half a page to a page of its
+% own; these let a figure and a table share a page with text.
+\setcounter{topnumber}{3}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.5}
+\renewcommand{\textfraction}{0.15}
+\renewcommand{\floatpagefraction}{0.75}
+
+% A third pass of line breaking with extra stretch, so a tight paragraph loosens
+% slightly rather than leaving a line in the margin.
+\setlength{\emergencystretch}{1.5em}
+
+% A proper name the British patterns do not break.
+\babelhyphenation[british]{Boltz-mann}
+
+% Table column headings; a direction may restyle them.
+\newcommand{\head}[1]{#1}
+
+\sisetup{
+  separate-uncertainty = false,
+  group-minimum-digits = 5,
+}
+
+\lstset{
+  language = Python,
+  columns = fullflexible,
+  keepspaces = true,
+  showstringspaces = false,
+  aboveskip = \medskipamount,
+  belowskip = \medskipamount,
+}
+
+% hyperref and cleveref come last; each direction loads them through this command
+% after setting its own colours.
+\newcommand{\specimenlinks}[1]{%
+  \RequirePackage{hyperref}%
+  \hypersetup{colorlinks = true, allcolors = #1, pdfborder = {0 0 0}}%
+  \RequirePackage[capitalise, noabbrev]{cleveref}%
+  \crefname{lstlisting}{Listing}{Listings}%
+  \Crefname{lstlisting}{Listing}{Listings}%
+}
