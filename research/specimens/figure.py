@@ -75,7 +75,7 @@ DIRECTIONS = {
         guide_colour="#8C8C8C",
     ),
     "laboratory": Direction(
-        text_width_mm=124,
+        text_width_mm=140,
         font_family="sans-serif",
         preamble="\n".join(
             [
@@ -86,6 +86,10 @@ DIRECTIONS = {
                 r"\setsansfont{SourceSans3}[Extension=.otf,UprightFont=*-Regular,"
                 r"ItalicFont=*-RegularIt]",
                 r"\setmathfont{Erewhon-Math.otf}[Scale=0.95]",
+                # The same tightened maths slash as specimen-laboratory.sty.
+                r"\AtBeginDocument{\Umathcharnumdef\erewhonslash=\Umathcodenum`\/\relax"
+                r"\begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}"
+                r"{\mkern-2mu\erewhonslash\mkern-2mu}\mathcode`\/=" + '"8000\\relax}',
                 PLEX_MONO,
             ]
         ),

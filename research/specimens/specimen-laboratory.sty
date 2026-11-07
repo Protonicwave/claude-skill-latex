@@ -4,7 +4,7 @@
 \ProvidesPackage{specimen-laboratory}[2026/11/07 Laboratory specimen direction]
 
 \RequirePackage{specimen-base}
-\RequirePackage[a4paper, textwidth=124mm, textheight=228mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
+\RequirePackage[a4paper, textwidth=140mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
 \RequirePackage{fancyhdr}
 \RequirePackage{tabularx}
 
@@ -17,6 +17,14 @@
   Scale = 0.95,
 ]
 \setmathfont{Erewhon-Math.otf}[Scale = 0.95]
+
+% Erewhon Math's solidus carries wide side-bearings, so J/k reads as "J / k".
+% Every maths slash is pulled in by 2 mu on each side; text slashes are untouched.
+\AtBeginDocument{%
+  \Umathcharnumdef\erewhonslash=\Umathcodenum`\/\relax
+  \begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\erewhonslash\mkern-2mu}%
+  \mathcode`\/="8000\relax
+}
 \setsansfont{SourceSans3}[
   Extension = .otf,
   UprightFont = *-Regular,
