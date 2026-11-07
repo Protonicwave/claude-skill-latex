@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\setmainfont{Erewhon}
+\usepackage[a4paper, margin=25mm]{geometry}
+\usepackage{amsmath, booktabs, graphicx, listings, verbatim, cleveref, siunitx}
+% \usepackage{a4wide} and {\bf bold} and \sloppy in a comment
+
+\begin{document}
+
+% Commented: {\bf x}, $$ y $$, "quoted", 3-5, 32 x 32, ..., TODO, \vspace{1em}
+A line break then a comment.\\% {\bf hidden} "quoted"
+A per cent sign 50\% stays text, as do ``proper'' and `single' quotes.
+Ranges 3--5, a $32 \times 32$ lattice, an ellipsis \dots{} and \qty{5}{\centi\metre}.
+See \cref{fig:clean} and Figure~\ref{fig:clean}, cited together~\cite{a,b}.
+A label key may hold anything: \label{sec:1-2...}.
+Visit \url{https://example.org/a-1-2/"x"...}.
+
+\verb|{\bf x} "q" 3-5 ...| and \lstinline{$$ TODO $$} and \verb*!\sloppy!.
+
+\begin{verbatim}
+{\bf x} $$ y $$ "quoted" 3-5 32 x 32 ... TODO \vspace{1em}
+\begin{figure}[h]
+\end{verbatim}
+
+\begin{lstlisting}[caption={Code}]
+x = "string" ... 3-5 # TODO
+\end{lstlisting}
+
+\begin{comment}
+\begin{figure}[H] {\bf x} TODO
+\end{comment}
+
+The phase $\phi = \sin(\omega t)$ at $T_\mathrm{max}$ and $T_{\mathrm{max}}$,
+with $\operatorname{sinc} x$, $\text{min}$, $\mathrm{e}^{-x}$ and $\int f \, \mathrm{d}x$.
+\begin{equation}
+  W = \min\bigl(1, \mathrm{e}^{-\beta \Delta E}\bigr)
+  \label{eq:max-exp}
+\end{equation}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{plot.pdf}
+  \caption{A clean figure.}
+  \label{fig:clean}
+\end{figure}
+
+\end{document}

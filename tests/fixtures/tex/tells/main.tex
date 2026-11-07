@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\setmainfont{Erewhon}
+\usepackage[a4paper, margin=25mm]{geometry}
+\usepackage{amsmath, booktabs, graphicx, xcolor, cleveref}
+\sloppy % lint: sloppy
+
+\begin{document}
+
+\Cref{fig:here,fig:fixed,tab:grid} show the results.
+
+\vspace{2em} % lint: manual-layout
+\noindent A paragraph set flush by hand. % lint: manual-layout
+
+\begin{figure}[h] % lint: forced-float-placement
+  \centering
+  \includegraphics[width=8cm]{plot.pdf} % lint: fixed-figure-width
+  \caption{A forced figure.}
+  \label{fig:here}
+\end{figure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\linewidth]{photo.png} % lint: raster-figure
+  \caption{A bitmap.}
+  \label{fig:fixed}
+\end{figure}
+
+\begin{table}[tbp]
+  \centering
+  \begin{tabular}{|l|r|} % lint: ruled-table
+    \hline % lint: ruled-table
+    a & b \\
+  \end{tabular}
+  \caption{A grid.} % lint: table-caption-below
+  \label{tab:grid}
+\end{table}
+
+The ratio $\frac{a}{b}$ sits in the line. % lint: inline-fraction
+\underline{Important} words. % lint: underline
+\textcolor{red}{Alarming} words. % lint: named-colour
+The rate is 5 cm per second. % lint: unit-by-hand
+\begin{equation}
+  Z = \int \mathrm{e}^{-x} \, dx % lint: italic-differential
+\end{equation}
+\begin{equation}
+  P = e^{-\beta E} % lint: italic-constant-e
+\end{equation}
+
+\begin{figure}[tbp] % lint: float-before-reference
+  \centering
+  \includegraphics[width=\linewidth]{late.pdf}
+  \caption{Placed before its first mention.}
+  \label{fig:early}
+\end{figure}
+
+\Cref{fig:early} comes after its float.
+
+\end{document}

@@ -1,0 +1,19 @@
+\documentclass[aps, prb]{revtex4-2} % suppressed: default-typeface, default-margins
+\usepackage{graphicx, xcolor}
+
+\begin{document}
+
+Table~\ref{tab:grid} lists the values.
+
+\begin{table}[tbp]
+  \begin{tabular}{|l|r|} % suppressed: ruled-table
+    a & b \\
+  \end{tabular}
+  \caption{A grid.} % suppressed: table-caption-below
+  \label{tab:grid}
+\end{table}
+
+\textcolor{red}{Alarming} words. % suppressed: named-colour
+A range 3-5 is still wrong. % lint: hyphen-range
+
+\end{document}
