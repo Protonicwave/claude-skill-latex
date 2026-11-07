@@ -1,0 +1,152 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.10.15)  7 NOV 2026 16:20
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**./warnings-pdflatex.tex
+(warnings-pdflatex.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-09-09>
+(C:\Users\Shlok\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\Shlok\AppData\Local\Programs\MiKTeX\tex/latex/base\size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen150
+)
+(C:\Users\Shlok\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(C:\Users\Shlok\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\l3backend-pdft
+ex.def
+File: l3backend-pdftex.def 2026-09-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count284
+)
+(C:\Users\Shlok\AppData\Local\Temp\latex-fixtures\build\warnings-pdflatex.aux
+
+LaTeX Warning: Label `sec:intro' multiply defined.
+
+)
+\openout1 = `warnings-pdflatex.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+
+
+LaTeX Warning: Reference `fig:missing' on page 1 undefined on input line 6.
+
+
+LaTeX Warning: Citation `nobody2020' on page 1 undefined on input line 6.
+
+
+Overfull \hbox (145.10562pt too wide) detected at line 8
+\T1/cmr/m/n/10.95 This text is far too wide for the box it sits in
+ []
+
+
+Overfull \hbox (57.5566pt too wide) in paragraph at lines 11--12
+[]\T1/cmr/m/n/10.95 Incomprehensibilities
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--12
+\T1/cmr/m/n/10.95 char-ac-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--12
+\T1/cmr/m/n/10.95 ter-i-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--12
+\T1/cmr/m/n/10.95 sa-tion
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--12
+\T1/cmr/m/n/10.95 ther-mo-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--12
+\T1/cmr/m/n/10.95 dy-nam-i-
+ []
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 12.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 12.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 12.
+
+LaTeX Font Warning: Font shape `T1/cmr/ub/n' undefined
+(Font)              using `T1/cmr/b/n' instead on input line 14.
+
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 1
+6.
+(C:\Users\Shlok\AppData\Local\Programs\MiKTeX\tex/latex/base\omlcmr.fd
+File: omlcmr.fd 2024/11/19 v2.5n Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 16.
+
+Missing character: There is no È in font cmmi10!
+[1
+
+{C:/Users/Shlok/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+(C:\Users\Shlok\AppData\Local\Temp\latex-fixtures\build\warnings-pdflatex.aux)
+ ***********
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-09-09>
+ ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 707 strings out of 467392
+ 11393 string characters out of 5405638
+ 440370 words of memory out of 5000000
+ 30127 multiletter control sequences out of 15000+600000
+ 635107 words of font info for 54 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 35i,5n,38p,160b,124s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\Shlok\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrb
+1095.pk> <C:\Users\Shlok\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\ecbx1095.pk> <C:\Users\Shlok\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ecrm1095.pk> <C:\Users\Shlok\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\ecbx1440.pk>
+Output written on C:\Users\Shlok\AppData\Local\Temp\latex-fixtures\build\warnin
+gs-pdflatex.pdf (1 page, 22123 bytes).
+PDF statistics:
+ 83 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

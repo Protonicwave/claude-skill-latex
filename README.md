@@ -10,4 +10,7 @@ Requires Python 3.12 or later, [uv](https://docs.astral.sh/uv/) and a TeX distri
 uv sync
 uv run ruff check . && uv run ruff format --check .
 uv run mypy
+uv run pytest
 ```
+
+Tests marked `tex` build real documents and are skipped when latexmk, pdflatex, lualatex, pdftoppm or pdfinfo is not on `PATH`.
