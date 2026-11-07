@@ -398,6 +398,16 @@ PROSE_ARGUMENT = re.compile(
     r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont)\*?\s*(?:\[[^\]]*\]\s*)*\{"
 )
 OPTIONAL_ARGUMENT = re.compile(r"(?<!\\)\\[A-Za-z]+\*?\s*(\[[^\]]*\])")
+# A TikZ \foreach list such as {0,...,7} is loop syntax, not prose.
+FOREACH_LIST = re.compile(r"(?<!\\)\\foreach\b[^{}]*?\bin\s*\{")
+# A command definition up to its body; an xparse command has an argument
+# specification in braces between the name and the body.
+DEFINITION = re.compile(
+    r"(?<!\\)\\(?:(?:re|provide)?newcommand\*?"
+    r"|(?P<xparse>(?:New|Renew|Provide|Declare)DocumentCommand)|[egx]?def(?=\s*\\))"
+    r"\s*(?:\{\s*\\[A-Za-z@]+\s*\}|\\[A-Za-z@]+)"
+)
+BEFORE_DEFINITION_BODY = re.compile(r"(?:\s|\[[^\]]*\]|#\d)*\{")
 # Arguments inside maths that hold upright text, keys or units.
 MATHS_ARGUMENT = re.compile(
     r"(?<!\\)\\(?:text[A-Za-z]*|math(?:rm|it|sf|tt|bf|cal|bb|frak|scr|normal)|operatorname"
@@ -445,6 +455,9 @@ MARGIN_SETUP = re.compile(
 
 class View(StrEnum):
     SOURCE = "source"
+    # The source with command definitions blanked, so a macro that marks a gap
+    # is judged where it is used, not where it is defined.
+    OUTSIDE_DEFINITIONS = "outside definitions"
     PROSE = "prose"
     MATHS = "maths"
     INLINE_MATHS = "inline maths"
@@ -524,7 +537,7 @@ PATTERN_CHECKS = (
     ),
     PatternCheck(
         LEFTOVER_PLACEHOLDER,
-        View.SOURCE,
+        View.OUTSIDE_DEFINITIONS,
         re.compile(
             r"(?<!\\)\\(?:todo|lipsum|blindtext|Blindtext|missingfigure)(?![A-Za-z])"
             r"|\b(?:TODO|FIXME|XXX|TBD)\b|\?\?\?|(?i:lorem ipsum)"
@@ -612,6 +625,7 @@ class Source:
 
     name: str
     masked: str
+    outside_definitions: str
     prose: str
     maths: str
     inline_maths: str
@@ -622,6 +636,8 @@ class Source:
         match which:
             case View.SOURCE:
                 return self.masked
+            case View.OUTSIDE_DEFINITIONS:
+                return self.outside_definitions
             case View.PROSE:
                 return self.prose
             case View.MATHS:
@@ -759,6 +775,21 @@ def _argument_spans(text: str, command: re.Pattern[str]) -> list[tuple[int, int]
     return spans
 
 
+def _definition_spans(text: str) -> list[tuple[int, int]]:
+    """Spans of command definitions, from the defining command to the end of the body."""
+    spans = []
+    for match in DEFINITION.finditer(text):
+        end = match.end()
+        for _ in range(2 if match.group("xparse") else 1):
+            opening = BEFORE_DEFINITION_BODY.match(text, end)
+            close = None if opening is None else _closing_brace(text, opening.end() - 1)
+            if close is None:
+                break
+            end = close + 1
+        spans.append((match.start(), end))
+    return spans
+
+
 def _outside(spans: Sequence[MathsSpan], length: int) -> list[tuple[int, int]]:
     gaps = []
     position = 0
@@ -780,6 +811,7 @@ def make_source(name: str, text: str, *, in_body: bool) -> Source:
     spans = maths_spans(masked)
     prose = _fill(masked, ((span.start, span.end) for span in spans), MATHS_FILLER)
     prose = _fill(prose, _argument_spans(prose, PROSE_ARGUMENT))
+    prose = _fill(prose, _argument_spans(prose, FOREACH_LIST))
     prose = _fill(prose, (match.span(1) for match in OPTIONAL_ARGUMENT.finditer(prose)))
     maths = _fill(masked, _outside(spans, len(masked)))
     maths = _fill(maths, _argument_spans(maths, MATHS_ARGUMENT))
@@ -794,6 +826,7 @@ def make_source(name: str, text: str, *, in_body: bool) -> Source:
     return Source(
         name=name,
         masked=masked,
+        outside_definitions=_fill(masked, _definition_spans(masked)),
         prose=prose,
         maths=maths,
         inline_maths=_fill(maths, _outside(inline, len(maths))),

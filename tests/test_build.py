@@ -2,9 +2,26 @@ import shutil
 from pathlib import Path
 
 import pytest
-from build import Finding, Kind, Severity, main, parse_bibtex_log, parse_log, unwrap
+from build import (
+    Engine,
+    Finding,
+    Kind,
+    LatexmkRun,
+    Severity,
+    assess,
+    format_report,
+    main,
+    parse_bibtex_log,
+    parse_log,
+    unwrap,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "logs"
+# What MiKTeX's latexmk prints, and all it prints, when no Perl is on PATH.
+MIKTEX_WITHOUT_PERL = (
+    "Sorry, but latexmk did not succeed for the following reason:\n\n"
+    "  MiKTeX could not find the script engine 'perl' which is required to execute 'latexmk'.\n"
+)
 
 
 def read_fixture(name: str) -> list[Finding]:
@@ -143,6 +160,24 @@ def test_keeps_a_message_that_starts_straight_after_a_full_line() -> None:
 
 def test_finds_nothing_in_an_empty_log() -> None:
     assert parse_log(b"") == []
+
+
+def test_says_why_latexmk_wrote_no_log() -> None:
+    findings = assess(LatexmkRun(1, MIKTEX_WITHOUT_PERL), None, None, timeout_seconds=600)
+
+    assert [finding.kind for finding in findings] == [Kind.BUILD]
+    assert "could not find the script engine 'perl'" in findings[0].message
+
+
+def test_reports_an_error_before_the_references_it_left_undefined(tmp_path: Path) -> None:
+    findings = [
+        Finding(Kind.UNDEFINED_CITATION, Severity.DEFECT, "Citation `a' undefined", "main.tex", 3),
+        Finding(Kind.ERROR, Severity.DEFECT, "File `plot.pdf' not found", "main.tex", 9),
+    ]
+
+    report = format_report(tmp_path / "main.tex", Engine.PDFLATEX, findings, tmp_path / "main.pdf")
+
+    assert report.index("plot.pdf") < report.index("Citation `a'")
 
 
 def test_reads_bibtex_errors_as_defects_and_warnings_as_warnings() -> None:

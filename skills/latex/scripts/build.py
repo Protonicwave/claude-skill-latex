@@ -88,6 +88,9 @@ class Kind(StrEnum):
     WARNING = "warning"
 
 
+STOPPING_KINDS = frozenset({Kind.ERROR, Kind.BUILD})
+
+
 @dataclass(frozen=True, slots=True)
 class Finding:
     kind: Kind
@@ -484,11 +487,14 @@ def assess(
             "or the TeX distribution may still be installing packages"
         )
         return [*findings, Finding(Kind.BUILD, Severity.DEFECT, message)]
+    tail = "\n".join(run.output.strip().splitlines()[-FAILURE_TAIL_LINES:])
     if log is None:
-        findings.append(Finding(Kind.BUILD, Severity.DEFECT, "latexmk wrote no TeX log"))
+        # latexmk failed before TeX ran, as when MiKTeX finds no Perl, so its own
+        # output is the only account of why.
+        message = f"latexmk wrote no TeX log:\n{tail}" if tail else "latexmk wrote no TeX log"
+        findings.append(Finding(Kind.BUILD, Severity.DEFECT, message))
     has_defect = any(finding.severity is Severity.DEFECT for finding in findings)
     if run.exit_code != 0 and not has_defect:
-        tail = "\n".join(run.output.splitlines()[-FAILURE_TAIL_LINES:])
         message = f"latexmk exited with status {run.exit_code}:\n{tail}"
         findings.append(Finding(Kind.BUILD, Severity.DEFECT, message))
     return findings
@@ -496,7 +502,12 @@ def assess(
 
 def format_report(document: Path, engine: Engine, findings: list[Finding], pdf: Path) -> str:
     counts = Counter(findings)
-    defects = [finding for finding in counts if finding.severity is Severity.DEFECT]
+    # A build stopped by an error leaves every later reference and citation
+    # undefined, so the error leads and its consequences follow.
+    defects = sorted(
+        (finding for finding in counts if finding.severity is Severity.DEFECT),
+        key=lambda finding: finding.kind not in STOPPING_KINDS,
+    )
     warnings = [finding for finding in counts if finding.severity is Severity.WARNING]
     lines = [f"{document.name} ({engine}): {len(defects)} defects, {len(warnings)} warnings"]
     if pdf.is_file():
