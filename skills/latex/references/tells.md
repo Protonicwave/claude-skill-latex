@@ -74,7 +74,7 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 | `Figure \ref{...}` typed by hand, or a space where a tie belongs (`breakable-reference`) | `\cref{...}`, or `Figure~\ref{...}` |
 | `\cite{a}\cite{b}` (`split-citation`) | `\cite{a,b}` |
 | A hand-made `thebibliography` | BibTeX from `/research`, unless a template demands otherwise |
-| Placeholders, `TODO`, `??` left in the text (`leftover-placeholder`) | The content, or a visible marker the report lists |
+| Placeholders, `TODO`, `???` left in the text (`leftover-placeholder`) | The content, or a visible marker the report lists |
 
 ## Packages
 

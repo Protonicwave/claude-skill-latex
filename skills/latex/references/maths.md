@@ -8,7 +8,7 @@ The conventions follow ISO 80000-2 as NIST's guide to the SI states it: a symbol
 |---|---|---|
 | Variables and physical quantities: $T$, $L$, $\theta$ | italic | default in maths |
 | Vectors and matrices | bold italic | `\symbf{r}` under unicode-math, `\boldsymbol{r}` under pdfLaTeX |
-| Descriptive subscripts and superscripts: max, eff, fit | upright | `T_\mathrm{fit}`; lint `italic-subscript-label` |
+| Descriptive subscripts and superscripts: max, eff, fit | upright | `T_\mathrm{fit}`; lint `italic-subscript-label` catches common ones such as max and eff, not every word |
 | Index subscripts that are variables: $i$, $n$ | italic | `x_i` |
 | Functions and operators | upright | `\sin`, `\exp`, `\operatorname{erf}`, or `\DeclareMathOperator` in the style |
 | The differential | upright | `\dd t` (house macro); lint `italic-differential` |

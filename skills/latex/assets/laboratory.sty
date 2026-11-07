@@ -11,8 +11,9 @@
 \RequirePackage{titlesec}
 \RequirePackage{listings}
 \RequirePackage{amsthm}
-% A float may appear only after the text that refers to it, never above it on
-% the same page, so a table cannot open the section before its own.
+% A float may appear only after the point in the source where it is written,
+% never above it on the same page, so a table written after the paragraph that
+% refers to it cannot open the section before its own.
 \RequirePackage{flafter}
 
 % LaTeX's defaults send any float taller than about half a page to a page of

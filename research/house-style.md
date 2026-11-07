@@ -20,7 +20,7 @@ Inspecting the pages, rather than reading the logs, found most of what the house
 
 - Erewhon Math's solidus has wide side-bearings, so $J/k$ read as "J / k". The style pulls every maths slash in by 2 mu, in the document and in the figure preamble.
 - LaTeX's default float fractions sent a figure and a table to a page of floats alone. The style relaxes them so two floats can share a page with text.
-- At 175 mm a table floated above the paragraph that defines it, into the previous section. `flafter` now keeps every float after its first mention.
+- At 175 mm a table floated above the paragraph that defines it, into the previous section. `flafter` now keeps every float below the point where it is written, and the lint reports a float written before its first mention.
 - siunitx resets the text family inside tables, undoing per-table font features, unless `reset-text-family = false`.
 - Panel labels inside the axes collided with data; they now sit above the axes.
 - A 1.3 pt overfull line came from "Boltzmann", which the British patterns do not break; the style gives it a hyphenation exception and sets `\emergencystretch`.

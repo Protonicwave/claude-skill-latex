@@ -18,7 +18,7 @@ A conference or project poster, read standing up from about two metres, by peopl
 
 ## Checks for this profile
 
-- Render the poster at low resolution to see it as a whole, then at full resolution to read it. `render.py --dpi 20` gives a page the size of a screen.
+- Render the poster at low resolution to see it as a whole, then at full resolution to read it. `render.py --dpi 36`, the lowest it allows, gives an A0 sheet about 1200 pixels wide.
 - The three columns end at similar heights, with no block cut off at the foot of the sheet.
 - No line of text is longer than about a third of the sheet width.
 - Figure type is close to body size.

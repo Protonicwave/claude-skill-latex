@@ -34,7 +34,7 @@ Chosen by the user from rendered specimens (`research/house-style.md` in the rep
 | Accent | Prussian blue `#1F4A73`: heading numbers, caption labels, links, the first data series |
 | Page | A4, 175 mm by 232 mm text block centred, running head with the title on the left and the page number on the right |
 | Title | Left-aligned sans title, then the record strip: a Prussian rule, author, date and source, a grey hairline |
-| Floats | `[tbp]` with relaxed fractions so two floats can share a page with text; `flafter` keeps each float after its first mention |
+| Floats | `[tbp]` with relaxed fractions so two floats can share a page with text; `flafter` keeps each float below the point where it is written, so a float written after its first mention stays after it |
 | Captions | Small sans, label in Prussian; tables captioned above, figures below |
 | Figures | `laboratory.mplstyle`: the same faces through LuaLaTeX, 9 pt, Prussian, near black and grey |
 | Spacing | `\frenchspacing`, `\emergencystretch` of 1.5 em, microtype |
