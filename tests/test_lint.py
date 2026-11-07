@@ -118,6 +118,17 @@ def test_reports_inputs_beyond_a_limit_as_unread(
     assert reason in finding.excerpt
 
 
+def test_reads_the_fonts_set_by_a_local_beamer_theme(tmp_path: Path) -> None:
+    document = write(
+        tmp_path / "main.tex",
+        "\\documentclass{beamer}\n\\usetheme[dark]{House}\n\\begin{document}\n\\end{document}\n",
+    )
+    write(tmp_path / "beamerthemeHouse.sty", "\\usefonttheme{HouseType}\n")
+    write(tmp_path / "beamerfontthemeHouseType.sty", "\\setmainfont{Erewhon}\n")
+
+    assert lint.lint(document).findings == ()
+
+
 @pytest.mark.parametrize(("case", "exit_code"), [("defects", 1), ("tells", 0), ("ignored", 0)])
 def test_exits_with_one_only_for_defects(case: str, exit_code: int) -> None:
     assert main([str(FIXTURES / case / "main.tex")]) == exit_code

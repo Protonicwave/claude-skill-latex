@@ -4,9 +4,9 @@ Usage:
     python lint.py MAIN.tex
 
 MAIN.tex is read with every file it brings in through \input, \include or
-\subfile, resolved from its own folder as TeX does. Packages loaded from that
-folder are read too, but only for the fonts and page layout they set; they are
-not linted. Comments and verbatim material are ignored: the verbatim,
+\subfile, resolved from its own folder as TeX does. Packages and beamer themes
+loaded from that folder are read too, but only for the fonts and page layout
+they set; they are not linted. Comments and verbatim material are ignored: the verbatim,
 Verbatim, lstlisting, minted, comment and filecontents environments, \verb,
 \lstinline and \mintinline.
 
@@ -410,6 +410,10 @@ DOCUMENT_CLASS = re.compile(r"(?<!\\)\\documentclass\s*(?:\[[^\]]*\])?\s*\{(?P<n
 INPUT = re.compile(r"(?<!\\)\\(?:input|include|subfile)\s*\{(?P<name>[^{}]+)\}")
 PACKAGE = re.compile(
     r"(?<!\\)\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{(?P<names>[^{}]*)\}"
+)
+# Beamer reads a theme named X from beamer<kind>themeX.sty.
+THEME = re.compile(
+    r"(?<!\\)\\use(?P<kind>|color|font|inner|outer)theme\s*(?:\[[^\]]*\])?\s*\{(?P<name>[^{}]+)\}"
 )
 OBSOLETE_COMMAND_PATTERN = re.compile(
     r"(?<!\\)(?:\\(?:bf|it|rm|sf|tt|sc|sl|over|atop|centerline|documentstyle)(?![A-Za-z])"
@@ -905,9 +909,20 @@ def _package_names(masked: str) -> list[str]:
     ]
 
 
+def _theme_names(masked: str) -> list[str]:
+    return [
+        f"beamer{match.group('kind')}theme{match.group('name').strip()}"
+        for match in THEME.finditer(masked)
+    ]
+
+
 def _local_packages(folder: Path, sources: Sequence[Source]) -> tuple[str, ...]:
-    """Masked text of every package loaded from the document's own folder."""
-    pending = [name for source in sources for name in _package_names(source.masked)]
+    """Masked text of every package and beamer theme loaded from the document's own folder."""
+    pending = [
+        name
+        for source in sources
+        for name in _package_names(source.masked) + _theme_names(source.masked)
+    ]
     seen: set[str] = set()
     texts: list[str] = []
     while pending and len(texts) < MAX_FILES:
@@ -921,7 +936,7 @@ def _local_packages(folder: Path, sources: Sequence[Source]) -> tuple[str, ...]:
         except UnreadableError as error:
             raise UnreadableError(f"package {path.name}: {error}") from error
         texts.append(masked)
-        pending += _package_names(masked)
+        pending += _package_names(masked) + _theme_names(masked)
     return tuple(texts)
 
 
