@@ -402,7 +402,9 @@ PROSE_ARGUMENT = re.compile(
     r"|unit|ang|numrange|qtyrange|SIrange|tablenum|definecolor|color|textcolor|colorbox"
     r"|hypersetup|setlength|setcounter|newcommand|renewcommand|providecommand|newenvironment"
     r"|renewenvironment|DeclareMathOperator|pagestyle|thispagestyle|captionsetup|sisetup"
-    r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont)\*?\s*(?:\[[^\]]*\]\s*)*\{"
+    r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont|cmidrule)\*?\s*(?:\[[^\]]*\]\s*)*"
+    # booktabs' \cmidrule takes its trim in parentheses before the column span.
+    r"(?:\([^)]*\)\s*)?\{"
 )
 OPTIONAL_ARGUMENT = re.compile(r"(?<!\\)\\[A-Za-z]+\*?\s*(\[[^\]]*\])")
 # Outside maths, an ellipsis between commas is pgf list syntax, as in a TikZ
