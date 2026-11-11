@@ -62,6 +62,34 @@ BEAMER = rf"""\documentclass[aspectratio=169, 11pt]{{beamer}}
 \end{{document}}
 """
 
+# Long words that a justified caption held to a narrow table hyphenates. A
+# caption inside a threeparttable takes the table's width, so this is the
+# narrowest a table caption gets.
+LONG_CAPTION = (
+    "Characteristically unrepresentative measurements of gravitational acceleration, "
+    "interferometrically recalibrated against independently characterised photogates "
+    "at seventeen pendulum lengths."
+)
+
+NARROW_TABLE = rf"""\documentclass[11pt]{{article}}
+\usepackage{{laboratory}}
+\title{{Captions}}
+\begin{{document}}
+\begin{{table}}
+  \begin{{threeparttable}}
+    \caption{{{LONG_CAPTION}}}
+    \begin{{tabular}}{{@{{}}llll@{{}}}}
+      \toprule
+      \head{{Length}} & \head{{Period}} & \head{{Amplitude}} & \head{{Runs}} \\
+      \midrule
+      short & quick & small & five \\
+      \bottomrule
+    \end{{tabular}}
+  \end{{threeparttable}}
+\end{{table}}
+\end{{document}}
+"""
+
 RUNNING_TEXT_QUANTITY = r"""\documentclass[11pt]{article}
 \usepackage{laboratory}
 \title{Quantities}
@@ -81,10 +109,11 @@ def write_project(folder: Path, source: str, packages: tuple[str, ...]) -> Path:
 
 
 def extract_text(pdf: Path) -> str:
+    """The PDF's text line by line as set; without -raw, pdftotext rejoins hyphenated words."""
     pdftotext = shutil.which("pdftotext")
     assert pdftotext is not None
     completed = subprocess.run(  # noqa: S603 - a fixed command found on PATH
-        [pdftotext, "-enc", "UTF-8", str(pdf), "-"],
+        [pdftotext, "-raw", "-enc", "UTF-8", str(pdf), "-"],
         capture_output=True,
         timeout=PDFTOTEXT_TIMEOUT_SECONDS,
         check=True,
@@ -106,6 +135,19 @@ def test_every_shared_macro_builds_clean(
     output = capsys.readouterr().out
     assert exit_code == 0, output
     assert "0 defects, 0 warnings" in output, output
+
+
+@pytest.mark.tex
+def test_a_long_table_caption_wraps_without_hyphenating(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = write_project(tmp_path, NARROW_TABLE, DOCUMENT_PACKAGES)
+
+    assert build.main([str(document), "--engine", "lualatex"]) == 0, capsys.readouterr().out
+
+    words = extract_text(tmp_path / "build" / "main.pdf").split()
+    split_words = [word for word in LONG_CAPTION.split() if word not in words]
+    assert not split_words, words
 
 
 @pytest.mark.tex

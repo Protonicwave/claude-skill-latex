@@ -17,8 +17,7 @@
 \RequirePackage{etoolbox}
 \RequirePackage{fancyhdr}
 \RequirePackage{caption}
-% A table narrower than the measure sits in a threeparttable, which holds its
-% caption to the table's own width.
+% Table notes sit in a threeparttable under the closing rule.
 \RequirePackage{threeparttable}
 \RequirePackage{titlesec}
 \RequirePackage{titletoc}
@@ -97,11 +96,17 @@
 % An en space after the label: a quad leaves a hole between "Table 1" and its text.
 \DeclareCaptionLabelSeparator{enspace}{\enspace}
 \captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=enspace, justification=justified, singlelinecheck=false}
-\captionsetup[table]{position=top, skip=6pt}
+% A table hangs from the left edge under its caption, so the two read as one
+% object at any width. The caption is ragged, which never hyphenates, and runs
+% no wider than two thirds of the measure.
+\captionsetup[table]{position=top, skip=6pt, justification=raggedright, margin={0pt, 0.33\linewidth}}
 
 % Rows in a table sit 15 per cent further apart than the class sets them, so a
 % row of exponents does not touch the row above. Arrays in maths are untouched.
 \AtBeginEnvironment{table}{\renewcommand{\arraystretch}{1.15}}
+% Notes under a table are furniture, like its caption.
+\appto\TPTnoteSettings{\sffamily\footnotesize}
+
 % Lists hang their labels in the margin, as headings hang their numbers.
 \setlist{itemsep=0.15\baselineskip, topsep=0.4\baselineskip}
 % A bullet is the Prussian square the slides use.
