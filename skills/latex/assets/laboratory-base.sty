@@ -15,6 +15,7 @@
 % with its own; neither is a fault in the document.
 \RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \RequirePackage{microtype}
+\RequirePackage{etoolbox}
 \RequirePackage{xcolor}
 \RequirePackage{graphicx}
 \RequirePackage{booktabs}
@@ -73,7 +74,17 @@
 \sisetup{
   separate-uncertainty = false,
   group-minimum-digits = 5,
+  % A quantity takes the face and weight around it, so one in a sans caption
+  % or a bold head matches the words beside it.
+  mode = match,
+  reset-text-family = false,
+  reset-text-series = false,
 }
+% Numbers in a table stay in maths, so a signed entry keeps its true minus
+% whatever face its cell is set in.
+\AtBeginEnvironment{tabular}{\sisetup{mode = math}}
+\AtBeginEnvironment{tabular*}{\sisetup{mode = math}}
+\AtBeginEnvironment{tabularx}{\sisetup{mode = math}}
 
 % Table column headings are furniture, so they take the sans face. They stay at
 % regular weight: most heads hold a quantity in maths, which has no bold to
