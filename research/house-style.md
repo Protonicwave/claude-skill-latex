@@ -14,7 +14,9 @@ Each specimen contains the same title, headings, a derivation, a siunitx table, 
 
 ## The choice and what followed it
 
-The user chose Laboratory, and asked for more words on each line. The measure went from 140 mm (about 88 characters) through 150 and 160 mm to 175 mm, about 110 characters at 11 pt, each step rendered and inspected. That is wider than the 45 to 90 characters Butterick allows for body text (`sources.md`); the skill keeps it as the user's decision rather than correcting it.
+The user chose Laboratory, and asked for more words on each line. The measure went from 140 mm (about 88 characters) through 150 and 160 mm to 175 mm, about 110 characters at 11 pt, each step rendered and inspected. That is wider than the 45 to 90 characters Butterick allows for body text (`sources.md`); the skill kept it as the user's decision rather than correcting it.
+
+On 11 November 2026 the user reviewed a ten-page report at 175 mm and narrowed the measure to 150 mm, about 95 characters, with 30 mm side margins. The same review set figure text in the text face, bold panel labels, darker greys and fewer log ticks; regular-weight table heads, tables that fill the measure or hold their caption to their own width, and wider table rows; an en space after caption labels, an indented abstract, and a `compact` option that runs a short report's chapters on.
 
 Inspecting the pages, rather than reading the logs, found most of what the house style now fixes:
 
