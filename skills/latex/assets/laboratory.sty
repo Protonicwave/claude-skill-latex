@@ -21,6 +21,7 @@
 % caption to the table's own width.
 \RequirePackage{threeparttable}
 \RequirePackage{titlesec}
+\RequirePackage{enumitem}
 \RequirePackage{listings}
 \RequirePackage{amsthm}
 % A float may appear only after the point in the source where it is written,
@@ -40,8 +41,10 @@
 % loosens slightly rather than leaving a line in the margin.
 \setlength{\emergencystretch}{1.5em}
 
-\titleformat{\section}{\normalfont\sffamily\bfseries\Large}{\color{prussian}\thesection}{0.6em}{}
-\titleformat{\subsection}{\normalfont\sffamily\bfseries}{\color{prussian}\thesubsection}{0.6em}{}
+% Section numbers hang in the left margin, so every heading starts on the
+% text's edge and the numbers form a column of their own.
+\titleformat{\section}{\normalfont\sffamily\bfseries\Large}{\llap{\color{prussian}\thesection\hspace{0.7em}}}{0pt}{}
+\titleformat{\subsection}{\normalfont\sffamily\bfseries}{\llap{\color{prussian}\thesubsection\hspace{0.7em}}}{0pt}{}
 \titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.5\baselineskip}
 \titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.3\baselineskip}
 \@ifundefined{chapter}{}{%
@@ -54,7 +57,7 @@
     % chapter; the barrier sets them before the next chapter's heading.
     \RequirePackage{placeins}
     \AddToHook{cmd/chapter/before}{\FloatBarrier}
-    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\LARGE}{\color{prussian}\thechapter}{0.6em}{}
+    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\LARGE}{\llap{\color{prussian}\thechapter\hspace{0.6em}}}{0pt}{}
     \titlespacing*{\chapter}{0pt}{2.4\baselineskip plus 0.4\baselineskip minus 0.2\baselineskip}{0.8\baselineskip}
   \else
     \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\huge}{\color{prussian}\thechapter}{0.6em}{}
@@ -71,6 +74,10 @@
 % Rows in a table sit 15 per cent further apart than the class sets them, so a
 % row of exponents does not touch the row above. Arrays in maths are untouched.
 \AtBeginEnvironment{table}{\renewcommand{\arraystretch}{1.15}}
+% Lists hang their labels in the margin, as headings hang their numbers.
+\setlist{itemsep=0.15\baselineskip, topsep=0.4\baselineskip}
+% A bullet is the Prussian square the slides use.
+\setlist[itemize,1]{label={\color{prussian}\raisebox{0.22ex}{\rule{0.36em}{0.36em}}}, leftmargin=0pt, labelsep=0.7em}
 
 \lstset{
   language = Python,
