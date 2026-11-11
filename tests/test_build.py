@@ -149,6 +149,16 @@ def test_reports_other_package_warnings_as_warnings() -> None:
     assert "removing `math shift'" in warning.message
 
 
+def test_reports_a_link_to_a_destination_luatex_never_wrote() -> None:
+    message = "warning  (pdf backend): unreferenced destination with name 'badge.H1'"
+
+    (warning,) = parse_log(f"(./main.tex [1])\n{message}\n".encode())
+
+    assert warning.kind is Kind.WARNING
+    assert warning.severity is Severity.WARNING
+    assert warning.message == message
+
+
 def test_keeps_a_message_that_starts_straight_after_a_full_line() -> None:
     full_line = b"x" * 79
 

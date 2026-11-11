@@ -139,8 +139,10 @@ WARNING = re.compile(
 CONTINUATION = re.compile(r"^\([A-Za-z][\w@-]*\)\s+(?P<text>.*)$")
 INPUT_LINE = re.compile(r"on input line (\d+)")
 MISSING_GLYPH = re.compile(r"^Missing character: There is no .+ in font .+!$")
-# pdfTeX writes these straight after page numbers, mid-line, without a source.
-PDFTEX_WARNING = re.compile(r"pdfTeX warning(?: \([^)]*\))?: .+$")
+# The PDF writer's warnings, such as a link to a destination never set. pdfTeX
+# writes them straight after page numbers, mid-line; LuaTeX's backend writes
+# them on a line of their own at the end of the run. Neither names a source.
+PDF_WRITER_WARNING = re.compile(r"(?:pdfTeX warning(?: \([^)]*\))?|warning  \(pdf backend\)): .+$")
 PARENTHESIS = re.compile(r"[()]")
 OPENED_FILE = re.compile(
     r'"(?P<quoted>[^"]+)"|(?P<bare>[^()"\s][^()"]*?\.[A-Za-z][A-Za-z0-9]*)(?=[\s()]|$)'
@@ -211,8 +213,8 @@ def _current_file(open_files: list[str | None]) -> str | None:
 
 
 def _read_plain_line(line: str, open_files: list[str | None]) -> list[Finding]:
-    """Track the files a line opens and closes, and report a pdfTeX warning in it."""
-    warning = PDFTEX_WARNING.search(line)
+    """Track the files a line opens and closes, and report a PDF writer warning in it."""
+    warning = PDF_WRITER_WARNING.search(line)
     if warning is None:
         _track_files(line, open_files)
         return []
