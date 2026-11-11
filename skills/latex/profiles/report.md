@@ -15,7 +15,7 @@ A project report, dissertation or thesis-length document with chapters. Readers 
 |---|---|
 | Title and record strip | Title, author, date, `\source` pointing at the repository behind the work |
 | Abstract | Aim, method, main result with its uncertainty, and what it means, in one paragraph |
-| Contents | `\tableofcontents`; links stay black so the page does not drown in the accent |
+| Contents | `\tableofcontents`, set in sans with Prussian numbers and no dot leaders; links stay black so the page does not drown in the accent |
 | Introduction | The question, why it matters, and a closing sentence that maps the chapters by `\cref` |
 | Method or theory chapters | Model, derivations, apparatus or code, with numbered equations the results refer back to |
 | Results | Each result first, then the figure or table that shows it |
@@ -26,7 +26,7 @@ A project report, dissertation or thesis-length document with chapters. Readers 
 ## Checks for this profile
 
 - Every chapter opens on a new page, or under `compact` runs on with no float from the chapter before below its heading; a chapter opening should not be followed by a float before any text.
-- A figure or table appears in the chapter whose text refers to it, after the reference.
+- A figure or table appears in the chapter whose text refers to it, after the reference, on a page with text. A short chapter with two floats strands the second on a page of its own when the chapter ends; write each float in the section whose text it supports, with text after it, so it can head the next page above that text.
 - The contents page shows no more than three levels.
-- Running heads carry the title; check it is short enough to fit on one line at the head of the page.
+- Running heads carry the title; check it is short enough to fit on one line at the head of the page, and give a shorter one with `\runninghead` if not.
 - Page count against any limit, counting only the pages the rule counts.

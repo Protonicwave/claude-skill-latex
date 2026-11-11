@@ -74,6 +74,6 @@ An underfull line at badness 10000 almost always comes from `\\` or `\newline` a
 
 ## Lists and code
 
-A list holds discrete parallel items: apparatus, steps, options. An argument is prose. Keep `itemize` to one level in documents and two on slides.
+A list holds discrete parallel items: apparatus, steps, options. An argument is prose. Keep `itemize` to one level in documents and two on slides. The house style hangs a list's labels in the left margin, as it hangs section numbers, so the items start on the text's edge; the bullets are the Prussian squares of the slides.
 
 Inline identifiers go in `\texttt`, short code in `\lstinline`, and longer code in a `lstlisting` environment, which the house style draws with a Prussian rule. A listing the text refers to takes a `caption` and `label` like a float.

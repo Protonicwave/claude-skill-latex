@@ -4,30 +4,27 @@ A table is read from the top, column by column. It needs a caption above it, thr
 
 ## The pattern
 
-A table of a few columns stays at its natural width inside a `threeparttable`, which holds the caption to the table's width:
+A table of a few columns stays at its natural width and hangs from the left edge under its caption, not centred:
 
 ```latex
 \begin{table}[tbp]
-  \centering
-  \begin{threeparttable}
-    \caption{Measured and fitted periods at selected lengths.}
-    \label{tab:period}
-    \begin{tabular}{
-      S[table-format=1.1]
-      S[table-format=1.4(2)]
-      S[table-format=1.4]
-      S[table-format=-1.1]
-    }
-      \toprule
-      \multicolumn{2}{c}{\spanhead{Measured}} & \multicolumn{2}{c}{\spanhead{Fitted}} \\
-      \cmidrule(lr){1-2} \cmidrule(lr){3-4}
-      {\colhead{$L$}{\metre}} & {\colhead{$T$}{\second}} & {\colhead{$T_\mathrm{fit}$}{\second}} & {\colhead{$T - T_\mathrm{fit}$}{\milli\second}} \\
-      \midrule
-      0.2 & 0.8983(10) & 0.8972 & 1.1 \\
-      1.0 & 2.0057(10) & 2.0061 & -0.4 \\
-      \bottomrule
-    \end{tabular}
-  \end{threeparttable}
+  \caption{Measured and fitted periods at selected lengths.}
+  \label{tab:period}
+  \begin{tabular}{
+    S[table-format=1.1]
+    S[table-format=1.4(2)]
+    S[table-format=1.4]
+    S[table-format=-1.1]
+  }
+    \toprule
+    \multicolumn{2}{c}{\spanhead{Measured}} & \multicolumn{2}{c}{\spanhead{Fitted}} \\
+    \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+    {\colhead{$L$}{\metre}} & {\colhead{$T$}{\second}} & {\colhead{$T_\mathrm{fit}$}{\second}} & {\colhead{$T - T_\mathrm{fit}$}{\milli\second}} \\
+    \midrule
+    0.2 & 0.8983(10) & 0.8972 & 1.1 \\
+    1.0 & 2.0057(10) & 2.0061 & -0.4 \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 ```
 
@@ -37,7 +34,8 @@ A table of five columns or more, or one whose natural width is over about two th
 \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} l S[table-format=1.2e2] S[table-format=1.1e2] @{}}
 ```
 
-- **Width.** A caption wider than its table, with the table centred under it, reads as two objects. Use one of the two forms above.
+- **Width.** A caption and a table that share a left edge read as one object at any width, so a table is never centred. The house style sets a table's caption ragged, without hyphens, and no wider than two thirds of the measure, so a long caption wraps to a readable column rather than to the width of a narrow table.
+- **Notes.** Conditions, sources and footnotes to entries go in notes under the closing rule, not in the caption: wrap the `tabular` in a `threeparttable`, mark an entry with `\tnote{a}`, and put the notes in a `tablenotes` environment after the `tabular`. The house style sets them in small sans. The caption stays outside the `threeparttable`, which would otherwise hold it to the table's width.
 - **Rules.** `\toprule`, `\midrule` under the heads, `\bottomrule`; `\cmidrule` to group heads over some columns. No vertical rules, no `\hline` grid, no double rules (lint `ruled-table`). White space separates columns. The house style draws the top rule in Prussian like the record strip's, the rules inside in grey and the bottom rule in black, so `\toprule` takes no width of its own.
 - **Caption above**, then `\label` (lint `table-caption-below`, `label-before-caption`). The house style sets table captions above with the right skip.
 - **Numeric columns** are siunitx `S` columns, which align numbers on the decimal marker. Give each a `table-format` describing its widest entry: `1.4(2)` is one integer digit, four decimals and a two-digit uncertainty. siunitx sizes the column from it under `table-alignment-mode = format`, and the key documents the column under the standard `marker` mode. Wrap non-numeric cells in an `S` column in braces.

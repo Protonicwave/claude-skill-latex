@@ -33,13 +33,18 @@ Chosen by the user from rendered specimens (`research/house-style.md` in the rep
 | Code | IBM Plex Mono, scaled to the text's x-height, in a listing with a Prussian rule at the left |
 | Accent | Prussian blue `#1F4A73`: heading numbers, caption labels, links, the first data series |
 | Data colours | `seriesA` to `seriesD`: Prussian, terracotta `#B5562C`, near black and 45 per cent grey, for data series and for the tags and keys that name them, never for decoration |
-| Page | A4, 150 mm by 232 mm text block centred with 30 mm side margins, running head with the title on the left and the page number on the right |
-| Title | Left-aligned sans title, then the record strip: a Prussian rule, author, supervisor if given, date and source under tracked Prussian capitals, a grey hairline; the abstract below it indented 2 em on both sides |
+| Page | A4, 150 mm by 232 mm text block centred with 30 mm side margins; a running head of the title in grey, or a shorter one from `\runninghead`, and the page number at the foot on every page |
+| Title | A kicker in tracked Prussian capitals naming the kind of document or the module (`\kicker`), the left-aligned sans title, then the record strip: a Prussian rule, author, supervisor if given, date and source under tracked Prussian capitals, a grey hairline; the abstract below it indented 2 em on both sides |
 | Quantities | siunitx takes the surrounding face, so a quantity in a sans caption or a bold head matches its words; inside a table it sets numbers in maths, which keeps the true minus |
-| Short report | The `compact` option runs the contents and each chapter on without a page break, with a float barrier before each chapter so no float drifts into the next one |
+| Headings | Sans, with section numbers hung in the left margin so every heading starts on the text's edge; `\paragraph` is a run-in bold sans head ending in a full stop |
+| Chapters | Each opens a seventh of the way down a new page: a large light Prussian numeral, the title, and the record strip's accent rule |
+| Contents | Sans entries with Prussian numbers and no dot leaders; links stay black |
+| Lists | Prussian square bullets hung in the margin, as the slides use; `claims` hangs a badge in the margin and `milestones` the Gantt chart's diamond |
+| Statement | The `statement` block, in the key row's Prussian tint, for the one or two sentences a reader must not miss, such as the aim; once or twice a document, never across a page |
+| Short report | The `compact` option runs the contents and each chapter on without a page break, its number hung like a section's, with a float barrier before each chapter so no float drifts into the next one |
 | Floats | `[tbp]` with relaxed fractions so two floats can share a page with text; `flafter` keeps each float below the point where it is written, so a float written after its first mention stays after it |
-| Captions | Small sans, label in Prussian followed by an en space, then a bold lead sentence (`\lead`) saying what the float shows; tables captioned above, figures below |
-| Tables | booktabs rules with the top one in Prussian and the inner ones grey, regular-weight sans heads with the unit under the symbol in small grey sans, at most one Prussian key row, rows 15 per cent further apart than the class sets them; a table either fills the measure or holds its caption to its own width |
+| Captions | Small sans, label in Prussian followed by an en space, then a bold lead sentence (`\lead`) saying what the float shows; tables captioned above, figures below; a table's caption is ragged and no wider than two thirds of the measure |
+| Tables | booktabs rules with the top one in Prussian and the inner ones grey, regular-weight sans heads with the unit under the symbol in small grey sans, at most one Prussian key row, rows 15 per cent further apart than the class sets them; a table hangs from the left edge under its caption, never centred, with notes in small sans under the closing rule |
 | Figures | `laboratory.mplstyle`: Erewhon and Erewhon Math through LuaLaTeX, 9 pt, bold panel labels, Prussian, near black and 45 per cent grey |
 | Spacing | `\frenchspacing`, `\emergencystretch` of 1.5 em, microtype |
 

@@ -40,6 +40,8 @@ Refer with `\cref{fig:period}` mid-sentence and `\Cref{fig:period}` at the start
 | Macro | Purpose |
 |---|---|
 | `\title`, `\author`, `\date` | as usual; the house `\maketitle` sets them with the record strip |
+| `\kicker{...}` | a short line above the title naming the kind of document or the module, such as "Laboratory report"; omit it and the line disappears |
+| `\runninghead{...}` | a shorter running head in place of the title, for a title too long for one line at the head of the page |
 | `\source{...}` | the repository, notebook or data folder behind the document, shown in the record strip in monospace; omit it and the field disappears |
 | `\supervisor{...}` | the supervisor, shown in the record strip between author and date; omit it and the field disappears |
 | `\colhead{...}{...}`, `\head{...}`, `\spanhead{...}` | table heads: a quantity with its unit under it, a head with no unit, a name over a group of columns (`tables.md`) |
@@ -47,6 +49,9 @@ Refer with `\cref{fig:period}` mid-sentence and `\Cref{fig:period}` at the start
 | `\definebadge`, `\badge`, `\badgetarget` | coded tags such as H1 or R2, coloured once in the preamble and linked to where they are defined (`tables.md`) |
 | `\lead{...}` | the bold first sentence of a caption, which says what the float shows |
 | `\marker{colour}`, `\linekey{colour}` | a dot and a short line in a series colour, to name a figure's marks in its caption or the text |
+| `statement` | `\begin{statement}{Aim}...\end{statement}`: one or two sentences a reader must not miss, in a tinted block with the label run in; once or twice a document, since the block cannot break across a page |
+| `\paragraph{...}` | a run-in head in bold sans ending in a full stop, which names a paragraph without spending a line |
+| `claims`, `milestones` | lists of hypotheses with their badges hung in the margin (`\item[\badgetarget{H1}]`), and of milestones marked with a Gantt chart's diamond |
 | `seriesA` to `seriesD` | the data colours: Prussian, terracotta, near black and grey; give one a meaning with `\colorlet{stuck}{seriesB}` |
 | `\dd` | the upright differential |
 | `definition`, `example` | numbered by section, headed in the furniture face; referred to as Definition 1.1 and Example 1.2 |
