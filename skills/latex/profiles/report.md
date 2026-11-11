@@ -6,6 +6,7 @@ A project report, dissertation or thesis-length document with chapters. Readers 
 
 - `report` class at 11 pt with `\usepackage{laboratory}`, built with LuaLaTeX.
 - `main.tex` holds the title fields, abstract, contents and the `\include` of each chapter from `chapters/`. The skeleton has introduction, method, results and conclusions; add chapters as files, not as sections of `main.tex`.
+- A report of about twenty pages or fewer takes `\usepackage[compact]{laboratory}` and brings chapters in with `\input`, not `\include`. Each chapter then runs on from the one before, and the contents follow the abstract on the title page, instead of every chapter opening a half-empty page. The style flushes each chapter's floats before the next chapter's heading. A float that lands at a page foot with a gap above it can take `[tp]`, which sends it to the top of the next page, still before the next chapter.
 - Under a department's thesis class or template, keep that class and take only the conventions below.
 
 ## Sections and what each holds
@@ -24,7 +25,7 @@ A project report, dissertation or thesis-length document with chapters. Readers 
 
 ## Checks for this profile
 
-- Every chapter opens on a new page; a chapter opening should not be followed by a float before any text.
+- Every chapter opens on a new page, or under `compact` runs on with no float from the chapter before below its heading; a chapter opening should not be followed by a float before any text.
 - A figure or table appears in the chapter whose text refers to it, after the reference.
 - The contents page shows no more than three levels.
 - Running heads carry the title; check it is short enough to fit on one line at the head of the page.

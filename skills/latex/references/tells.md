@@ -55,6 +55,8 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 | Numbers centred in their column | Aligned on the decimal marker with an `S` column |
 | `\resizebox` around a tabular | A table that fits the measure: fewer columns, abbreviated heads, or landscape |
 | Units repeated in every cell | Once, in the column head |
+| A caption wider than the table it sits over | A `threeparttable` for a narrow table, `tabular*` at `\linewidth` for a wide one |
+| Integers and scientific notation mixed in one column | One format a column, with the same significant figures |
 
 ## Figures
 

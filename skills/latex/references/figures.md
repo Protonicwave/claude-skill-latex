@@ -8,7 +8,7 @@ A figure is drawn for the page it appears on. Its type matches the text around i
 
 | Medium | Styles | Default size | Type |
 |---|---|---|---|
-| Document page (report, lab report, notes) | `laboratory` | 175 × 70 mm, the full measure | 9 pt |
+| Document page (report, lab report, notes) | `laboratory` | 150 × 60 mm, the full measure | 9 pt |
 | Journal column (paper) | `laboratory`, `journal` | 86 × 92 mm, panels stacked | 8 pt, Computer Modern under pdfLaTeX |
 | Slide (16:9 Beamer) | `laboratory`, `slides` | 140 × 50 mm | 10 pt |
 | Poster column (A0) | `laboratory`, `poster` | 242 × 110 mm | 28 pt |
@@ -26,7 +26,15 @@ figure.savefig("figures/period.pdf", backend="pgf")
 
 A style file cannot choose the backend, so `backend="pgf"` belongs in every `savefig`. Without it matplotlib falls back to its own renderer and DejaVu Sans.
 
-Set the size in the script when the figure is not the full width: `plt.subplots(figsize=(width_in, height_in))`, with the width the fraction of the measure the document uses. Then include it at exactly that fraction: a figure drawn 85 mm wide goes in at `width=0.486\linewidth` on the 175 mm house measure, or better, draw it at the full width and lay two panels side by side in one figure.
+Set the size in the script when the figure is not the full width: `plt.subplots(figsize=(width_in, height_in))`, then include it at exactly that fraction of the measure. On the 150 mm house measure:
+
+| Include at | Draw at (`figsize`, inches) | Use |
+|---|---|---|
+| `width=\linewidth` | 5.91 × 2.36, the style's default | two panels side by side, or one wide plot |
+| `width=0.667\linewidth` | 3.94 × 2.76 | one plot that needs some height, such as a spectrum |
+| `width=0.5\linewidth` | 2.95 × 2.36 | one small plot; two of them side by side are better drawn as one full-width figure |
+
+Draw two related panels as one full-width figure rather than two half-width files, so they share a size and line up.
 
 The pgf backend runs LuaLaTeX in a temporary folder, so the style's preamble repeats the font settings rather than loading the house package. In a document that does not use the house style, replace `pgf.preamble` with the document's own font lines, or for a pdfLaTeX document use the `journal` overlay's approach: `pgf.texsystem: pdflatex` and an empty preamble for Computer Modern.
 
@@ -49,10 +57,17 @@ The pgf backend runs LuaLaTeX in a temporary folder, so the style's preamble rep
 ## Drawing for the reader
 
 - **Vector, not bitmap.** Plots and diagrams are PDF. PNG and JPEG are for photographs and micrographs, at 300 dpi at the printed size (lint `raster-figure`).
-- **Panel labels** (a), (b) sit above the axes, left-aligned, as the axes title the house style places there. Inside the axes they collide with data.
+- **One face.** The style sets every label in Erewhon, the text face, because tick labels on a log axis and every symbol in an axis label are maths in Erewhon Math. A sans legend beside serif ticks puts two designs in one figure.
+- **Panel labels** (a), (b) sit above the axes, left-aligned and bold, as the axes title the house style places there. Inside the axes they collide with data.
+- **Ticks.** About four to seven labelled ticks an axis. Matplotlib labels a log axis every decade or every few, which crowds an axis spanning twenty decades; set the ticks yourself, keeping only those inside the axis's range, since `set_yticks` widens the axis to show every tick it is given:
+  ```python
+  low, high = axes.get_ylim()
+  decades = 10.0 ** np.arange(-15, 16, 5)
+  axes.set_yticks(decades[(decades >= low) & (decades <= high)])
+  ```
 - **No title in the axes.** The caption carries it.
 - **Axis labels** name the quantity in italic with its unit in brackets: `$T$ (s)`, `$T - T_\mathrm{fit}$ (ms)`.
-- **Colour.** The house cycle is Prussian blue for measurements, near black for models and grey for guides. A continuous quantity uses a perceptually uniform map (viridis, cividis), never jet or another rainbow map, which invents boundaries in smooth data and fails for readers with colour-vision deficiency. Never let colour alone separate two series: change the marker or line style too.
+- **Colour.** The house cycle is Prussian blue for measurements, near black for models and 45 per cent grey for guides. A grey set by hand is no lighter than `"0.45"`, and text in a figure no lighter than `"0.3"`; paler greys fade out in print. A continuous quantity uses a perceptually uniform map (viridis, cividis), never jet or another rainbow map, which invents boundaries in smooth data and fails for readers with colour-vision deficiency. Never let colour alone separate two series: change the marker or line style too.
 - **Error bars** without caps, as the house style sets; say in the caption what they show (one standard error, 95% interval).
 - **Residuals** below the fit, sharing its horizontal axis, when the figure supports a fit.
 

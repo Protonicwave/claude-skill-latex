@@ -32,14 +32,16 @@ Chosen by the user from rendered specimens (`research/house-style.md` in the rep
 | Furniture | Source Sans 3 for headings, captions, table heads, running head, record strip, theorem heads |
 | Code | IBM Plex Mono, scaled to the text's x-height, in a listing with a Prussian rule at the left |
 | Accent | Prussian blue `#1F4A73`: heading numbers, caption labels, links, the first data series |
-| Page | A4, 175 mm by 232 mm text block centred, running head with the title on the left and the page number on the right |
-| Title | Left-aligned sans title, then the record strip: a Prussian rule, author, date and source, a grey hairline |
+| Page | A4, 150 mm by 232 mm text block centred with 30 mm side margins, running head with the title on the left and the page number on the right |
+| Title | Left-aligned sans title, then the record strip: a Prussian rule, author, date and source, a grey hairline; the abstract below it indented 2 em on both sides |
+| Short report | The `compact` option runs the contents and each chapter on without a page break, with a float barrier before each chapter so no float drifts into the next one |
 | Floats | `[tbp]` with relaxed fractions so two floats can share a page with text; `flafter` keeps each float below the point where it is written, so a float written after its first mention stays after it |
-| Captions | Small sans, label in Prussian; tables captioned above, figures below |
-| Figures | `laboratory.mplstyle`: the same faces through LuaLaTeX, 9 pt, Prussian, near black and grey |
+| Captions | Small sans, label in Prussian followed by an en space; tables captioned above, figures below |
+| Tables | booktabs rules, regular-weight sans heads, rows 15 per cent further apart than the class sets them; a table either fills the measure or holds its caption to its own width |
+| Figures | `laboratory.mplstyle`: Erewhon and Erewhon Math through LuaLaTeX, 9 pt, bold panel labels, Prussian, near black and 45 per cent grey |
 | Spacing | `\frenchspacing`, `\emergencystretch` of 1.5 em, microtype |
 
-The measure is wide by textbook standards: about 110 characters a line at 11 pt, beyond the 45 to 90 that Butterick allows for body text. That is the user's preference, made after comparing specimens at 140, 150, 160 and 175 mm. Keep it; do not narrow a house document to the textbook range.
+The measure is 150 mm, about 95 characters a line at 11 pt. That is still wider than the 45 to 90 Butterick allows for body text, and narrower than the 175 mm the house style first used. The user chose 150 mm on 11 November 2026 after reading pages set at 175 mm, finding the long line hard to track back to the start of the next. Keep it; do not narrow a house document further to the textbook range, and do not widen it.
 
 ## A different look
 
