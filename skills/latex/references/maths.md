@@ -40,7 +40,8 @@ Every number with a unit goes through siunitx, which sets the unit upright, puts
 |---|---|
 | 9.809(4) m s⁻² | `\qty{9.809(4)}{\metre\per\second\squared}` |
 | 1.7 × 10⁻⁴ | `\num{1.7e-4}` |
-| a bare unit in a column head | `\unit{\metre}` |
+| a column head with its unit under it | `\colhead{$L$}{\metre}` |
+| a bare unit | `\unit{\metre}` |
 | 0.2 m to 1.0 m | `\qtyrange{0.2}{1.0}{\metre}` |
 | 0.2 and 1.0 m | `\qtylist{0.2;1.0}{\metre}` |
 | an angle of 3° | `\qty{3}{\degree}` |

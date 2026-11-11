@@ -32,12 +32,14 @@ Chosen by the user from rendered specimens (`research/house-style.md` in the rep
 | Furniture | Source Sans 3 for headings, captions, table heads, running head, record strip, theorem heads |
 | Code | IBM Plex Mono, scaled to the text's x-height, in a listing with a Prussian rule at the left |
 | Accent | Prussian blue `#1F4A73`: heading numbers, caption labels, links, the first data series |
+| Data colours | `seriesA` to `seriesD`: Prussian, terracotta `#B5562C`, near black and 45 per cent grey, for data series and for the tags and keys that name them, never for decoration |
 | Page | A4, 150 mm by 232 mm text block centred with 30 mm side margins, running head with the title on the left and the page number on the right |
-| Title | Left-aligned sans title, then the record strip: a Prussian rule, author, date and source, a grey hairline; the abstract below it indented 2 em on both sides |
+| Title | Left-aligned sans title, then the record strip: a Prussian rule, author, supervisor if given, date and source under tracked Prussian capitals, a grey hairline; the abstract below it indented 2 em on both sides |
+| Quantities | siunitx takes the surrounding face, so a quantity in a sans caption or a bold head matches its words; inside a table it sets numbers in maths, which keeps the true minus |
 | Short report | The `compact` option runs the contents and each chapter on without a page break, with a float barrier before each chapter so no float drifts into the next one |
 | Floats | `[tbp]` with relaxed fractions so two floats can share a page with text; `flafter` keeps each float below the point where it is written, so a float written after its first mention stays after it |
-| Captions | Small sans, label in Prussian followed by an en space; tables captioned above, figures below |
-| Tables | booktabs rules, regular-weight sans heads, rows 15 per cent further apart than the class sets them; a table either fills the measure or holds its caption to its own width |
+| Captions | Small sans, label in Prussian followed by an en space, then a bold lead sentence (`\lead`) saying what the float shows; tables captioned above, figures below |
+| Tables | booktabs rules with the top one in Prussian and the inner ones grey, regular-weight sans heads with the unit under the symbol in small grey sans, at most one Prussian key row, rows 15 per cent further apart than the class sets them; a table either fills the measure or holds its caption to its own width |
 | Figures | `laboratory.mplstyle`: Erewhon and Erewhon Math through LuaLaTeX, 9 pt, bold panel labels, Prussian, near black and 45 per cent grey |
 | Spacing | `\frenchspacing`, `\emergencystretch` of 1.5 em, microtype |
 

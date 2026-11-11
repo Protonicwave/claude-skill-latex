@@ -41,14 +41,20 @@ Refer with `\cref{fig:period}` mid-sentence and `\Cref{fig:period}` at the start
 |---|---|
 | `\title`, `\author`, `\date` | as usual; the house `\maketitle` sets them with the record strip |
 | `\source{...}` | the repository, notebook or data folder behind the document, shown in the record strip in monospace; omit it and the field disappears |
-| `\head{...}` | a table column head in the furniture face |
+| `\supervisor{...}` | the supervisor, shown in the record strip between author and date; omit it and the field disappears |
+| `\colhead{...}{...}`, `\head{...}`, `\spanhead{...}` | table heads: a quantity with its unit under it, a head with no unit, a name over a group of columns (`tables.md`) |
+| `\keyrow`, `\band`, `\level{...}` | the tinted key row, light bands for a wide table of words, and a low, medium or high chip (`tables.md`) |
+| `\definebadge`, `\badge`, `\badgetarget` | coded tags such as H1 or R2, coloured once in the preamble and linked to where they are defined (`tables.md`) |
+| `\lead{...}` | the bold first sentence of a caption, which says what the float shows |
+| `\marker{colour}`, `\linekey{colour}` | a dot and a short line in a series colour, to name a figure's marks in its caption or the text |
+| `seriesA` to `seriesD` | the data colours: Prussian, terracotta, near black and grey; give one a meaning with `\colorlet{stuck}{seriesB}` |
 | `\dd` | the upright differential |
 | `definition`, `example` | numbered by section, headed in the furniture face; referred to as Definition 1.1 and Example 1.2 |
 | `lstlisting` | code in IBM Plex Mono with the house rule; `\cref` prints "Listing 1" |
 
 Maths in a title, section heading or frame title also goes into PDF bookmarks, which hold only text. Give a plain-text twin: `\title{Measuring \texorpdfstring{$g$}{g} with a pendulum}`. Without one, `build.py` passes on hyperref's warning "Token not allowed in a PDF string" with the heading's line.
 
-The abstract in the house style is one paragraph at the full measure, opening with a run-in "Abstract" in Prussian sans.
+The abstract in the house style is one paragraph indented 2 em on both sides, opening with a run-in "Abstract" in Prussian sans.
 
 ## Sectioning
 
