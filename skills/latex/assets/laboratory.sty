@@ -131,18 +131,32 @@
 \newtheorem{definition}{Definition}[section]
 \newtheorem{example}{Example}[section]
 
+% The folio sits at the foot of every page, chapter openings included, and the
+% head carries only the running head: the title in grey unless \runninghead
+% gives a shorter one.
+\newcommand{\laboratory@runninghead}{{\color{rulegrey}\@title}}
+\newcommand{\runninghead}[1]{\renewcommand{\laboratory@runninghead}{#1}}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\sffamily\small\color{rulegrey}\@title}
-\fancyhead[R]{\sffamily\small\thepage}
+\fancyhead[L]{\sffamily\small\laboratory@runninghead}
+\fancyfoot[R]{\sffamily\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{{\color{rulegrey}\hrule height \headrulewidth}}
 \fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[R]{\sffamily\small\thepage}}
+
+% A short line above the title naming the kind of document or the module,
+% left out when not given.
+\newcommand{\laboratory@kicker}{}
+\newcommand{\kicker}[1]{\renewcommand{\laboratory@kicker}{#1}}
 
 \renewcommand{\maketitle}{%
   \thispagestyle{plain}%
   \begingroup
   \raggedright
+  \ifx\laboratory@kicker\@empty\else
+    {\sffamily\small\bfseries\color{prussian}\laboratory@tracked{\laboratory@kicker}\par}%
+    \vspace{0.6\baselineskip}%
+  \fi
   {\sffamily\bfseries\fontsize{22}{26}\selectfont \@title\par}
   \vspace{1.2\baselineskip}
   \laboratory@recordstrip{\@author}{\@date}
