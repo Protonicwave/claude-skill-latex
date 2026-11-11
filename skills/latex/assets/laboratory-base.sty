@@ -21,8 +21,12 @@
 \RequirePackage{booktabs}
 \RequirePackage{tabularx}
 \RequirePackage{colortbl}
+\RequirePackage{tikz}
 \RequirePackage{siunitx}
 \RequirePackage{csquotes}
+% \path sets the record strip's source in monospace, breaking after a slash or
+% a dot, so a long repository address wraps within its column.
+\RequirePackage{url}
 \RequirePackage[numbers,sort&compress]{natbib}
 
 % Erewhon for text and maths, Source Sans 3 for every piece of furniture,
@@ -63,6 +67,14 @@
 \definecolor{prussian}{HTML}{1F4A73}
 \definecolor{rulegrey}{gray}{0.6}
 \definecolor{laboratory@unitgrey}{gray}{0.4}
+
+% The data colours, so a caption, tag or table can name the colour a figure
+% gives a series. A document gives one a meaning with \colorlet, for example
+% \colorlet{stuck}{seriesB}.
+\colorlet{seriesA}{prussian}
+\definecolor{seriesB}{HTML}{B5562C}
+\definecolor{seriesC}{HTML}{1A1A1A}
+\definecolor{seriesD}{HTML}{737373}
 
 % One space after a full stop, so "e.g." and initials need no manual spacing.
 \frenchspacing
@@ -125,10 +137,38 @@
 % \keyrow keeps its meaning.
 \newcommand{\band}{\rowcolor{black!4}}
 
+% A coloured chip of small bold sans: background, text colour, text.
+\newcommand{\laboratory@chip}[3]{%
+  {\setlength{\fboxsep}{1.4pt}\colorbox{#1}{\rule[-0.25ex]{0pt}{1.75ex}\sffamily\footnotesize\bfseries\color{#2}#3}}}
+% Likelihood or impact in a risk table, light to dark.
+\NewDocumentCommand{\level}{m}{%
+  \ifstrequal{#1}{low}{\laboratory@chip{black!6}{black}{\mdseries low}}{%
+  \ifstrequal{#1}{medium}{\laboratory@chip{black!18}{black}{\mdseries medium}}{%
+  \ifstrequal{#1}{high}{\laboratory@chip{black!72}{white}{\mdseries high}}{%
+  \PackageError{laboratory-base}{Unknown level `#1'}{\string\level\space takes low, medium or high.}}}}}
+
+% Coded tags such as H1, R2 or MS3. \definebadge gives a code its colour once;
+% \badge sets the code anywhere as a chip that links to the one place
+% \badgetarget sets it. A code with no colour of its own is Prussian.
+\newcommand{\definebadge}[2]{\csdef{laboratory@badge@#1}{#2}}
+\newcommand{\laboratory@badgecolour}[1]{\ifcsdef{laboratory@badge@#1}{\csuse{laboratory@badge@#1}}{prussian}}
+\NewDocumentCommand{\badge}{m}{\hyperlink{badge.#1}{\laboratory@chip{\laboratory@badgecolour{#1}}{white}{#1}}}
+\NewDocumentCommand{\badgetarget}{m}{\hypertarget{badge.#1}{\laboratory@chip{\laboratory@badgecolour{#1}}{white}{#1}}}
+
+% Keys in a caption or the text that match a figure's marks.
+\NewDocumentCommand{\marker}{m}{\tikz[baseline=-0.6ex]\fill[#1] (0,0) circle (0.27em);}
+\NewDocumentCommand{\linekey}{m}{\tikz[baseline=-0.6ex]\draw[#1, line width=0.9pt] (0,0) -- (1.1em,0);}
+
+% The bold first sentence of a caption, which says what the float shows.
+\NewDocumentCommand{\lead}{m}{{\bfseries #1}}
+
 % Where the work behind the document lives: a repository, notebook or data
 % folder. The record strip leaves the field out when it is not given.
 \newcommand{\laboratory@source}{}
 \newcommand{\source}[1]{\renewcommand{\laboratory@source}{#1}}
+% The supervisor of a project, left out of the record strip when not given.
+\newcommand{\laboratory@supervisor}{}
+\newcommand{\supervisor}[1]{\renewcommand{\laboratory@supervisor}{#1}}
 
 % Sizes of the record strip, which the poster theme scales up for the sheet.
 \newcommand{\laboratory@labelsize}{\footnotesize}
@@ -146,18 +186,28 @@
   {\raggedright\sffamily\laboratory@valuesize #2\par}%
 }
 
-% The house signature under every title: a Prussian rule, the author, date
-% and source, and a grey rule. Takes the author and the date.
+% The fields of the record strip in a row: the supervisor's column (empty when
+% there is none), the supervisor's cell with its column separator, the author
+% and the date. The date column holds the longest British date, 28th September
+% 2026, on one line at the slide's 140 mm measure.
+\newcommand{\laboratory@recordfields}[4]{%
+  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}#1p{0.25\linewidth}X@{}}
+    \laboratory@field{Author}{#3} & #2\laboratory@field{Date}{#4}
+    & \ifx\laboratory@source\@empty\else\laboratory@field{Source}{\expandafter\path\expandafter{\laboratory@source}}\fi
+  \end{tabularx}}
+
+% The house signature under every title: a Prussian rule, the author,
+% supervisor, date and source, and a grey rule. Takes the author and the date.
 \newcommand{\laboratory@recordstrip}[2]{%
   {\color{prussian}\hrule height \laboratory@accentrule}%
   \vspace{0.6\baselineskip}%
   \noindent
-  % The date column holds the longest British date, 28th September 2026, on one
-  % line at the slide's 140 mm measure.
-  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.25\linewidth}X@{}}
-    \laboratory@field{Author}{#1} & \laboratory@field{Date}{#2}
-    & \ifx\laboratory@source\@empty\else\laboratory@field{Source}{\texttt{\laboratory@source}}\fi
-  \end{tabularx}
+  \ifx\laboratory@supervisor\@empty
+    \laboratory@recordfields{}{}{#1}{#2}%
+  \else
+    \laboratory@recordfields{p{0.22\linewidth}}
+      {\laboratory@field{Supervisor}{\laboratory@supervisor} &}{#1}{#2}%
+  \fi
   \vspace{0.6\baselineskip}%
   {\color{rulegrey}\hrule height \laboratory@hairline}%
 }

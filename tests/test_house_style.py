@@ -4,10 +4,63 @@ from pathlib import Path
 
 import build
 import pytest
-from new_project import ASSETS, DOCUMENT_PACKAGES
+from new_project import ASSETS, BEAMER_PACKAGES, DOCUMENT_PACKAGES
 
 PDFTOTEXT_TIMEOUT_SECONDS = 60
 MINUS_SIGN = "\N{MINUS SIGN}"
+
+# Every macro laboratory-base.sty gives tables, tags and keys, used once each.
+SHARED_MACROS = r"""
+\definebadge{H1}{seriesA}
+\definebadge{R1}{seriesB}
+\begin{table}
+  \caption{\lead{Every shared macro.} Risk \badge{R1} tests \badge{H1};
+    \marker{seriesB} marks and \linekey{seriesA} joins the points.}
+  \begin{tabular}{@{}llS[table-format=-1.2]S[table-format=3]@{}}
+    \toprule
+    & & \multicolumn{2}{c}{\spanhead{Fit}} \\
+    \cmidrule(l){3-4}
+    \colhead{Tag}{} & \colhead{Level}{} & \colhead{$\Delta T$}{\kelvin} & \colhead{$N$}{} \\
+    \midrule
+    \badgetarget{H1} & \level{low} & -0.25 & 120 \\
+    \band \badgetarget{R1} & \level{medium} & 1.50 & 64 \\
+    \keyrow H2 & \level{high} & -2.75 & 8 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+A cooling of \qty{-5}{\kelvin} in the {\color{seriesC}text} and \qty{3}{\milli\metre} in
+\textbf{bold}, as \textsf{\qty{-2}{\kelvin} in the sans face}.
+"""
+
+ARTICLE = rf"""\documentclass[11pt]{{article}}
+\usepackage{{laboratory}}
+\title{{Shared macros}}
+\author{{A. Student}}
+\supervisor{{Dr A. Supervisor}}
+\date{{28th September 2026}}
+\source{{github.com/student/project}}
+\begin{{document}}
+\maketitle
+{SHARED_MACROS}
+\end{{document}}
+"""
+
+BEAMER = rf"""\documentclass[aspectratio=169, 11pt]{{beamer}}
+\usetheme{{Laboratory}}
+\title{{Shared macros}}
+\author{{A. Student}}
+\supervisor{{Dr A. Supervisor}}
+\date{{28th September 2026}}
+\source{{github.com/student/project}}
+\begin{{document}}
+\begin{{frame}}
+  \titlepage
+\end{{frame}}
+\begin{{frame}}{{Tables and tags}}
+{SHARED_MACROS}
+\end{{frame}}
+\end{{document}}
+"""
 
 RUNNING_TEXT_QUANTITY = r"""\documentclass[11pt]{article}
 \usepackage{laboratory}
@@ -40,6 +93,22 @@ def extract_text(pdf: Path) -> str:
 
 
 @pytest.mark.tex
+@pytest.mark.parametrize(
+    ("source", "packages"), [(ARTICLE, DOCUMENT_PACKAGES), (BEAMER, BEAMER_PACKAGES)]
+)
+def test_every_shared_macro_builds_clean(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], source: str, packages: tuple[str, ...]
+) -> None:
+    document = write_project(tmp_path, source, packages)
+
+    exit_code = build.main([str(document), "--engine", "lualatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0, output
+    assert "0 defects, 0 warnings" in output, output
+
+
+@pytest.mark.tex
 def test_a_negative_quantity_in_running_text_keeps_a_true_minus(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -49,3 +118,30 @@ def test_a_negative_quantity_in_running_text_keeps_a_true_minus(
 
     text = extract_text(tmp_path / "build" / "main.pdf")
     assert f"{MINUS_SIGN}5" in text, text
+
+
+@pytest.mark.tex
+def test_reports_a_level_that_is_not_low_medium_or_high(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = ARTICLE.replace(r"\level{high}", r"\level{severe}")
+    document = write_project(tmp_path, source, DOCUMENT_PACKAGES)
+
+    exit_code = build.main([str(document), "--engine", "lualatex"])
+
+    assert exit_code == 1
+    assert "severe" in capsys.readouterr().out
+
+
+@pytest.mark.tex
+def test_warns_of_a_badge_with_no_target(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = ARTICLE.replace(r"\badgetarget{H1}", "H1")
+    document = write_project(tmp_path, source, DOCUMENT_PACKAGES)
+
+    exit_code = build.main([str(document), "--engine", "lualatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0, output
+    assert "badge.H1" in output, output
