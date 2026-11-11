@@ -310,6 +310,29 @@ def test_ignores_a_log_left_by_an_earlier_build(
     assert "latexmkrc refused to run" in output
 
 
+@pytest.mark.tex
+def test_recovers_from_a_build_that_stopped_before_the_bibliography(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = write(tmp_path / "main.tex", CITING_DOCUMENT)
+    write(tmp_path / "refs.bib", BIBLIOGRAPHY)
+    assert main([str(document), "--engine", "pdflatex"]) == 0
+    # The page with the citation ships out before the error, so the stopped
+    # run leaves an .aux that cites but names no database or style, and
+    # latexmk, which now knows the document uses BibTeX, runs BibTeX on it.
+    stop = "\\clearpage\\undefinedmacro\n\\bibliographystyle"
+    write(document, CITING_DOCUMENT.replace("\\bibliographystyle", stop))
+    assert main([str(document), "--engine", "pdflatex"]) == 1
+    assert "main.tex:5  Undefined control sequence." in capsys.readouterr().out
+    write(document, CITING_DOCUMENT)
+
+    exit_code = main([str(document), "--engine", "pdflatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0, output
+    assert "0 defects" in output
+
+
 def test_reports_pdftex_warnings_wherever_they_start_on_a_line() -> None:
     log = (
         b"(./main.tex [1{pdftex.map}] pdfTeX warning (ext4): destination with the same "

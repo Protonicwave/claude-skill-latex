@@ -8,6 +8,9 @@ latexmk runs in the document's folder with nonstop interaction, halting on the
 first error, and writes into DIR (default `build`, relative to the document).
 Every rule runs at least once (latexmk -g), so the log always comes from this
 build; a log, BibTeX log or PDF this run did not write is ignored as left over.
+The document's .aux, .log and latexmk's records of earlier runs are deleted
+first, so a run that stopped before the bibliography cannot leave BibTeX an
+.aux with no database in it: TeX always runs before BibTeX.
 Without --engine, a latexmkrc or .latexmkrc in the document's folder chooses
 the engine, as it does for an editor; with neither, LuaLaTeX is used.
 The TeX log and any BibTeX log are then read into findings. Defects need
@@ -77,6 +80,12 @@ DEFAULT_ENGINE = Engine.LUALATEX
 LATEXMKRC_NAMES = ("latexmkrc", ".latexmkrc")
 # The files a build writes, read only when this run wrote them.
 OUTPUTS = (".log", ".blg", ".pdf")
+# What latexmk carries from one run into the next. Told by any of these that
+# the document uses BibTeX, latexmk -g runs BibTeX before TeX, on an .aux that
+# a stopped run left without a database, or on an empty one it writes itself,
+# and stops on BibTeX's error without running TeX. The PDF stays, unlike under
+# latexmk -gg, so a failing build still leaves something to look at.
+CARRIED_STATE = (".aux", ".fdb_latexmk", ".fls", ".log")
 
 
 class Severity(StrEnum):
@@ -642,6 +651,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     engine_label = str(args.engine or DEFAULT_ENGINE) if flags else "engine from latexmkrc"
     log_path, bibtex_path, pdf = (outdir / f"{document.stem}{suffix}" for suffix in OUTPUTS)
     before = {path: file_state(path) for path in (log_path, bibtex_path, pdf)}
+    for suffix in CARRIED_STATE:
+        (outdir / f"{document.stem}{suffix}").unlink(missing_ok=True)
     run = run_latexmk(latexmk, document, args.engine, outdir, args.timeout_seconds)
     log = _read_rewritten(log_path, before[log_path])
     bibtex_log = _read_rewritten(bibtex_path, before[bibtex_path])
