@@ -4,7 +4,7 @@
 # A style cannot choose the backend, so save with
 #     figure.savefig("name.pdf", backend="pgf")
 # and draw each figure at the width the document includes it, so its type
-# stays at the size set here. The default size is the full 175 mm measure.
+# stays at the size set here. The default size is the full 150 mm measure.
 #
 # The preamble repeats the faces laboratory-base.sty sets, because the pgf
 # backend runs LuaLaTeX in a temporary folder where that package cannot be found.
@@ -13,12 +13,17 @@
 
 pgf.texsystem: lualatex
 pgf.rcfonts: False
-pgf.preamble: \usepackage{fontspec}\usepackage{unicode-math}\setmainfont{Erewhon}[Extension=.otf,UprightFont=*-Regular,ItalicFont=*-Italic,Scale=0.95]\setsansfont{SourceSans3}[Extension=.otf,UprightFont=*-Regular,ItalicFont=*-RegularIt,Scale=MatchUppercase]\setmathfont{Erewhon-Math.otf}[Scale=0.95]\AtBeginDocument{\Umathcharnumdef\laboratoryslash=\Umathcodenum`\/\relax\begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\laboratoryslash\mkern-2mu}\mathcode`\/=32768\relax}
+pgf.preamble: \usepackage{fontspec}\usepackage{unicode-math}\setmainfont{Erewhon}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,Scale=0.95]\setsansfont{SourceSans3}[Extension=.otf,UprightFont=*-Regular,ItalicFont=*-RegularIt,Scale=MatchUppercase]\setmathfont{Erewhon-Math.otf}[Scale=0.95]\AtBeginDocument{\Umathcharnumdef\laboratoryslash=\Umathcodenum`\/\relax\begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\laboratoryslash\mkern-2mu}\mathcode`\/=32768\relax}
 
-font.family: sans-serif
+# The text face, not the sans: tick labels on a log axis and every symbol in an
+# axis label are maths, set in Erewhon Math, so serif words beside them keep
+# one design in the figure.
+font.family: serif
 font.size: 9
 axes.labelsize: 9
 axes.titlesize: 9
+# Panel labels, (a) and (b), set as the axes title above the top left corner.
+axes.titleweight: bold
 axes.titlelocation: left
 axes.titlepad: 4
 xtick.labelsize: 9
@@ -27,8 +32,9 @@ legend.fontsize: 9
 legend.frameon: False
 axes.unicode_minus: True
 
-# Prussian blue for measurements, near black for models, grey for guides.
-axes.prop_cycle: cycler("color", ["1F4A73", "1A1A1A", "999999"])
+# Prussian blue for measurements, near black for models, grey for guides. The
+# grey is 45 per cent, dark enough for a marker or a thin line to survive print.
+axes.prop_cycle: cycler("color", ["1F4A73", "1A1A1A", "737373"])
 lines.linewidth: 1.0
 lines.markersize: 3.2
 errorbar.capsize: 0
@@ -43,7 +49,7 @@ ytick.major.size: 3
 xtick.direction: out
 ytick.direction: out
 
-# 175 mm by 70 mm.
-figure.figsize: 6.89, 2.76
+# 150 mm by 60 mm, the full measure. figures.md gives the narrower widths.
+figure.figsize: 5.91, 2.36
 figure.constrained_layout.use: True
 savefig.format: pdf
