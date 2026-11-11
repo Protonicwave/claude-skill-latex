@@ -131,8 +131,10 @@
   \end{tabular}}
 % The name of a group of columns, set like the record strip's labels.
 \NewDocumentCommand{\spanhead}{m}{{\sffamily\footnotesize\color{prussian}\laboratory@tracked{#1}}}
-% The one row a reader should find first.
-\newcommand{\keyrow}{\rowcolor{prussian!7}}
+% The one row a reader should find first. laboratory.sty's statement block
+% takes the same tint, so the tint always marks what to find first.
+\colorlet{laboratory@keytint}{prussian!7}
+\newcommand{\keyrow}{\rowcolor{laboratory@keytint}}
 % Alternate rows of a wide table of words, in a neutral tint so the Prussian of
 % \keyrow keeps its meaning.
 \newcommand{\band}{\rowcolor{black!4}}

@@ -62,6 +62,61 @@ BEAMER = rf"""\documentclass[aspectratio=169, 11pt]{{beamer}}
 \end{{document}}
 """
 
+# Every piece of page furniture laboratory.sty adds, used once each.
+PAGE_FURNITURE = r"""
+\section{Aim and hypotheses}
+\begin{statement}{Aim}
+  Measure the gravitational acceleration to one part in a thousand.
+\end{statement}
+\paragraph{Why it matters} The measurement tests the small-angle model.
+\subsection{Hypotheses}
+\begin{claims}
+  \item[\badgetarget{H1}] The small-angle law holds at \qty{3}{\degree}.
+\end{claims}
+\begin{itemize}
+  \item the period;
+  \item the length.
+\end{itemize}
+\begin{milestones}
+  \item MS1, apparatus verified: week 3.
+\end{milestones}
+\Cref{tab:risks} lists the risks to \badge{H1}.
+\begin{table}[tbp]
+  \caption{\lead{Risks to the measurement.} Each risk with its likelihood.}
+  \label{tab:risks}
+  \begin{threeparttable}
+    \begin{tabular}{@{}ll@{}}
+      \toprule
+      \head{Risk} & \head{Likelihood} \\
+      \midrule
+      Gate misaligned\tnote{a} & \level{low} \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \item[a] Checked every week.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+"""
+
+
+def furnished_document(document_class: str, chapter: str) -> str:
+    return rf"""\documentclass[11pt]{{{document_class}}}
+\usepackage{{laboratory}}
+\kicker{{Project plan}}
+\runninghead{{Pendulum}}
+\title{{Page furniture}}
+\author{{A. Student}}
+\date{{28th September 2026}}
+\begin{{document}}
+\maketitle
+\tableofcontents
+{chapter}
+{PAGE_FURNITURE}
+\end{{document}}
+"""
+
+
 # Long words that a justified caption held to a narrow table hyphenates. A
 # caption inside a threeparttable takes the table's width, so this is the
 # narrowest a table caption gets.
@@ -129,6 +184,30 @@ def test_every_shared_macro_builds_clean(
     tmp_path: Path, capsys: pytest.CaptureFixture[str], source: str, packages: tuple[str, ...]
 ) -> None:
     document = write_project(tmp_path, source, packages)
+
+    exit_code = build.main([str(document), "--engine", "lualatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0, output
+    assert "0 defects, 0 warnings" in output, output
+
+
+@pytest.mark.tex
+@pytest.mark.parametrize(
+    "source",
+    [
+        furnished_document("article", ""),
+        furnished_document("report", r"\chapter{Plan}"),
+        furnished_document("report", r"\chapter{Plan}").replace(
+            r"\usepackage{laboratory}", r"\usepackage[compact]{laboratory}"
+        ),
+    ],
+    ids=["article", "report", "compact-report"],
+)
+def test_every_piece_of_page_furniture_builds_clean(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], source: str
+) -> None:
+    document = write_project(tmp_path, source, DOCUMENT_PACKAGES)
 
     exit_code = build.main([str(document), "--engine", "lualatex"])
 
