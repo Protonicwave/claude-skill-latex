@@ -74,6 +74,12 @@ def test_skeleton_builds_without_defects_and_lints_clean(
     folder = tmp_path / "new project"
     assert main([profile, str(folder)]) == 0
     document = folder / "main.tex"
+    # The longest date \today sets under british babel, so the build does not
+    # depend on the day the suite runs.
+    source = document.read_text(encoding="utf-8")
+    document.write_text(
+        source.replace(r"\date{\today}", r"\date{28th September 2026}"), encoding="utf-8"
+    )
 
     # No --engine: the project's latexmkrc chooses it, as it does for an editor.
     exit_code = build.main([str(document)])

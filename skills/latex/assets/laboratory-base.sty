@@ -92,9 +92,11 @@
 \setlength{\laboratory@hairline}{0.4pt}
 
 % Each line ends its paragraph inside its own size, so it takes its own leading.
+% Values are ragged right: a name too long for its column wraps rather than
+% being stretched across it.
 \newcommand{\laboratory@field}[2]{%
   {\sffamily\laboratory@labelsize\color{prussian}\MakeUppercase{#1}\par}%
-  {\sffamily\laboratory@valuesize #2\par}%
+  {\raggedright\sffamily\laboratory@valuesize #2\par}%
 }
 
 % The house signature under every title: a Prussian rule, the author, date
@@ -103,7 +105,9 @@
   {\color{prussian}\hrule height \laboratory@accentrule}%
   \vspace{0.6\baselineskip}%
   \noindent
-  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.22\linewidth}X@{}}
+  % The date column holds the longest British date, 28th September 2026, on one
+  % line at the slide's 140 mm measure.
+  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.25\linewidth}X@{}}
     \laboratory@field{Author}{#1} & \laboratory@field{Date}{#2}
     & \ifx\laboratory@source\@empty\else\laboratory@field{Source}{\texttt{\laboratory@source}}\fi
   \end{tabularx}
