@@ -219,7 +219,8 @@ SLOPPY = Rule(
 FORCED_FLOAT_PLACEMENT = Rule(
     "forced-float-placement",
     TELL,
-    "[h] or [H] pins a float where it is written, leaving gaps or pushing it to the end",
+    "an h in the placement, as in [h], [H] or [htbp], lets a float sit where it is"
+    " written, leaving gaps or pushing it to the end",
     "use [tbp] and place the float after the paragraph that refers to it",
 )
 RULED_TABLE = Rule(
@@ -578,7 +579,7 @@ PATTERN_CHECKS = (
     PatternCheck(
         FORCED_FLOAT_PLACEMENT,
         View.SOURCE,
-        re.compile(r"\\begin\{(?:figure|table)\*?\}\s*\[(?:H|!?h!?)\]"),
+        re.compile(r"\\begin\{(?:figure|table)\*?\}\s*\[[!tbp]*[hH][!htbpH]*\]"),
     ),
     PatternCheck(
         RULED_TABLE,

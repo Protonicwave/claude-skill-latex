@@ -25,7 +25,7 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 
 | Tell | Instead |
 |---|---|
-| `[h]`, `[H]` or `[!h]` on every float (`forced-float-placement`) | `[tbp]`, with the float written after the paragraph that first refers to it |
+| `[h]`, `[H]`, `[!h]` or `[htbp]` on a float (`forced-float-placement`) | `[tbp]`, with the float written after the paragraph that first refers to it |
 | A float written before its first reference (`float-before-reference`) | Move it below that paragraph; `flafter` then keeps it there |
 | A figure or table the text never mentions (`unreferenced-float`) | Refer to it where the text discusses it, or remove it |
 | `center` inside a float (`centre-environment-in-float`) | `\centering` |

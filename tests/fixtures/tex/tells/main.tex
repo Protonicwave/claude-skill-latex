@@ -7,7 +7,14 @@
 
 \begin{document}
 
-\Cref{fig:here,fig:fixed,tab:grid} show the results.
+\Cref{fig:here,fig:fixed,tab:grid,fig:anywhere} show the results.
+
+\begin{figure}[htbp] % lint: forced-float-placement
+  \centering
+  \includegraphics[width=\linewidth]{anywhere.pdf}
+  \caption{A float allowed here as well as anywhere else.}
+  \label{fig:anywhere}
+\end{figure}
 
 \vspace{2em} % lint: manual-layout
 \noindent A paragraph set flush by hand. % lint: manual-layout
