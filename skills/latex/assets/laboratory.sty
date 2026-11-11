@@ -21,6 +21,7 @@
 % caption to the table's own width.
 \RequirePackage{threeparttable}
 \RequirePackage{titlesec}
+\RequirePackage{titletoc}
 \RequirePackage{enumitem}
 \RequirePackage{listings}
 \RequirePackage{amsthm}
@@ -47,7 +48,25 @@
 \titleformat{\subsection}{\normalfont\sffamily\bfseries}{\llap{\color{prussian}\thesubsection\hspace{0.7em}}}{0pt}{}
 \titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.5\baselineskip}
 \titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.3\baselineskip}
-\@ifundefined{chapter}{}{%
+% A run-in head names a paragraph without spending a line on it.
+\titleformat{\paragraph}[runin]{\normalfont\sffamily\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{0.6\baselineskip plus 0.2\baselineskip minus 0.1\baselineskip}{0.5em}
+
+% Contents in the furniture face: Prussian numbers and no dot leaders. An
+% unnumbered entry, such as the references, starts on the numbers' edge.
+\newcommand{\laboratory@contentsnumber}{\color{prussian}\thecontentslabel}
+\@ifundefined{chapter}{%
+  \titlecontents{section}[1.8em]{\addvspace{0.4\baselineskip}\sffamily\bfseries}
+    {\contentslabel[\laboratory@contentsnumber]{1.8em}}{\hspace*{-1.8em}}{\hfill\contentspage}
+  \titlecontents{subsection}[4.2em]{\sffamily}
+    {\contentslabel[\laboratory@contentsnumber]{2.4em}}{}{\hfill\contentspage}
+}{%
+  \titlecontents{chapter}[1.8em]{\addvspace{0.7\baselineskip}\sffamily\bfseries}
+    {\contentslabel[\laboratory@contentsnumber]{1.8em}}{\hspace*{-1.8em}}{\hfill\contentspage}
+  \titlecontents{section}[4.2em]{\sffamily}
+    {\contentslabel[\laboratory@contentsnumber]{2.4em}}{}{\hfill\contentspage}
+  \titlecontents{subsection}[7.2em]{\sffamily\small}
+    {\contentslabel[\laboratory@contentsnumber]{3em}}{}{\hfill\contentspage}
   \iflaboratory@compact
     % A chapter becomes a heading in the run of the text, so the contents, the
     % chapters and the references follow on without a page break each. The
@@ -60,8 +79,17 @@
     \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\LARGE}{\llap{\color{prussian}\thechapter\hspace{0.6em}}}{0pt}{}
     \titlespacing*{\chapter}{0pt}{2.4\baselineskip plus 0.4\baselineskip minus 0.2\baselineskip}{0.8\baselineskip}
   \else
-    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\huge}{\color{prussian}\thechapter}{0.6em}{}
-    \titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+    % A chapter opens a seventh of the way down its page: a large numeral in
+    % the light weight of the furniture face, the title, and the record strip's
+    % accent rule under it.
+    \newfontfamily\laboratory@light{SourceSans3}[Extension = .otf, UprightFont = *-Light, Scale = MatchUppercase]
+    \titleformat{\chapter}[display]
+      {\normalfont\sffamily\bfseries\huge}
+      {{\mdseries\laboratory@light\fontsize{60}{60}\selectfont\color{prussian}\thechapter}}
+      {0.9\baselineskip}
+      {}
+      [\vspace{0.7\baselineskip}{\color{prussian}\titlerule[\laboratory@accentrule]}]
+    \titlespacing*{\chapter}{0pt}{0.14\textheight}{2.2\baselineskip}
   \fi
   \addto\captionsbritish{\renewcommand{\bibname}{References}}
 }
