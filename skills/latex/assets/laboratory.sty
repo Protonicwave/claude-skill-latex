@@ -1,13 +1,25 @@
 % Laboratory house style for documents set with the article or report class:
-% a 175 mm measure at 11pt, sans furniture, Prussian blue as the one accent and
+% a 150 mm measure at 11pt, sans furniture, Prussian blue as the one accent and
 % an author, date and source strip under the title.
+%
+% The option compact, for a report of about twenty pages or fewer, runs the
+% contents and each chapter on from the text before instead of starting a page.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{laboratory}[2026/11/07 Laboratory house style: documents]
+\ProvidesPackage{laboratory}[2026/11/11 Laboratory house style: documents]
+
+\newif\iflaboratory@compact
+\DeclareOption{compact}{\laboratory@compacttrue}
+\ProcessOptions\relax
 
 \RequirePackage{laboratory-base}
-\RequirePackage[a4paper, textwidth=175mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
+% 150 mm leaves 30 mm side margins and about 95 characters a line.
+\RequirePackage[a4paper, textwidth=150mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
+\RequirePackage{etoolbox}
 \RequirePackage{fancyhdr}
 \RequirePackage{caption}
+% A table narrower than the measure sits in a threeparttable, which holds its
+% caption to the table's own width.
+\RequirePackage{threeparttable}
 \RequirePackage{titlesec}
 \RequirePackage{listings}
 \RequirePackage{amsthm}
@@ -33,13 +45,32 @@
 \titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.5\baselineskip}
 \titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.3\baselineskip}
 \@ifundefined{chapter}{}{%
-  \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\huge}{\color{prussian}\thechapter}{0.6em}{}
-  \titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+  \iflaboratory@compact
+    % A chapter becomes a heading in the run of the text, so the contents, the
+    % chapters and the references follow on without a page break each. The
+    % document brings chapters in with \input, since \include starts a page.
+    \titleclass{\chapter}{straight}
+    % Without the page break, a chapter's floats would drift into the next
+    % chapter; the barrier sets them before the next chapter's heading.
+    \RequirePackage{placeins}
+    \AddToHook{cmd/chapter/before}{\FloatBarrier}
+    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\LARGE}{\color{prussian}\thechapter}{0.6em}{}
+    \titlespacing*{\chapter}{0pt}{2.4\baselineskip plus 0.4\baselineskip minus 0.2\baselineskip}{0.8\baselineskip}
+  \else
+    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\huge}{\color{prussian}\thechapter}{0.6em}{}
+    \titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+  \fi
   \addto\captionsbritish{\renewcommand{\bibname}{References}}
 }
 
-\captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=quad, justification=justified, singlelinecheck=false}
+% An en space after the label: a quad leaves a hole between "Table 1" and its text.
+\DeclareCaptionLabelSeparator{enspace}{\enspace}
+\captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=enspace, justification=justified, singlelinecheck=false}
 \captionsetup[table]{position=top, skip=6pt}
+
+% Rows in a table sit 15 per cent further apart than the class sets them, so a
+% row of exponents does not touch the row above. Arrays in maths are untouched.
+\AtBeginEnvironment{table}{\renewcommand{\arraystretch}{1.15}}
 
 \lstset{
   language = Python,
@@ -86,7 +117,8 @@
 
 \renewenvironment{abstract}{%
   \small
-  \list{}{\leftmargin=0pt \rightmargin=0pt}%
+  % Indented on both sides so the abstract reads as a block apart from the text.
+  \list{}{\leftmargin=2em \rightmargin=2em}%
   \item\relax{\sffamily\bfseries\color{prussian}Abstract}\enspace\ignorespaces
 }{\endlist\vspace{0.6\baselineskip}}
 

@@ -75,8 +75,10 @@
   group-minimum-digits = 5,
 }
 
-% Table column headings are furniture, so they take the sans face.
-\newcommand{\head}[1]{{\sffamily\bfseries #1}}
+% Table column headings are furniture, so they take the sans face. They stay at
+% regular weight: most heads hold a quantity in maths, which has no bold to
+% match, so a bold word beside them sets two weights in one row.
+\newcommand{\head}[1]{{\sffamily #1}}
 
 % Where the work behind the document lives: a repository, notebook or data
 % folder. The record strip leaves the field out when it is not given.
