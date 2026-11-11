@@ -20,6 +20,7 @@
 \RequirePackage{graphicx}
 \RequirePackage{booktabs}
 \RequirePackage{tabularx}
+\RequirePackage{colortbl}
 \RequirePackage{siunitx}
 \RequirePackage{csquotes}
 \RequirePackage[numbers,sort&compress]{natbib}
@@ -61,6 +62,7 @@
 
 \definecolor{prussian}{HTML}{1F4A73}
 \definecolor{rulegrey}{gray}{0.6}
+\definecolor{laboratory@unitgrey}{gray}{0.4}
 
 % One space after a full stop, so "e.g." and initials need no manual spacing.
 \frenchspacing
@@ -86,10 +88,42 @@
 \AtBeginEnvironment{tabular*}{\sisetup{mode = math}}
 \AtBeginEnvironment{tabularx}{\sisetup{mode = math}}
 
+% Capitals set as a label are tracked open, or they crowd.
+\newcommand{\laboratory@tracked}[1]{{\addfontfeature{LetterSpace=8}\MakeUppercase{#1}}}
+
+% Table rules repeat the record strip: a Prussian rule above, grey rules inside
+% and a black rule to close the table. The top rule's width is fixed here, so
+% \toprule takes no optional width.
+\setlength{\heavyrulewidth}{0.6pt}
+\setlength{\lightrulewidth}{0.4pt}
+\setlength{\cmidrulewidth}{0.4pt}
+\let\laboratory@toprule\toprule
+\let\laboratory@midrule\midrule
+\let\laboratory@bottomrule\bottomrule
+\renewcommand{\toprule}{\arrayrulecolor{prussian}\laboratory@toprule[1pt]\arrayrulecolor{rulegrey}}
+\renewcommand{\midrule}{\arrayrulecolor{rulegrey}\laboratory@midrule}
+\renewcommand{\bottomrule}{\arrayrulecolor{black}\laboratory@bottomrule}
+
 % Table column headings are furniture, so they take the sans face. They stay at
 % regular weight: most heads hold a quantity in maths, which has no bold to
 % match, so a bold word beside them sets two weights in one row.
 \newcommand{\head}[1]{{\sffamily #1}}
+% A head with its unit under it in small grey sans, written as siunitx unit
+% macros. With no unit, a strut of the unit's height keeps the head level with
+% its neighbours.
+\NewDocumentCommand{\colhead}{mm}{%
+  \begin{tabular}[b]{@{}c@{}}%
+    \head{#1}\\[-0.2ex]
+    {\sffamily\footnotesize\color{laboratory@unitgrey}%
+      \if\relax\detokenize{#2}\relax\strut\else\unit[mode = text]{#2}\fi}%
+  \end{tabular}}
+% The name of a group of columns, set like the record strip's labels.
+\NewDocumentCommand{\spanhead}{m}{{\sffamily\footnotesize\color{prussian}\laboratory@tracked{#1}}}
+% The one row a reader should find first.
+\newcommand{\keyrow}{\rowcolor{prussian!7}}
+% Alternate rows of a wide table of words, in a neutral tint so the Prussian of
+% \keyrow keeps its meaning.
+\newcommand{\band}{\rowcolor{black!4}}
 
 % Where the work behind the document lives: a repository, notebook or data
 % folder. The record strip leaves the field out when it is not given.
@@ -108,7 +142,7 @@
 % Values are ragged right: a name too long for its column wraps rather than
 % being stretched across it.
 \newcommand{\laboratory@field}[2]{%
-  {\sffamily\laboratory@labelsize\color{prussian}\MakeUppercase{#1}\par}%
+  {\sffamily\laboratory@labelsize\color{prussian}\laboratory@tracked{#1}\par}%
   {\raggedright\sffamily\laboratory@valuesize #2\par}%
 }
 

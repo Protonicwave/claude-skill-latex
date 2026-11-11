@@ -20,15 +20,18 @@
       S[table-format=1.1]
       S[table-format=1.4(2)]
       S[table-format=1.4]
+      S[table-format=-1.1]
     }
       \toprule
-      {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+      \multicolumn{2}{c}{\spanhead{Measured}} & \multicolumn{2}{c}{\spanhead{Fitted}} \\
+      \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+      {\colhead{$L$}{\metre}} & {\colhead{$T$}{\second}} & {\colhead{$T_\mathrm{fit}$}{\second}} & {\colhead{$T - T_\mathrm{fit}$}{\milli\second}} \\
       \midrule
-      0.2 & 0.8983(10) & 0.8972 \\
-      0.4 & 1.2692(10) & 1.2688 \\
-      0.6 & 1.5548(10) & 1.5540 \\
-      0.8 & 1.7937(10) & 1.7943 \\
-      1.0 & 2.0057(10) & 2.0061 \\
+      0.2 & 0.8983(10) & 0.8972 & 1.1 \\
+      0.4 & 1.2692(10) & 1.2688 & 0.4 \\
+      0.6 & 1.5548(10) & 1.5540 & 0.8 \\
+      0.8 & 1.7937(10) & 1.7943 & -0.6 \\
+      1.0 & 2.0057(10) & 2.0061 & -0.4 \\
       \bottomrule
     \end{tabular}
   \end{threeparttable}
