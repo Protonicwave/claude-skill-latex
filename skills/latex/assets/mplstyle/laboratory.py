@@ -133,10 +133,11 @@ def finish(figure: Figure, ylabels: Mapping[Axes, str], *, level: bool = True) -
         raise ValueError("expected at least one axes to finish, got none")
     if len(ylabels) > len(string.ascii_lowercase):
         raise ValueError(f"expected at most 26 axes to letter, got {len(ylabels)}")
-    font_size_pt = mpl.rcParams["font.size"]
-    for axes, ylabel in ylabels.items():
+    for axes in ylabels:
         if axes.get_ylabel():
             raise ValueError(f"y label {axes.get_ylabel()!r} already set; give it to finish()")
+    font_size_pt = mpl.rcParams["font.size"]
+    for axes, ylabel in ylabels.items():
         _tidy(axes, font_size_pt * SPINE_OFFSET_EM)
         if not level:
             axes.set_ylabel(ylabel)

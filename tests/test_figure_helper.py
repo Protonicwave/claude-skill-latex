@@ -174,6 +174,18 @@ def test_finish_rejects_a_y_label_already_set() -> None:
         lab.finish(figure, {axes: "$T$ (s)"})
 
 
+def test_finish_changes_nothing_when_a_later_y_label_is_already_set() -> None:
+    figure, left, right = two_panels()
+    right.set_ylabel("$r$ (ms)")
+    left_locator = left.yaxis.get_major_locator()
+
+    with pytest.raises(ValueError, match="already set"):
+        lab.finish(figure, {left: "$T$ (s)", right: "$r$ (ms)"}, level=False)
+
+    assert left.get_ylabel() == ""
+    assert left.yaxis.get_major_locator() is left_locator
+
+
 def test_finish_rejects_no_axes() -> None:
     with pytest.raises(ValueError, match="at least one axes"):
         lab.finish(Figure(), {})
