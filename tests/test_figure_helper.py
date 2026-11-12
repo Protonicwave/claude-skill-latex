@@ -120,6 +120,40 @@ def test_finish_sets_the_panel_letter_left_of_a_level_y_label() -> None:
         assert axes.get_ylabel() == ""
 
 
+def assert_letters_clear_of_level_labels(figure: Figure, ylabels: dict[Axes, str]) -> None:
+    lab.finish(figure, ylabels)
+    figure.draw_without_rendering()
+
+    for axes, letter in zip(ylabels, "ab", strict=True):
+        letter_box = text_on(axes, letter).get_window_extent()
+        label_box = text_on(axes, ylabels[axes]).get_window_extent()
+        assert letter_box.x1 < label_box.x0
+
+
+def test_finish_keeps_the_letter_clear_of_the_label_on_a_shared_y_axis() -> None:
+    figure = Figure(figsize=lab.FULL, layout="constrained")
+    left, right = figure.subplots(1, 2, sharey=True)
+    for axes in (left, right):
+        axes.plot([0.2, 1.0], [0.9, 2.0])
+
+    assert_letters_clear_of_level_labels(figure, {left: "$T$ (s)", right: "$r$ (ms)"})
+
+
+def test_finish_keeps_the_letter_clear_of_the_label_with_ticks_on_the_right() -> None:
+    figure, left, right = two_panels()
+    left.yaxis.tick_right()
+
+    assert_letters_clear_of_level_labels(figure, {left: "$T$ (s)", right: "$r$ (ms)"})
+
+
+def test_finish_keeps_the_letter_clear_of_the_label_beside_one_digit_ticks() -> None:
+    figure, left, right = two_panels()
+    for axes in (left, right):
+        axes.set_ylim(0, 5)
+
+    assert_letters_clear_of_level_labels(figure, {left: "$T$ (s)", right: "$r$ (ms)"})
+
+
 def test_finish_sets_the_panel_letter_on_the_level_y_label_baseline() -> None:
     figure, left, right = two_panels()
 

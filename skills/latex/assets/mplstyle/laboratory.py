@@ -32,7 +32,7 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.ticker import MaxNLocator
-from matplotlib.transforms import ScaledTranslation
+from matplotlib.transforms import ScaledTranslation, Transform
 from numpy.typing import ArrayLike
 
 MILLIMETRES_PER_INCH = 25.4
@@ -70,6 +70,7 @@ ERROR_BAR_WIDTH_FRACTION = 0.7
 ERROR_BAR_TINT = 0.45
 SPINE_OFFSET_EM = 1 / 3
 LABEL_RISE_EM = 5 / 9
+LETTER_GAP_EM = 1 / 2
 
 # Steps of 1, 2 or 5 cannot always give four to six ticks, because the count
 # jumps by 2 to 2.5 times between steps; these settings give three to five on
@@ -145,17 +146,30 @@ def finish(figure: Figure, ylabels: Mapping[Axes, str], *, level: bool = True) -
     rise_in = font_size_pt * LABEL_RISE_EM / POINTS_PER_INCH
     for letter, (axes, ylabel) in zip(string.ascii_lowercase, ylabels.items(), strict=False):
         axes_left_px = axes.get_window_extent().x0
-        spine_left_px = axes.spines["left"].get_window_extent().x0
-        # The y axis' extent spans its tick labels, and its label when it runs up the axis.
-        axis_extent = axes.yaxis.get_tightbbox()
-        letter_left_px = spine_left_px if axis_extent is None else axis_extent.x0
+        spine_left_in = (axes.spines["left"].get_window_extent().x0 - axes_left_px) / figure.dpi
         if level:
-            ylabel_left_in = (spine_left_px - axes_left_px) / figure.dpi
-            _above(figure, axes, ylabel, ylabel_left_in, rise_in)
+            _above(figure, axes, ylabel, spine_left_in, rise_in)
         if len(ylabels) > 1:
-            letter_left_in = (letter_left_px - axes_left_px) / figure.dpi
-            letter_text = _above(figure, axes, letter, letter_left_in, rise_in)
-            letter_text.set(family="sans-serif", weight="bold")
+            _letter(figure, axes, letter, spine_left_in if level else None, rise_in)
+
+
+def _letter(
+    figure: Figure, axes: Axes, letter: str, level_label_left_in: float | None, rise_in: float
+) -> None:
+    """A bold sans letter left of the y axis' labels and clear of a level y label."""
+    text = _above(figure, axes, letter, 0, rise_in)
+    text.set(family="sans-serif", weight="bold")
+    axes_left_px = axes.get_window_extent().x0
+    # The y axis' extent spans its tick labels, and its label when it runs up the axis.
+    axis_extent = axes.yaxis.get_tightbbox()
+    left_px = axes.spines["left"].get_window_extent().x0 if axis_extent is None else axis_extent.x0
+    left_in = (left_px - axes_left_px) / figure.dpi
+    if level_label_left_in is not None:
+        # Shared or right-hand ticks leave no labels on the left to push it clear.
+        gap_in = mpl.rcParams["font.size"] * LETTER_GAP_EM / POINTS_PER_INCH
+        width_in = text.get_window_extent().width / figure.dpi
+        left_in = min(left_in, level_label_left_in - gap_in - width_in)
+    text.set_transform(_above_transform(figure, axes, left_in, rise_in))
 
 
 def _tidy(axes: Axes, spine_offset_pt: float) -> None:
@@ -170,7 +184,16 @@ def _tidy(axes: Axes, spine_offset_pt: float) -> None:
 
 def _above(figure: Figure, axes: Axes, text: str, left_in: float, rise_in: float) -> Text:
     """Text at left_in from the axes' left edge, its baseline rise_in above the axes."""
-    offset = ScaledTranslation(left_in, rise_in, figure.dpi_scale_trans)
     return axes.text(
-        0, 1, text, transform=axes.transAxes + offset, ha="left", va="baseline", clip_on=False
+        0,
+        1,
+        text,
+        transform=_above_transform(figure, axes, left_in, rise_in),
+        ha="left",
+        va="baseline",
+        clip_on=False,
     )
+
+
+def _above_transform(figure: Figure, axes: Axes, left_in: float, rise_in: float) -> Transform:
+    return axes.transAxes + ScaledTranslation(left_in, rise_in, figure.dpi_scale_trans)
