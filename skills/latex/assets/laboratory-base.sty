@@ -195,27 +195,35 @@
   {\raggedright\sffamily\laboratory@valuesize #2\par}%
 }
 
-% The fields of the record strip in a row: the supervisor's column (empty when
-% there is none), the supervisor's cell with its column separator, the author
-% and the date. The date column holds the longest British date, 28th September
-% 2026, on one line at the slide's 140 mm measure.
-\newcommand{\laboratory@recordfields}[4]{%
-  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}#1p{0.25\linewidth}X@{}}
-    \laboratory@field{Author}{#3} & #2\laboratory@field{Date}{#4}
-    & \ifx\laboratory@source\@empty\else\laboratory@field{Source}{\expandafter\path\expandafter{\laboratory@source}}\fi
-  \end{tabularx}}
+% The source field, empty when \source is not given. url's \path breaks a
+% repository address after a slash or a dot.
+\newcommand{\laboratory@sourcefield}{%
+  \ifx\laboratory@source\@empty\else
+    \laboratory@field{Source}{\expandafter\path\expandafter{\laboratory@source}}%
+  \fi}
 
 % The house signature under every title: a Prussian rule, the author,
 % supervisor, date and source, and a grey rule. Takes the author and the date.
+% Author and supervisor take 0.22 of the line each; the date takes 0.25, which
+% holds the longest British date, 28th September 2026, on one line at the
+% slide's 140 mm measure.
 \newcommand{\laboratory@recordstrip}[2]{%
   {\color{prussian}\hrule height \laboratory@accentrule}%
   \vspace{0.6\baselineskip}%
   \noindent
   \ifx\laboratory@supervisor\@empty
-    \laboratory@recordfields{}{}{#1}{#2}%
+    \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.25\linewidth}X@{}}
+      \laboratory@field{Author}{#1}
+      & \laboratory@field{Date}{#2}
+      & \laboratory@sourcefield
+    \end{tabularx}%
   \else
-    \laboratory@recordfields{p{0.22\linewidth}}
-      {\laboratory@field{Supervisor}{\laboratory@supervisor} &}{#1}{#2}%
+    \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.22\linewidth}p{0.25\linewidth}X@{}}
+      \laboratory@field{Author}{#1}
+      & \laboratory@field{Supervisor}{\laboratory@supervisor}
+      & \laboratory@field{Date}{#2}
+      & \laboratory@sourcefield
+    \end{tabularx}%
   \fi
   \vspace{0.6\baselineskip}%
   {\color{rulegrey}\hrule height \laboratory@hairline}%
