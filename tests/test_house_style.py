@@ -1,3 +1,4 @@
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -281,3 +282,66 @@ def test_draws_a_top_rule_given_a_width_at_the_house_width(
     assert exit_code == 0, output
     assert r"\toprule[2pt]" in output, output
     assert "[2pt]" not in extract_text(tmp_path / "build" / "main.pdf")
+
+
+RENDER_DPI = 72
+MILLIMETRES_PER_INCH = 25.4
+# Where the running head and its rule sit on a page: 34 mm to the text, less
+# a 10 mm separation and the 14 pt head, with a few millimetres either side.
+HEAD_BAND_MM = (15, 26)
+# The darkest a pixel of grey 0.6 type gets once antialiased, with margin.
+DARKEST_GREY = 100
+PGM_HEADER = re.compile(rb"P5\s+(\d+)\s+(\d+)\s+\d+\s")
+
+
+def darkest_in_head(pdf: Path, page: int) -> int:
+    pdftoppm = shutil.which("pdftoppm")
+    assert pdftoppm is not None
+    stem = pdf.with_name("head")
+    subprocess.run(  # noqa: S603 - a fixed command found on PATH
+        [
+            pdftoppm,
+            "-gray",
+            "-r",
+            str(RENDER_DPI),
+            "-f",
+            str(page),
+            "-l",
+            str(page),
+            "-singlefile",
+            str(pdf),
+            str(stem),
+        ],
+        capture_output=True,
+        timeout=PDFTOTEXT_TIMEOUT_SECONDS,
+        check=True,
+    )
+    image = stem.with_suffix(".pgm").read_bytes()
+    header = PGM_HEADER.match(image)
+    assert header is not None
+    width = int(header.group(1))
+    top, bottom = (round(mm / MILLIMETRES_PER_INCH * RENDER_DPI) for mm in HEAD_BAND_MM)
+    band = image[header.end() + top * width : header.end() + bottom * width]
+    return min(band)
+
+
+@pytest.mark.tex
+@pytest.mark.parametrize("running_head", ["", r"\runninghead{Pendulum}"], ids=["title", "short"])
+def test_sets_the_running_head_in_grey(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], running_head: str
+) -> None:
+    source = rf"""\documentclass[11pt]{{article}}
+\usepackage{{laboratory}}
+{running_head}
+\title{{Pendulum}}
+\begin{{document}}
+First page.
+\clearpage
+Second page.
+\end{{document}}
+"""
+    document = write_project(tmp_path, source, DOCUMENT_PACKAGES)
+
+    assert build.main([str(document), "--engine", "lualatex"]) == 0, capsys.readouterr().out
+
+    assert darkest_in_head(tmp_path / "build" / "main.pdf", page=2) > DARKEST_GREY

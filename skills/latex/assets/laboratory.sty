@@ -161,13 +161,13 @@
 \newtheorem{example}{Example}[section]
 
 % The folio sits at the foot of every page, chapter openings included, and the
-% head carries only the running head: the title in grey unless \runninghead
+% head carries only the running head, in grey: the title unless \runninghead
 % gives a shorter one.
-\newcommand{\laboratory@runninghead}{{\color{rulegrey}\@title}}
+\newcommand{\laboratory@runninghead}{\@title}
 \newcommand{\runninghead}[1]{\renewcommand{\laboratory@runninghead}{#1}}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\sffamily\small\laboratory@runninghead}
+\fancyhead[L]{\sffamily\small\color{rulegrey}\laboratory@runninghead}
 \fancyfoot[R]{\sffamily\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{{\color{rulegrey}\hrule height \headrulewidth}}
