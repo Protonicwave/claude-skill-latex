@@ -90,8 +90,15 @@ The pgf backend runs LuaLaTeX in a temporary folder, so the style's preamble rep
 - **Colour maps.** A field uses `laboratory`, from paper white to deep Prussian. A signed quantity uses `laboratory_diverging`, from Prussian through paper to deep terracotta, centred on zero with `vmin=-limit, vmax=limit`; its two arms match in lightness, so equal values either side of zero look equally strong. Both darken evenly, as viridis and cividis do. Never jet or another rainbow map, which invents boundaries in smooth data and fails for readers with colour-vision deficiency.
 - **Label series at their ends**, in their own colour, rather than in a legend, so the reader does not match symbols to a key:
   ```python
-  axes.annotate(r"$12 \times 12$", (x[-1], y[-1]), color=lab.TERRACOTTA,
-                xytext=(6, 0), textcoords="offset points", ha="left", va="center")
+  axes.annotate(
+      r"$12 \times 12$",
+      (x[-1], y[-1]),
+      color=lab.TERRACOTTA,
+      xytext=(6, 0),
+      textcoords="offset points",
+      ha="left",
+      va="center",
+  )
   ```
   Keep a legend only when the ends crowd together.
 - **Error bars** come from `lab.points`; say in the caption what they show (one standard error, 95% interval).
