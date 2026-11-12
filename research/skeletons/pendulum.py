@@ -33,7 +33,6 @@ FIT_BAND_TINT = 0.86
 # The overlays each medium adds to laboratory.mplstyle. A journal column stacks
 # the panels, and the journal's own design runs y labels up the axis.
 MEDIA = {"document": (), "journal": ("journal",), "slides": ("slides",), "poster": ("poster",)}
-JOURNAL_MEDIA = frozenset({"journal"})
 
 
 def fitted_coefficient() -> tuple[float, float]:
@@ -53,7 +52,7 @@ def draw(medium: str, overlays: tuple[str, ...]) -> Path:
     residuals_ms = (np.array(PERIODS_S) - coefficient * np.sqrt(lengths)) * MILLISECONDS_PER_SECOND
     grid = np.linspace(0.15, 1.05, 200)
     band_ms = coefficient_error * np.sqrt(grid) * MILLISECONDS_PER_SECOND
-    is_journal = medium in JOURNAL_MEDIA
+    is_journal = medium == "journal"
     with plt.style.context(styles):
         figure, (period, residual) = plt.subplots(*((2, 1) if is_journal else (1, 2)))
         period.plot(grid, coefficient * np.sqrt(grid), color=lab.INK, zorder=1)
