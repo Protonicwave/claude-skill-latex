@@ -284,6 +284,43 @@ def test_draws_a_top_rule_given_a_width_at_the_house_width(
     assert "[2pt]" not in extract_text(tmp_path / "build" / "main.pdf")
 
 
+LISTS_IN_BOXES = r"""\documentclass[11pt]{article}
+\usepackage{laboratory}
+\title{Lists}
+\begin{document}
+\begin{itemize}
+  \item text\typeout{TEXT-LEFTMARGIN=\the\leftmargin}
+\end{itemize}
+\begin{statement}{Aim}
+  \begin{itemize}
+    \item statement\typeout{STATEMENT-LEFTMARGIN=\the\leftmargin}
+  \end{itemize}
+\end{statement}
+\begin{tabular}{@{}p{50mm}@{}}
+  \begin{itemize}
+    \item cell\typeout{CELL-LEFTMARGIN=\the\leftmargin}
+  \end{itemize}
+\end{tabular}
+\end{document}
+"""
+
+
+@pytest.mark.tex
+def test_hangs_bullets_only_in_running_text(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = write_project(tmp_path, LISTS_IN_BOXES, DOCUMENT_PACKAGES)
+
+    assert build.main([str(document), "--engine", "lualatex"]) == 0, capsys.readouterr().out
+
+    log = (tmp_path / "build" / "main.log").read_text(encoding="utf-8", errors="replace")
+    assert "TEXT-LEFTMARGIN=0.0pt" in log
+    for place in ("STATEMENT", "CELL"):
+        margin = re.search(rf"{place}-LEFTMARGIN=([0-9.]+)pt", log)
+        assert margin is not None, log
+        assert float(margin.group(1)) > 0
+
+
 RENDER_DPI = 72
 MILLIMETRES_PER_INCH = 25.4
 # Where the running head and its rule sit on a page: 34 mm to the text, less

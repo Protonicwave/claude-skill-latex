@@ -107,10 +107,18 @@
 % Notes under a table are furniture, like its caption.
 \appto\TPTnoteSettings{\sffamily\footnotesize}
 
-% Lists hang their labels in the margin, as headings hang their numbers.
 \setlist{itemsep=0.15\baselineskip, topsep=0.4\baselineskip}
-% A bullet is the Prussian square the slides use.
+% A bulleted list hangs its bullets in the margin, as headings hang their
+% numbers; a numbered list keeps its indent. A bullet is the Prussian square
+% the slides use.
 \setlist[itemize,1]{label={\color{prussian}\raisebox{0.22ex}{\rule{0.36em}{0.36em}}}, leftmargin=0pt, labelsep=0.7em}
+% In a box, such as a statement block or a table cell, a hung bullet would sit
+% outside the box, so the items are indented instead.
+\newcommand{\laboratory@indentbullets}{\setlist[itemize,1]{leftmargin=*}}
+\AtBeginEnvironment{minipage}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabular}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabular*}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabularx}{\laboratory@indentbullets}
 % Claims such as hypotheses, each with its badge as the item's label:
 % \item[\badgetarget{H1}].
 \newlist{claims}{itemize}{1}
