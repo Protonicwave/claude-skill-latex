@@ -39,15 +39,16 @@ MILLIMETRES_PER_INCH = 25.4
 POINTS_PER_INCH = 72
 
 
-def _inches(width_mm: float, height_mm: float) -> tuple[float, float]:
+def inches(width_mm: float, height_mm: float) -> tuple[float, float]:
+    """A figsize, in inches, from a width and height in millimetres."""
     return width_mm / MILLIMETRES_PER_INCH, height_mm / MILLIMETRES_PER_INCH
 
 
 # figsize for a figure included at width=\linewidth, 0.667\linewidth and
 # 0.5\linewidth on the 150 mm document measure, so its type stays at 9 pt.
-FULL = _inches(150, 60)
-TWO_THIRDS = _inches(100, 70)
-HALF = _inches(75, 60)
+FULL = inches(150, 60)
+TWO_THIRDS = inches(100, 70)
+HALF = inches(75, 60)
 
 # seriesA to seriesD of laboratory-base.sty, in the order of the style's colour
 # cycle: measurements, a second measured series, models, guides.

@@ -268,8 +268,7 @@ def main() -> None:
     # The pgf canvas sets the labels in the document's faces and measures them as LuaLaTeX does.
     mpl.use("pgf")
     folder = Path(__file__).resolve().parent
-    height_mm = HEAD_MM + ROW_MM * len(TASKS)
-    size_in = (WIDTH_MM / lab.MILLIMETRES_PER_INCH, height_mm / lab.MILLIMETRES_PER_INCH)
+    size_in = lab.inches(WIDTH_MM, HEAD_MM + ROW_MM * len(TASKS))
     with plt.style.context(folder / "laboratory.mplstyle"):
         figure, axes = plt.subplots(figsize=size_in)
         draw_rows(axes)
