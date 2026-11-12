@@ -80,11 +80,12 @@ DEFAULT_ENGINE = Engine.LUALATEX
 LATEXMKRC_NAMES = ("latexmkrc", ".latexmkrc")
 # The files a build writes, read only when this run wrote them.
 OUTPUTS = (".log", ".blg", ".pdf")
-# What latexmk carries from one run into the next. Told by any of these that
-# the document uses BibTeX, latexmk -g runs BibTeX before TeX, on an .aux that
-# a stopped run left without a database, or on an empty one it writes itself,
-# and stops on BibTeX's error without running TeX. The PDF stays, unlike under
-# latexmk -gg, so a failing build still leaves something to look at.
+# What latexmk carries from one run into the next, cleared before each build.
+# Once any of these records that the document uses BibTeX, latexmk -g runs
+# BibTeX before TeX. A run that stopped before \bibliography leaves an .aux
+# naming no database, so BibTeX fails and latexmk stops without running TeX.
+# Clearing these files, unlike latexmk -gg, keeps the PDF, so a failing build
+# still leaves something to look at.
 CARRIED_STATE = (".aux", ".fdb_latexmk", ".fls", ".log")
 
 
@@ -652,7 +653,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     flags = engine_flags(args.engine, document.parent)
     engine_label = str(args.engine or DEFAULT_ENGINE) if flags else "engine from latexmkrc"
     log_path, bibtex_path, pdf = (outdir / f"{document.stem}{suffix}" for suffix in OUTPUTS)
-    before = {path: file_state(path) for path in (log_path, bibtex_path, pdf)}
+    before = {path: file_state(path) for path in (bibtex_path, pdf)}
     for suffix in CARRIED_STATE:
         carried = outdir / f"{document.stem}{suffix}"
         try:
@@ -661,7 +662,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"cannot clear {carried}: is another build using it?", file=sys.stderr)
             return 2
     run = run_latexmk(latexmk, document, args.engine, outdir, args.timeout_seconds)
-    log = _read_rewritten(log_path, before[log_path])
+    # The log was cleared with the carried state, so any log is this run's.
+    log = _read_rewritten(log_path, before=None)
     bibtex_log = _read_rewritten(bibtex_path, before[bibtex_path])
     findings = assess(run, log, bibtex_log, args.timeout_seconds)
     written_pdf = pdf if is_rewritten(pdf, before[pdf]) else None
