@@ -356,6 +356,24 @@ def test_reports_pdftex_warnings_wherever_they_start_on_a_line() -> None:
     assert finding.message.startswith("pdfTeX warning (ext4): destination with the same")
 
 
+def test_stops_when_another_process_holds_the_carried_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    document = write(tmp_path / "main.tex", "\\documentclass{article}\n")
+    write(tmp_path / "build" / "main.aux", "\\relax\n")
+    monkeypatch.setattr(shutil, "which", lambda name: name)
+
+    def refuse(path: Path, **_: bool) -> None:
+        raise PermissionError(13, "The process cannot access the file", str(path))
+
+    monkeypatch.setattr(Path, "unlink", refuse)
+
+    exit_code = main([str(document)])
+
+    assert exit_code == 2
+    assert "main.aux" in capsys.readouterr().err
+
+
 def test_rejects_a_path_that_is_not_a_tex_file(tmp_path: Path) -> None:
     document = write(tmp_path / "notes.md", "# Notes\n")
 

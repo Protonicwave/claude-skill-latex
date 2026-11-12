@@ -654,7 +654,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     log_path, bibtex_path, pdf = (outdir / f"{document.stem}{suffix}" for suffix in OUTPUTS)
     before = {path: file_state(path) for path in (log_path, bibtex_path, pdf)}
     for suffix in CARRIED_STATE:
-        (outdir / f"{document.stem}{suffix}").unlink(missing_ok=True)
+        carried = outdir / f"{document.stem}{suffix}"
+        try:
+            carried.unlink(missing_ok=True)
+        except PermissionError:
+            print(f"cannot clear {carried}: is another build using it?", file=sys.stderr)
+            return 2
     run = run_latexmk(latexmk, document, args.engine, outdir, args.timeout_seconds)
     log = _read_rewritten(log_path, before[log_path])
     bibtex_log = _read_rewritten(bibtex_path, before[bibtex_path])
