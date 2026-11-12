@@ -157,3 +157,21 @@ def test_keeps_a_late_milestone_label_inside_the_chart(
             mark_px = axes.transData.transform(label.xy)[0]
             assert mark_px + gap_px + box.width > chart_right_px
     plt.close(figure)
+
+
+def test_draws_marks_on_the_chart_edges_whole(
+    project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    edit_tables(project, 'Mark("MS1", 3', 'Mark("MS1", 0')
+    gantt = load_script(project, monkeypatch)
+    plt.switch_backend("agg")
+
+    with plt.style.context(project / "figures" / "laboratory.mplstyle"):
+        figure = gantt.draw()
+
+    (axes,) = figure.axes
+    marks = [line for line in axes.lines if line.get_marker() in {"D", "^"}]
+    assert len(marks) == len(gantt.MILESTONES) + len(gantt.RISKS)
+    # A mark in week 0 or in the last week sits on the chart's edge.
+    assert not any(mark.get_clip_on() for mark in marks)
+    plt.close(figure)

@@ -226,6 +226,8 @@ def draw_marks(axes: Axes) -> list[Annotation]:
             markeredgecolor="white",
             markeredgewidth=0.5,
             zorder=5,
+            # A mark in week 0 or the last week sits on the chart's edge.
+            clip_on=False,
         )
         label = axes.annotate(
             f"{mark.code} {mark.label}",
@@ -252,6 +254,8 @@ def draw_marks(axes: Axes) -> list[Annotation]:
             markeredgecolor=lab.TERRACOTTA,
             markeredgewidth=0.9,
             zorder=5,
+            # A mark in week 0 or the last week sits on the chart's edge.
+            clip_on=False,
         )
         axes.annotate(
             mark.code,
