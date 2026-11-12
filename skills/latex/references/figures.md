@@ -46,7 +46,7 @@ On the 150 mm document measure the helper names three sizes. Draw at one and inc
 | `lab.TWO_THIRDS`, 100 × 70 mm | `width=0.667\linewidth` | one plot that needs some height, such as a spectrum |
 | `lab.HALF`, 75 × 60 mm | `width=0.5\linewidth` | one small plot; two of them side by side are better drawn as one full-width figure |
 
-Draw two related panels as one full-width figure rather than two half-width files, so they share a size and line up.
+Draw two related panels as one full-width figure rather than two half-width files, so they share a size and line up. A figure whose height none of the three fits, such as the plan's Gantt chart, keeps one of the three widths and takes its height from `lab.inches(width_mm, height_mm)`.
 
 The pgf backend runs LuaLaTeX in a temporary folder, so the style's preamble repeats the font settings rather than loading the house package. In a document that does not use the house style, replace `pgf.preamble` with the document's own font lines, or for a pdfLaTeX document use the `journal` overlay's approach: `pgf.texsystem: pdflatex` and an empty preamble for Computer Modern.
 
