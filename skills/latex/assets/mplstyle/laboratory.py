@@ -168,8 +168,8 @@ def _tidy(axes: Axes, spine_offset_pt: float) -> None:
 
 
 def _above(figure: Figure, axes: Axes, text: str, left_in: float, rise_in: float) -> Text:
-    """Text whose left edge sits left_in from the axes' left edge, rise_in above its top."""
+    """Text at left_in from the axes' left edge, its baseline rise_in above the axes."""
     offset = ScaledTranslation(left_in, rise_in, figure.dpi_scale_trans)
     return axes.text(
-        0, 1, text, transform=axes.transAxes + offset, ha="left", va="bottom", clip_on=False
+        0, 1, text, transform=axes.transAxes + offset, ha="left", va="baseline", clip_on=False
     )

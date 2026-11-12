@@ -120,6 +120,18 @@ def test_finish_sets_the_panel_letter_left_of_a_level_y_label() -> None:
         assert axes.get_ylabel() == ""
 
 
+def test_finish_sets_the_panel_letter_on_the_level_y_label_baseline() -> None:
+    figure, left, right = two_panels()
+
+    lab.finish(figure, {left: "$T$ (s)", right: "$r$ (ms)"})
+
+    letter, ylabel = text_on(left, "a"), text_on(left, "$T$ (s)")
+    assert letter.get_verticalalignment() == ylabel.get_verticalalignment() == "baseline"
+    letter_anchor = letter.get_transform().transform(letter.get_position())
+    ylabel_anchor = ylabel.get_transform().transform(ylabel.get_position())
+    assert letter_anchor[1] == pytest.approx(ylabel_anchor[1])
+
+
 def test_finish_sets_the_panel_letter_above_a_rotated_y_label() -> None:
     figure, left, right = two_panels()
 
