@@ -4,8 +4,9 @@ Edit the tables to match the plan, then run, from any folder:
 
     python figures/gantt.py
 
-Weeks count from the start of the project; a week may be fractional, so a
-task can end mid-week. A task that tests a hypothesis takes the colour
+Every time is in weeks from the start of the project, so week 1 runs from 0
+to 1 and a task from 0 to 3 fills weeks 1 to 3. A time may be fractional, so
+a task can end mid-week. A task that tests a hypothesis takes the colour
 \\definebadge gives that hypothesis in main.tex, so the chart, the risk table
 and the figures share one key. The script reads laboratory.mplstyle and the
 figure helper, laboratory.py, from its own folder.
@@ -52,11 +53,11 @@ class Mark:
 
 WEEKS = 20
 STATUS_WEEK = 5
-# First week, last week and name of each break, such as a vacation.
-BREAKS = ((11, 13, "vacation"),)
+# Start, end and name of each break, such as a vacation.
+BREAKS = ((10, 13, "vacation"),)
 TASKS = (
-    Task("1", "Apparatus and timing", 1, 3, lab.INK, is_package=True),
-    Task("1.1", "Build, align, calibrate gate", 1, 3, lab.GREY, done_until_week=3),
+    Task("1", "Apparatus and timing", 0, 3, lab.INK, is_package=True),
+    Task("1.1", "Build, align, calibrate gate", 0, 3, lab.GREY, done_until_week=3),
     Task("2", "Small-angle law", 3, 7, lab.PRUSSIAN, is_package=True),
     Task("2.1", "Nine lengths at 3°", 3, 5.5, lab.PRUSSIAN, done_until_week=5),
     Task("2.2", "Fit, residuals, verdict on H1", 5.5, 7, lab.PRUSSIAN),
@@ -114,7 +115,7 @@ def draw_rows(axes: Axes) -> None:
         if task.is_package:
             band = Rectangle(
                 (0, row - 0.5),
-                WEEKS + 1,
+                WEEKS,
                 1,
                 color=lab.tint(lab.INK, PACKAGE_ROW_TINT),
                 lw=0,
@@ -172,8 +173,8 @@ def draw_calendar(axes: Axes) -> None:
         )
         axes.add_patch(hatch)
         axes.text((first + last) / 2, top, name, ha="center", va="top", color=lab.GREY)
-    for week in range(1, WEEKS + 1):
-        axes.axvline(week - 0.5, color=lab.tint(lab.INK, WEEK_RULE_TINT), lw=0.4, zorder=0.5)
+    for week in range(WEEKS + 1):
+        axes.axvline(week, color=lab.tint(lab.INK, WEEK_RULE_TINT), lw=0.4, zorder=0.5)
     axes.axvline(STATUS_WEEK, color=lab.INK, lw=0.8, zorder=4)
     axes.annotate(
         f"status, week {STATUS_WEEK}",
@@ -240,13 +241,15 @@ def draw_marks(axes: Axes) -> None:
 
 def label_axes(axes: Axes) -> None:
     axes.set_ylim(len(TASKS) + 0.3, -0.6)
-    axes.set_xlim(0.5, WEEKS + 0.5)
+    axes.set_xlim(0, WEEKS)
     axes.set_yticks(range(len(TASKS)), [f"{task.code}  {task.name}" for task in TASKS])
     for label, task in zip(axes.get_yticklabels(), TASKS, strict=True):
         label.set_horizontalalignment("left")
         if task.is_package:
             label.set_fontweight("bold")
-    axes.set_xticks(range(1, WEEKS + 1))
+    # Each week's number sits in the middle of the week.
+    weeks = range(1, WEEKS + 1)
+    axes.set_xticks([week - 0.5 for week in weeks], [str(week) for week in weeks])
     axes.xaxis.tick_top()
     axes.tick_params(axis="x", length=0, labelsize=SMALL_TYPE_PT, colors=lab.GREY)
     axes.set_xlabel("week", color=lab.GREY, fontsize=SMALL_TYPE_PT)
