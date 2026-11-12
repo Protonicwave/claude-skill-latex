@@ -27,7 +27,7 @@ A project plan or proposal: what the project will find out, how, and by when. It
 ## Checks for this profile
 
 - Every `\badge` has a `\badgetarget`; `build.py` lists one without as a warning naming `badge.H1`.
-- The chart, the milestones list and the risk table give each milestone and trigger the same week. Nothing checks this mechanically, so read them side by side after each change to `gantt.py`.
+- The chart, the milestones list and the risk table give each milestone and trigger the same week. Nothing checks this mechanically, so read them side by side after each change to `gantt.py`, and look at the chart itself: a milestone label near the end of the chart turns back to the left of its mark, where it can meet a risk label on the same row.
 - Every hypothesis has a refutation and every risk a trigger with its week; one without is unfinished.
 - Three floats in a short plan are sensitive to the order of the sections. The skeleton's order puts each float after the text that cites it; after editing, look at every page for a float that has dropped below the next section's heading or the references. The cure is more text in the float's own section, or the section moved earlier, never `[h]`.
 - Page count against any limit, counting only the pages the rule counts.
