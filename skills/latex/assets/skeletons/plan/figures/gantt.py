@@ -11,9 +11,10 @@ a task can end mid-week. A task that tests a hypothesis takes the colour
 and the figures share one key. The script reads laboratory.mplstyle and the
 figure helper, laboratory.py, from its own folder.
 
-Raises ValueError, before drawing anything, for two tasks with one code, a task
-that does not end after it starts, or a milestone or risk on a task that is not
-in TASKS.
+Raises ValueError, before drawing anything, for two tasks or two marks with one
+code; a task or break that does not end after it starts, or that runs outside
+weeks 0 to WEEKS; progress given to a work package, or past the status week;
+and a milestone or risk outside the chart or on a task that is not in TASKS.
 """
 
 from __future__ import annotations
@@ -100,14 +101,36 @@ def check_tables() -> None:
         if task.code in codes:
             raise ValueError(f"task code {task.code!r} appears twice in TASKS")
         codes.add(task.code)
-        if task.end_week <= task.start_week:
+        _check_span(f"task {task.code}", task.start_week, task.end_week)
+        if task.is_package and task.done_until_week:
+            raise ValueError(f"task {task.code} is a work package; give its progress to its tasks")
+        if task.done_until_week > STATUS_WEEK:
             raise ValueError(
-                f"task {task.code} ends in week {task.end_week}, "
-                f"expected after its start in week {task.start_week}"
+                f"task {task.code} is done to week {task.done_until_week}, "
+                f"after the status line at week {STATUS_WEEK}"
             )
+    for first, last, name in BREAKS:
+        _check_span(f"break {name!r}", first, last)
+    mark_codes: set[str] = set()
     for mark in MILESTONES + RISKS:
+        if mark.code in mark_codes:
+            raise ValueError(f"mark code {mark.code!r} appears twice")
+        mark_codes.add(mark.code)
         if mark.task not in codes:
             raise ValueError(f"{mark.code} sits on task {mark.task!r}, which is not in TASKS")
+        if not 0 <= mark.week <= WEEKS:
+            raise ValueError(f"{mark.code} falls in week {mark.week}, outside weeks 0 to {WEEKS}")
+
+
+def _check_span(name: str, start_week: float, end_week: float) -> None:
+    if end_week <= start_week:
+        raise ValueError(
+            f"{name} ends in week {end_week}, expected after its start in week {start_week}"
+        )
+    if start_week < 0 or end_week > WEEKS:
+        raise ValueError(
+            f"{name} runs from week {start_week} to {end_week}, outside weeks 0 to {WEEKS}"
+        )
 
 
 def draw_rows(axes: Axes) -> None:

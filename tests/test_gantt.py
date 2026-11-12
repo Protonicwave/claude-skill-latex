@@ -44,8 +44,34 @@ def run_script(project: Path) -> subprocess.CompletedProcess[str]:
         ('Task("2.2", "Fit', 'Task("2.1", "Fit', "task code '2.1' appears twice"),
         ('"Draft", 16, 18', '"Draft", 18, 16', "task 5.1 ends in week 16"),
         ('Mark("MS2", 7, "2.2"', 'Mark("MS2", 7, "2.9"', "MS2 sits on task '2.9'"),
+        ('Mark("R2"', 'Mark("R1"', "mark code 'R1' appears twice"),
+        (
+            '"Revision and viva", 18, 20',
+            '"Revision and viva", 18, 22',
+            "task 5.2 runs from week 18 to 22, outside",
+        ),
+        ('Mark("MS1", 3', 'Mark("MS1", -1', "MS1 falls in week -1"),
+        ("(10, 13, ", "(13, 10, ", "break 'vacation' ends in week 10"),
+        ("(10, 13, ", "(10, 23, ", "break 'vacation' runs from week 10 to 23, outside"),
+        ("done_until_week=5)", "done_until_week=5.5)", "task 2.1 is done to week 5.5"),
+        (
+            'lab.INK, is_package=True),\n    Task("1.1"',
+            'lab.INK, done_until_week=3, is_package=True),\n    Task("1.1"',
+            "task 1 is a work package",
+        ),
     ],
-    ids=["duplicate-code", "ends-before-start", "unknown-task"],
+    ids=[
+        "duplicate-code",
+        "ends-before-start",
+        "unknown-task",
+        "duplicate-mark",
+        "task-after-chart",
+        "mark-before-chart",
+        "break-ends-before-start",
+        "break-after-chart",
+        "done-after-status",
+        "done-on-package",
+    ],
 )
 def test_rejects_a_table_it_cannot_draw_and_leaves_the_chart(
     project: Path, old: str, new: str, message: str
