@@ -92,10 +92,10 @@ WEEK_RULE_TINT = 0.88
 BREAK_HATCH_TINT = 0.55
 
 
-def check_tables(tasks: tuple[Task, ...], marks: tuple[Mark, ...]) -> None:
+def check_tables() -> None:
     """Raise ValueError naming the first entry the chart could not draw faithfully."""
     codes: set[str] = set()
-    for task in tasks:
+    for task in TASKS:
         if task.code in codes:
             raise ValueError(f"task code {task.code!r} appears twice in TASKS")
         codes.add(task.code)
@@ -104,7 +104,7 @@ def check_tables(tasks: tuple[Task, ...], marks: tuple[Mark, ...]) -> None:
                 f"task {task.code} ends in week {task.end_week}, "
                 f"expected after its start in week {task.start_week}"
             )
-    for mark in marks:
+    for mark in MILESTONES + RISKS:
         if mark.task not in codes:
             raise ValueError(f"{mark.code} sits on task {mark.task!r}, which is not in TASKS")
 
@@ -264,7 +264,7 @@ def hang_task_names(figure: Figure, axes: Axes) -> None:
 
 
 def main() -> None:
-    check_tables(TASKS, MILESTONES + RISKS)
+    check_tables()
     # The pgf canvas sets the labels in the document's faces and measures them as LuaLaTeX does.
     mpl.use("pgf")
     folder = Path(__file__).resolve().parent
