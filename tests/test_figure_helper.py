@@ -1,12 +1,33 @@
 import math
+import re
+from itertools import pairwise
 
 import laboratory as lab
 import matplotlib as mpl
+import numpy as np
 import pytest
 from matplotlib.axes import Axes
-from matplotlib.colors import to_rgb, to_rgba_array
+from matplotlib.colors import to_hex, to_rgb, to_rgba_array
 from matplotlib.figure import Figure
 from matplotlib.text import Text
+from new_project import ASSETS
+
+# CIE 1976 lightness of an sRGB colour, for checking that a map's steps look even.
+SRGB_LINEAR_LIMIT = 0.04045
+LAB_EPSILON = (6 / 29) ** 3
+
+
+def lightness(rgb: tuple[float, float, float]) -> float:
+    linear = [c / 12.92 if c <= SRGB_LINEAR_LIMIT else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
+    luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+    if luminance > LAB_EPSILON:
+        return 116 * math.cbrt(luminance) - 16
+    return 116 * (luminance / (3 * (6 / 29) ** 2) + 4 / 29) - 16
+
+
+def map_lightness(name: str, samples: int) -> list[float]:
+    colours = mpl.colormaps[name](np.linspace(0, 1, samples))
+    return [lightness((red, green, blue)) for red, green, blue, _ in colours]
 
 
 def two_panels() -> tuple[Figure, Axes, Axes]:
@@ -162,3 +183,44 @@ def test_sizes_are_the_measure_and_its_fractions() -> None:
     assert lab.FULL[0] * lab.MILLIMETRES_PER_INCH == pytest.approx(150)
     assert lab.TWO_THIRDS[0] == pytest.approx(lab.FULL[0] * 2 / 3)
     assert lab.HALF[0] == pytest.approx(lab.FULL[0] / 2)
+
+
+def test_register_colormaps_adds_both_maps_once_even_when_called_twice() -> None:
+    lab.register_colormaps()
+    first = mpl.colormaps["laboratory"]
+
+    lab.register_colormaps()
+
+    assert mpl.colormaps["laboratory"] == first
+    assert "laboratory_diverging" in mpl.colormaps
+
+
+def test_the_sequential_map_darkens_steadily() -> None:
+    lab.register_colormaps()
+
+    levels = map_lightness("laboratory", 64)
+
+    assert all(darker < lighter for lighter, darker in pairwise(levels))
+
+
+def test_the_diverging_map_is_equally_strong_either_side_of_zero() -> None:
+    lab.register_colormaps()
+
+    levels = map_lightness("laboratory_diverging", 65)
+
+    for below, above in zip(levels[:32], reversed(levels[33:]), strict=True):
+        assert below == pytest.approx(above, abs=1.5)
+
+
+def test_series_colours_agree_in_latex_the_style_and_the_helper() -> None:
+    package = (ASSETS / "laboratory-base.sty").read_text(encoding="utf-8")
+    defined = dict(re.findall(r"\\definecolor\{(\w+)\}\{HTML\}\{(\w{6})\}", package))
+    assert r"\colorlet{seriesA}{prussian}" in package
+    latex = [defined[name] for name in ("prussian", "seriesB", "seriesC", "seriesD")]
+    style = mpl.rc_params_from_file(
+        ASSETS / "mplstyle" / "laboratory.mplstyle", use_default_template=False
+    )
+    cycle = [to_hex(entry["color"]) for entry in style["axes.prop_cycle"]]
+
+    assert [f"#{code.lower()}" for code in latex] == cycle
+    assert [colour.lower() for colour in (lab.PRUSSIAN, lab.TERRACOTTA, lab.INK, lab.GREY)] == cycle

@@ -1,8 +1,8 @@
 """Laboratory house helpers for matplotlib: figure sizes, colours, points and finishing.
 
 laboratory.mplstyle sets what matplotlib's settings can hold. This module sets
-what they cannot: tick density, detached axes, panel letters, level y labels
-and measured points with a white edge.
+what they cannot: tick density, detached axes, panel letters, level y labels,
+measured points with a white edge and the house colour maps.
 
 Keep it in figures/ beside the scripts that import it, and draw on the pgf
 canvas, so finish() measures every label as LuaLaTeX sets it:
@@ -27,7 +27,7 @@ from collections.abc import Mapping
 
 import matplotlib as mpl
 from matplotlib.axes import Axes
-from matplotlib.colors import to_rgb
+from matplotlib.colors import LinearSegmentedColormap, to_rgb
 from matplotlib.container import ErrorbarContainer
 from matplotlib.figure import Figure
 from matplotlib.text import Text
@@ -49,7 +49,19 @@ FULL = _inches(150, 60)
 TWO_THIRDS = _inches(100, 70)
 HALF = _inches(75, 60)
 
+# seriesA to seriesD of laboratory-base.sty, in the order of the style's colour
+# cycle: measurements, a second measured series, models, guides.
 PRUSSIAN = "#1F4A73"
+TERRACOTTA = "#B5562C"
+INK = "#1A1A1A"
+GREY = "#737373"
+PAPER = "#F6F3EC"
+
+# Paper to deep Prussian for a field. Prussian through paper to deep terracotta
+# for a signed quantity, each arm's stops matched in lightness so equal values
+# either side of zero look equally strong.
+SEQUENTIAL_STOPS = (PAPER, "#B8CCDD", "#6F96BC", "#2F6293", PRUSSIAN, "#0E2238")
+DIVERGING_STOPS = (PRUSSIAN, "#4775A4", "#95B1CF", PAPER, "#D9A381", TERRACOTTA, "#773416")
 
 # Proportions of the style's own sizes, so the slide and poster overlays scale them too.
 MARKER_SCALE = 1.3  # the white edge eats into the marker, so it is drawn larger
@@ -61,10 +73,23 @@ LABEL_RISE_EM = 5 / 9
 
 # Steps of 1, 2 or 5 cannot always give four to six ticks, because the count
 # jumps by 2 to 2.5 times between steps; these settings give three to five on
-# most ranges and never more than seven.
+# most ranges and up to seven on a few.
 TICK_STEPS = (1, 2, 5, 10)
 TICK_INTERVALS = 5
 MIN_TICKS = 3
+
+
+def register_colormaps() -> None:
+    """Add the house maps to matplotlib as "laboratory" and "laboratory_diverging".
+
+    Calling it again does nothing, so every script can call it.
+    """
+    for name, stops in (
+        ("laboratory", SEQUENTIAL_STOPS),
+        ("laboratory_diverging", DIVERGING_STOPS),
+    ):
+        if name not in mpl.colormaps:
+            mpl.colormaps.register(LinearSegmentedColormap.from_list(name, stops))
 
 
 def tint(colour: str, amount: float) -> tuple[float, float, float]:

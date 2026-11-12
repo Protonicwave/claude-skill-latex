@@ -44,7 +44,7 @@ def draw(medium: str, overlays: tuple[str, ...]) -> Path:
     with plt.style.context(styles):
         rows, columns = (2, 1) if medium in STACKED_MEDIA else (1, 2)
         figure, (period, residual) = plt.subplots(rows, columns)
-        period.plot(grid, coefficient * np.sqrt(grid), color="C1", zorder=1)
+        period.plot(grid, coefficient * np.sqrt(grid), color="C2", zorder=1)
         period.errorbar(
             LENGTHS_M,
             PERIODS_S,
@@ -53,7 +53,7 @@ def draw(medium: str, overlays: tuple[str, ...]) -> Path:
             color="C0",
         )
         period.set_ylabel(r"$T$ (s)")
-        residual.axhline(0, color="C2", lw=0.7, ls=(0, (3, 3)), zorder=0)
+        residual.axhline(0, color="C3", lw=0.7, ls=(0, (3, 3)), zorder=0)
         residual.errorbar(LENGTHS_M, residuals_ms, yerr=PERIOD_ERROR_MS, fmt="o", color="C0")
         residual.set_ylabel(r"$T - T_\mathrm{fit}$ (ms)")
         for axes, label in ((period, "(a)"), (residual, "(b)")):

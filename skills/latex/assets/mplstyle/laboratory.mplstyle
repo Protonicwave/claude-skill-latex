@@ -32,9 +32,10 @@ legend.fontsize: 9
 legend.frameon: False
 axes.unicode_minus: True
 
-# Prussian blue for measurements, near black for models, grey for guides. The
-# grey is 45 per cent, dark enough for a marker or a thin line to survive print.
-axes.prop_cycle: cycler("color", ["1F4A73", "1A1A1A", "737373"])
+# Prussian blue for measurements, terracotta for a second measured series, near
+# black for models and grey for guides: seriesA to seriesD of laboratory-base.sty.
+# The grey is 45 per cent, dark enough for a marker or a thin line to survive print.
+axes.prop_cycle: cycler("color", ["1F4A73", "B5562C", "1A1A1A", "737373"])
 lines.linewidth: 1.0
 lines.markersize: 3.2
 errorbar.capsize: 0
