@@ -1,15 +1,20 @@
 """The plan profile's figures/gantt.py, run as a student runs it in a new project."""
 
+import importlib.util
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
+import matplotlib.pyplot as plt
 import pytest
 from new_project import main
 
 # The script imports matplotlib, and drawing starts LuaLaTeX through the pgf backend.
 SCRIPT_TIMEOUT_SECONDS = 300
+PDFTOTEXT_TIMEOUT_SECONDS = 60
+POINTS_PER_INCH = 72
 
 
 @pytest.fixture
@@ -23,6 +28,20 @@ def edit_tables(project: Path, old: str, new: str) -> None:
     source = script.read_text(encoding="utf-8")
     assert source.count(old) == 1, f"expected {old!r} once in the tables"
     script.write_text(source.replace(old, new), encoding="utf-8")
+
+
+def load_script(project: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
+    """The project's gantt.py as a module, importing the helper beside it."""
+    folder = project / "figures"
+    monkeypatch.syspath_prepend(str(folder))
+    spec = importlib.util.spec_from_file_location("gantt", folder / "gantt.py")
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    # Its dataclasses look their module up while they are built.
+    monkeypatch.setitem(sys.modules, "gantt", module)
+    spec.loader.exec_module(module)
+    return module
 
 
 def run_script(project: Path) -> subprocess.CompletedProcess[str]:
@@ -87,6 +106,19 @@ def test_rejects_a_table_it_cannot_draw_and_leaves_the_chart(
     assert chart.read_bytes() == before
 
 
+def pdftotext(chart: Path, *options: str) -> str:
+    command = shutil.which("pdftotext")
+    assert command is not None
+    return subprocess.run(  # noqa: S603 - a fixed command found on PATH
+        [command, "-enc", "UTF-8", *options, str(chart), "-"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=PDFTOTEXT_TIMEOUT_SECONDS,
+        check=True,
+    ).stdout
+
+
 @pytest.mark.tex
 def test_redraws_the_chart_from_the_edited_tables(project: Path) -> None:
     chart = project / "figures" / "gantt.pdf"
@@ -96,14 +128,32 @@ def test_redraws_the_chart_from_the_edited_tables(project: Path) -> None:
     completed = run_script(project)
 
     assert completed.returncode == 0, completed.stderr
-    pdftotext = shutil.which("pdftotext")
-    assert pdftotext is not None
-    text = subprocess.run(  # noqa: S603 - a fixed command found on PATH
-        [pdftotext, "-enc", "UTF-8", str(chart), "-"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        timeout=SCRIPT_TIMEOUT_SECONDS,
-        check=True,
-    ).stdout
-    assert "Write the report" in text
+    assert "Write the report" in pdftotext(chart)
+
+
+@pytest.mark.parametrize("week", [12, 17, 19, 20])
+def test_keeps_a_late_milestone_label_inside_the_chart(
+    project: Path, monkeypatch: pytest.MonkeyPatch, week: int
+) -> None:
+    edit_tables(project, 'Mark("MS3", 15', f'Mark("MS3", {week}')
+    gantt = load_script(project, monkeypatch)
+    # The script draws through pyplot; Agg needs no display or TeX.
+    plt.switch_backend("agg")
+
+    with plt.style.context(project / "figures" / "laboratory.mplstyle"):
+        figure = gantt.draw()
+        figure.draw_without_rendering()
+
+    (axes,) = figure.axes
+    labels = [text for text in axes.texts if text.get_text().startswith("MS")]
+    assert len(labels) == len(gantt.MILESTONES)
+    chart_right_px = axes.get_window_extent().x1
+    gap_px = gantt.MARK_LABEL_GAP_PT / POINTS_PER_INCH * figure.dpi
+    for label in labels:
+        box = label.get_window_extent()
+        assert box.x1 <= chart_right_px
+        if label.get_horizontalalignment() == "right":
+            # Turned back only because it could not fit to the right of its mark.
+            mark_px = axes.transData.transform(label.xy)[0]
+            assert mark_px + gap_px + box.width > chart_right_px
+    plt.close(figure)

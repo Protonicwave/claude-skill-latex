@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
+from matplotlib.text import Annotation
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +89,7 @@ BAR_HEIGHT_ROWS = 0.56
 PACKAGE_LINE_WIDTH_PT = 2.4
 SMALL_TYPE_PT = 8
 LABEL_GAP_PT = 6
+MARK_LABEL_GAP_PT = 7
 PLANNED_TINT = 0.72
 PACKAGE_ROW_TINT = 0.94
 WEEK_RULE_TINT = 0.88
@@ -209,8 +211,10 @@ def draw_calendar(axes: Axes) -> None:
     )
 
 
-def draw_marks(axes: Axes) -> None:
+def draw_marks(axes: Axes) -> list[Annotation]:
+    """Milestones and risk triggers on their tasks' rows; returns the milestone labels."""
     rows = {task.code: row for row, task in enumerate(TASKS)}
+    milestone_labels = []
     for mark in MILESTONES:
         row = rows[mark.task]
         axes.plot(
@@ -223,19 +227,20 @@ def draw_marks(axes: Axes) -> None:
             markeredgewidth=0.5,
             zorder=5,
         )
-        # The last week's label would run off the chart, so it sits to the left.
-        is_last = mark.week >= WEEKS
-        axes.annotate(
+        label = axes.annotate(
             f"{mark.code} {mark.label}",
             (mark.week, row),
-            xytext=(-7 if is_last else 7, 0),
+            xytext=(MARK_LABEL_GAP_PT, 0),
             textcoords="offset points",
-            ha="right" if is_last else "left",
+            ha="left",
             va="center",
             fontsize=SMALL_TYPE_PT,
             color=lab.INK,
             zorder=6,
         )
+        # A label is kept inside the chart, so it must not move the chart to make room.
+        label.set_in_layout(False)
+        milestone_labels.append(label)
     for mark in RISKS:
         row = rows[mark.task]
         axes.plot(
@@ -260,6 +265,7 @@ def draw_marks(axes: Axes) -> None:
             family="sans-serif",
             weight="bold",
         )
+    return milestone_labels
 
 
 def label_axes(axes: Axes) -> None:
@@ -289,19 +295,36 @@ def hang_task_names(figure: Figure, axes: Axes) -> None:
     axes.tick_params(axis="y", length=0, pad=widest_pt + LABEL_GAP_PT)
 
 
+def turn_back_overruns(figure: Figure, axes: Axes, labels: list[Annotation]) -> None:
+    """Set a milestone's label left of its mark where it would run past the last week."""
+    figure.draw_without_rendering()
+    chart_right_px = axes.get_window_extent().x1
+    for label in labels:
+        if label.get_window_extent().x1 > chart_right_px:
+            label.set_horizontalalignment("right")
+            # An annotation's position is its text's offset from the mark.
+            label.set_position((-MARK_LABEL_GAP_PT, 0))
+
+
+def draw() -> Figure:
+    """The chart, in whatever style and on whatever canvas is current."""
+    figure, axes = plt.subplots(figsize=lab.inches(WIDTH_MM, HEAD_MM + ROW_MM * len(TASKS)))
+    draw_rows(axes)
+    draw_calendar(axes)
+    milestone_labels = draw_marks(axes)
+    label_axes(axes)
+    hang_task_names(figure, axes)
+    turn_back_overruns(figure, axes, milestone_labels)
+    return figure
+
+
 def main() -> None:
     check_tables()
     # The pgf canvas sets the labels in the document's faces and measures them as LuaLaTeX does.
     mpl.use("pgf")
     folder = Path(__file__).resolve().parent
-    size_in = lab.inches(WIDTH_MM, HEAD_MM + ROW_MM * len(TASKS))
     with plt.style.context(folder / "laboratory.mplstyle"):
-        figure, axes = plt.subplots(figsize=size_in)
-        draw_rows(axes)
-        draw_calendar(axes)
-        draw_marks(axes)
-        label_axes(axes)
-        hang_task_names(figure, axes)
+        figure = draw()
         figure.savefig(folder / "gantt.pdf")
         plt.close(figure)
 
