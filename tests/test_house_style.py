@@ -266,3 +266,18 @@ def test_warns_of_a_badge_with_no_target(
     output = capsys.readouterr().out
     assert exit_code == 0, output
     assert "badge.H1" in output, output
+
+
+@pytest.mark.tex
+def test_draws_a_top_rule_given_a_width_at_the_house_width(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = ARTICLE.replace(r"\toprule", r"\toprule[2pt]")
+    document = write_project(tmp_path, source, DOCUMENT_PACKAGES)
+
+    exit_code = build.main([str(document), "--engine", "lualatex"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0, output
+    assert r"\toprule[2pt]" in output, output
+    assert "[2pt]" not in extract_text(tmp_path / "build" / "main.pdf")

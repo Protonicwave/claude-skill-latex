@@ -104,15 +104,22 @@
 \newcommand{\laboratory@tracked}[1]{{\addfontfeature{LetterSpace=8}\MakeUppercase{#1}}}
 
 % Table rules repeat the record strip: a Prussian rule above, grey rules inside
-% and a black rule to close the table. The top rule's width is fixed here, so
-% \toprule takes no optional width.
+% and a black rule to close the table. The top rule's width is fixed here: a
+% width given to \toprule, as in a document being restyled, is dropped with a
+% warning rather than printed in the first cell.
 \setlength{\heavyrulewidth}{0.6pt}
 \setlength{\lightrulewidth}{0.4pt}
 \setlength{\cmidrulewidth}{0.4pt}
 \let\laboratory@toprule\toprule
 \let\laboratory@midrule\midrule
 \let\laboratory@bottomrule\bottomrule
-\renewcommand{\toprule}{\arrayrulecolor{prussian}\laboratory@toprule[1pt]\arrayrulecolor{rulegrey}}
+\renewcommand{\toprule}{\arrayrulecolor{prussian}\laboratory@toprule[1pt]\arrayrulecolor{rulegrey}\laboratory@dropwidth}
+% Looks past the rule for a width inside a \noalign, as booktabs does, since
+% anything else would start the first cell.
+\newcommand{\laboratory@dropwidth}{\noalign{\ifnum0=`}\fi\@ifnextchar[{\laboratory@@dropwidth}{\ifnum0=`{\fi}}}
+\def\laboratory@@dropwidth[#1]{%
+  \PackageWarning{laboratory-base}{The house style sets the top rule at 1pt,\MessageBreak so \string\toprule[#1] is drawn at 1pt}%
+  \ifnum0=`{\fi}}
 \renewcommand{\midrule}{\arrayrulecolor{rulegrey}\laboratory@midrule}
 \renewcommand{\bottomrule}{\arrayrulecolor{black}\laboratory@bottomrule}
 
