@@ -15,12 +15,18 @@
 % with its own; neither is a fault in the document.
 \RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \RequirePackage{microtype}
+\RequirePackage{etoolbox}
 \RequirePackage{xcolor}
 \RequirePackage{graphicx}
 \RequirePackage{booktabs}
 \RequirePackage{tabularx}
+\RequirePackage{colortbl}
+\RequirePackage{tikz}
 \RequirePackage{siunitx}
 \RequirePackage{csquotes}
+% \path sets the record strip's source in monospace, breaking after a slash or
+% a dot, so a long repository address wraps within its column.
+\RequirePackage{url}
 \RequirePackage[numbers,sort&compress]{natbib}
 
 % Erewhon for text and maths, Source Sans 3 for every piece of furniture,
@@ -60,6 +66,15 @@
 
 \definecolor{prussian}{HTML}{1F4A73}
 \definecolor{rulegrey}{gray}{0.6}
+\definecolor{laboratory@unitgrey}{gray}{0.4}
+
+% The data colours, so a caption, tag or table can name the colour a figure
+% gives a series. A document gives one a meaning with \colorlet, for example
+% \colorlet{stuck}{seriesB}.
+\colorlet{seriesA}{prussian}
+\definecolor{seriesB}{HTML}{B5562C}
+\definecolor{seriesC}{HTML}{1A1A1A}
+\definecolor{seriesD}{HTML}{737373}
 
 % One space after a full stop, so "e.g." and initials need no manual spacing.
 \frenchspacing
@@ -73,15 +88,96 @@
 \sisetup{
   separate-uncertainty = false,
   group-minimum-digits = 5,
+  % A quantity takes the face and weight around it, so one in a sans caption
+  % or a bold head matches the words beside it.
+  mode = match,
+  reset-text-family = false,
+  reset-text-series = false,
 }
+% Numbers in a table stay in maths, so a signed entry keeps its true minus
+% whatever face its cell is set in.
+\AtBeginEnvironment{tabular}{\sisetup{mode = math}}
+\AtBeginEnvironment{tabular*}{\sisetup{mode = math}}
+\AtBeginEnvironment{tabularx}{\sisetup{mode = math}}
 
-% Table column headings are furniture, so they take the sans face.
-\newcommand{\head}[1]{{\sffamily\bfseries #1}}
+% Capitals set as a label are tracked open, or they crowd.
+\newcommand{\laboratory@tracked}[1]{{\addfontfeature{LetterSpace=8}\MakeUppercase{#1}}}
+
+% Table rules repeat the record strip: a Prussian rule above, grey rules inside
+% and a black rule to close the table. The top rule's width is fixed here: a
+% width given to \toprule, as in a document being restyled, is dropped with a
+% warning rather than printed in the first cell.
+\setlength{\heavyrulewidth}{0.6pt}
+\setlength{\lightrulewidth}{0.4pt}
+\setlength{\cmidrulewidth}{0.4pt}
+\let\laboratory@toprule\toprule
+\let\laboratory@midrule\midrule
+\let\laboratory@bottomrule\bottomrule
+\renewcommand{\toprule}{\arrayrulecolor{prussian}\laboratory@toprule[1pt]\arrayrulecolor{rulegrey}\laboratory@dropwidth}
+% Looks past the rule for a width inside a \noalign, as booktabs does, since
+% anything else would start the first cell.
+\newcommand{\laboratory@dropwidth}{\noalign{\ifnum0=`}\fi\@ifnextchar[{\laboratory@@dropwidth}{\ifnum0=`{\fi}}}
+\def\laboratory@@dropwidth[#1]{%
+  \PackageWarning{laboratory-base}{The house style sets the top rule at 1pt,\MessageBreak so \string\toprule[#1] is drawn at 1pt}%
+  \ifnum0=`{\fi}}
+\renewcommand{\midrule}{\arrayrulecolor{rulegrey}\laboratory@midrule}
+\renewcommand{\bottomrule}{\arrayrulecolor{black}\laboratory@bottomrule}
+
+% Table column headings are furniture, so they take the sans face. They stay at
+% regular weight: most heads hold a quantity in maths, which has no bold to
+% match, so a bold word beside them sets two weights in one row.
+\newcommand{\head}[1]{{\sffamily #1}}
+% A head with its unit under it in small grey sans, written as siunitx unit
+% macros. With no unit, a strut of the unit's height keeps the head level with
+% its neighbours.
+\NewDocumentCommand{\colhead}{mm}{%
+  \begin{tabular}[b]{@{}c@{}}%
+    \head{#1}\\[-0.2ex]
+    {\sffamily\footnotesize\color{laboratory@unitgrey}%
+      \if\relax\detokenize{#2}\relax\strut\else\unit[mode = text]{#2}\fi}%
+  \end{tabular}}
+% The name of a group of columns, set like the record strip's labels.
+\NewDocumentCommand{\spanhead}{m}{{\sffamily\footnotesize\color{prussian}\laboratory@tracked{#1}}}
+% The one row a reader should find first. laboratory.sty's statement block
+% takes the same tint, so the tint always marks what to find first.
+\colorlet{laboratory@keytint}{prussian!7}
+\newcommand{\keyrow}{\rowcolor{laboratory@keytint}}
+% Alternate rows of a wide table of words, in a neutral tint so the Prussian of
+% \keyrow keeps its meaning.
+\newcommand{\band}{\rowcolor{black!4}}
+
+% A coloured chip of small bold sans: background, text colour, text.
+\newcommand{\laboratory@chip}[3]{%
+  {\setlength{\fboxsep}{1.4pt}\colorbox{#1}{\rule[-0.25ex]{0pt}{1.75ex}\sffamily\footnotesize\bfseries\color{#2}#3}}}
+% Likelihood or impact in a risk table, light to dark.
+\NewDocumentCommand{\level}{m}{%
+  \ifstrequal{#1}{low}{\laboratory@chip{black!6}{black}{\mdseries low}}{%
+  \ifstrequal{#1}{medium}{\laboratory@chip{black!18}{black}{\mdseries medium}}{%
+  \ifstrequal{#1}{high}{\laboratory@chip{black!72}{white}{\mdseries high}}{%
+  \PackageError{laboratory-base}{Unknown level `#1'}{\string\level\space takes low, medium or high.}}}}}
+
+% Coded tags such as H1, R2 or MS3. \definebadge gives a code its colour once;
+% \badge sets the code anywhere as a chip that links to the one place
+% \badgetarget sets it. A code with no colour of its own is Prussian.
+\newcommand{\definebadge}[2]{\csdef{laboratory@badge@#1}{#2}}
+\newcommand{\laboratory@badgecolour}[1]{\ifcsdef{laboratory@badge@#1}{\csuse{laboratory@badge@#1}}{prussian}}
+\NewDocumentCommand{\badge}{m}{\hyperlink{badge.#1}{\laboratory@chip{\laboratory@badgecolour{#1}}{white}{#1}}}
+\NewDocumentCommand{\badgetarget}{m}{\hypertarget{badge.#1}{\laboratory@chip{\laboratory@badgecolour{#1}}{white}{#1}}}
+
+% Keys in a caption or the text that match a figure's marks.
+\NewDocumentCommand{\marker}{m}{\tikz[baseline=-0.6ex]\fill[#1] (0,0) circle (0.27em);}
+\NewDocumentCommand{\linekey}{m}{\tikz[baseline=-0.6ex]\draw[#1, line width=0.9pt] (0,0) -- (1.1em,0);}
+
+% The bold first sentence of a caption, which says what the float shows.
+\NewDocumentCommand{\lead}{m}{{\bfseries #1}}
 
 % Where the work behind the document lives: a repository, notebook or data
 % folder. The record strip leaves the field out when it is not given.
 \newcommand{\laboratory@source}{}
 \newcommand{\source}[1]{\renewcommand{\laboratory@source}{#1}}
+% The supervisor of a project, left out of the record strip when not given.
+\newcommand{\laboratory@supervisor}{}
+\newcommand{\supervisor}[1]{\renewcommand{\laboratory@supervisor}{#1}}
 
 % Sizes of the record strip, which the poster theme scales up for the sheet.
 \newcommand{\laboratory@labelsize}{\footnotesize}
@@ -92,21 +188,43 @@
 \setlength{\laboratory@hairline}{0.4pt}
 
 % Each line ends its paragraph inside its own size, so it takes its own leading.
+% Values are ragged right: a name too long for its column wraps rather than
+% being stretched across it.
 \newcommand{\laboratory@field}[2]{%
-  {\sffamily\laboratory@labelsize\color{prussian}\MakeUppercase{#1}\par}%
-  {\sffamily\laboratory@valuesize #2\par}%
+  {\sffamily\laboratory@labelsize\color{prussian}\laboratory@tracked{#1}\par}%
+  {\raggedright\sffamily\laboratory@valuesize #2\par}%
 }
 
-% The house signature under every title: a Prussian rule, the author, date
-% and source, and a grey rule. Takes the author and the date.
+% The source field, empty when \source is not given. url's \path breaks a
+% repository address after a slash or a dot.
+\newcommand{\laboratory@sourcefield}{%
+  \ifx\laboratory@source\@empty\else
+    \laboratory@field{Source}{\expandafter\path\expandafter{\laboratory@source}}%
+  \fi}
+
+% The house signature under every title: a Prussian rule, the author,
+% supervisor, date and source, and a grey rule. Takes the author and the date.
+% Author and supervisor take 0.22 of the line each; the date takes 0.25, which
+% holds the longest British date, 28th September 2026, on one line at the
+% slide's 140 mm measure.
 \newcommand{\laboratory@recordstrip}[2]{%
   {\color{prussian}\hrule height \laboratory@accentrule}%
   \vspace{0.6\baselineskip}%
   \noindent
-  \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.22\linewidth}X@{}}
-    \laboratory@field{Author}{#1} & \laboratory@field{Date}{#2}
-    & \ifx\laboratory@source\@empty\else\laboratory@field{Source}{\texttt{\laboratory@source}}\fi
-  \end{tabularx}
+  \ifx\laboratory@supervisor\@empty
+    \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.25\linewidth}X@{}}
+      \laboratory@field{Author}{#1}
+      & \laboratory@field{Date}{#2}
+      & \laboratory@sourcefield
+    \end{tabularx}%
+  \else
+    \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.22\linewidth}p{0.25\linewidth}X@{}}
+      \laboratory@field{Author}{#1}
+      & \laboratory@field{Supervisor}{\laboratory@supervisor}
+      & \laboratory@field{Date}{#2}
+      & \laboratory@sourcefield
+    \end{tabularx}%
+  \fi
   \vspace{0.6\baselineskip}%
   {\color{rulegrey}\hrule height \laboratory@hairline}%
 }

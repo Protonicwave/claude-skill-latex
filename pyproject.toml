@@ -40,9 +40,13 @@ max-complexity = 10
 [tool.mypy]
 strict = true
 files = ["research", "skills", "tests"]
-mypy_path = "skills/latex/scripts"
+mypy_path = ["skills/latex/scripts", "skills/latex/assets/mplstyle"]
+
+[tool.vulture]
+# pytest finds its hooks in conftest.py by name, so nothing in the code calls them.
+ignore_names = ["pytest_*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["skills/latex/scripts"]
+pythonpath = ["skills/latex/scripts", "skills/latex/assets/mplstyle"]
 markers = ["tex: runs the TeX distribution, so needs latexmk and poppler on PATH"]

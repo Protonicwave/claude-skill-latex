@@ -2,34 +2,44 @@
 \label{ch:results}
 
 % Lead with the result, then the evidence for it; every float is referred to before it appears.
-\Cref{fig:period} shows the measured periods with the fit of \cref{eq:period}, and \cref{tab:period} lists them at selected lengths. A least-squares fit of $T = a \sqrt{L}$ gives $a = \qty{2.0061(4)}{\second\metre\tothe{-1/2}}$ and hence $g = 4\pi^2 / a^2 = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value of \qty{9.81}{\metre\per\second\squared}.
+% Each float goes in the section whose text it supports, so a short chapter
+% keeps its floats on pages with text.
+\section{The fitted acceleration}
+
+\Cref{fig:period} shows the measured periods with the fit of \cref{eq:period}. A least-squares fit of $T = a \sqrt{L}$ gives $a = \qty{2.0061(4)}{\second\metre\tothe{-1/2}}$ and hence $g = 4\pi^2 / a^2 = \qty{9.809(4)}{\metre\per\second\squared}$, within one standard error of the local value of \qty{9.81}{\metre\per\second\squared}.
 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\linewidth]{figures/pendulum}
-  \caption{Period against length (a), with the fitted small-angle model, and residuals from the fit (b). Error bars are one standard error.}
+  \caption{\lead{The small-angle model fits every length.} Period against length~\marker{seriesA}, with the fitted small-angle model~\linekey{seriesC} (a), and residuals from the fit (b). Error bars are one standard error of a period; the band in (b) is one standard error of the fit.}
   \label{fig:period}
 \end{figure}
 
+\section{Residuals}
+
+\Cref{tab:period} lists the measured and fitted periods at selected lengths, with the residual of each. The residuals in panel (b) of \cref{fig:period} scatter about zero with no trend in length. The fit has $\chi^2 = 6.9$ for 8 degrees of freedom, so the quoted timing error accounts for the scatter~\cite{taylor1997}.
+
 \begin{table}[tbp]
-  \centering
   \caption{Measured and fitted periods at selected lengths.}
   \label{tab:period}
   \begin{tabular}{
     S[table-format=1.1]
     S[table-format=1.4(2)]
     S[table-format=1.4]
+    S[table-format=-1.1]
   }
     \toprule
-    {\head{$L$ (\unit{\metre})}} & {\head{$T$ (\unit{\second})}} & {\head{$T_\mathrm{fit}$ (\unit{\second})}} \\
+    \multicolumn{2}{c}{\spanhead{Measured}} & \multicolumn{2}{c}{\spanhead{Fitted}} \\
+    \cmidrule(lr){1-2} \cmidrule(lr){3-4}
+    {\colhead{$L$}{\metre}} & {\colhead{$T$}{\second}} & {\colhead{$T_\mathrm{fit}$}{\second}} & {\colhead{$T - T_\mathrm{fit}$}{\milli\second}} \\
     \midrule
-    0.2 & 0.8983(10) & 0.8972 \\
-    0.4 & 1.2692(10) & 1.2688 \\
-    0.6 & 1.5548(10) & 1.5540 \\
-    0.8 & 1.7937(10) & 1.7943 \\
-    1.0 & 2.0057(10) & 2.0061 \\
+    0.2 & 0.8983(10) & 0.8972 & 1.1 \\
+    0.4 & 1.2692(10) & 1.2688 & 0.4 \\
+    0.6 & 1.5548(10) & 1.5540 & 0.8 \\
+    0.8 & 1.7937(10) & 1.7943 & -0.6 \\
+    1.0 & 2.0057(10) & 2.0061 & -0.4 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The residuals in panel (b) of \cref{fig:period} scatter about zero with no trend in length. The fit has $\chi^2 = 6.9$ for 8 degrees of freedom, so the quoted timing error accounts for the scatter~\cite{taylor1997}, and the finite amplitude, which lengthens the period by \qty{0.3}{\milli\second} at most, is too small to show.
+The fitted $g$ agrees with the local value, so neither the finite amplitude, which lengthens the period by \qty{0.3}{\milli\second} at most, nor the mass of the string shifts the period by more than the timing precision. A constant error in length, such as a misjudged centre of the bob, changes the shape of the curve only slightly over this range, so the residuals test it weakly.

@@ -1,14 +1,26 @@
 % Laboratory house style for documents set with the article or report class:
-% a 175 mm measure at 11pt, sans furniture, Prussian blue as the one accent and
+% a 150 mm measure at 11pt, sans furniture, Prussian blue as the one accent and
 % an author, date and source strip under the title.
+%
+% The option compact, for a report of about twenty pages or fewer, runs the
+% contents and each chapter on from the text before instead of starting a page.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{laboratory}[2026/11/07 Laboratory house style: documents]
+\ProvidesPackage{laboratory}[2026/11/11 Laboratory house style: documents]
+
+\newif\iflaboratory@compact
+\DeclareOption{compact}{\laboratory@compacttrue}
+\ProcessOptions\relax
 
 \RequirePackage{laboratory-base}
-\RequirePackage[a4paper, textwidth=175mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
+% 150 mm leaves 30 mm side margins and about 95 characters a line.
+\RequirePackage[a4paper, textwidth=150mm, textheight=232mm, top=34mm, headheight=14pt, headsep=10mm, hcentering]{geometry}
 \RequirePackage{fancyhdr}
 \RequirePackage{caption}
+% Table notes sit in a threeparttable under the closing rule.
+\RequirePackage{threeparttable}
 \RequirePackage{titlesec}
+\RequirePackage{titletoc}
+\RequirePackage{enumitem}
 \RequirePackage{listings}
 \RequirePackage{amsthm}
 % A float may appear only after the point in the source where it is written,
@@ -28,18 +40,108 @@
 % loosens slightly rather than leaving a line in the margin.
 \setlength{\emergencystretch}{1.5em}
 
-\titleformat{\section}{\normalfont\sffamily\bfseries\Large}{\color{prussian}\thesection}{0.6em}{}
-\titleformat{\subsection}{\normalfont\sffamily\bfseries}{\color{prussian}\thesubsection}{0.6em}{}
+% Section numbers hang in the left margin, so every heading starts on the
+% text's edge and the numbers form a column of their own.
+\titleformat{\section}{\normalfont\sffamily\bfseries\Large}{\llap{\color{prussian}\thesection\hspace{0.7em}}}{0pt}{}
+\titleformat{\subsection}{\normalfont\sffamily\bfseries}{\llap{\color{prussian}\thesubsection\hspace{0.7em}}}{0pt}{}
 \titlespacing*{\section}{0pt}{1.6\baselineskip plus 0.3\baselineskip minus 0.2\baselineskip}{0.5\baselineskip}
 \titlespacing*{\subsection}{0pt}{1.0\baselineskip plus 0.2\baselineskip}{0.3\baselineskip}
-\@ifundefined{chapter}{}{%
-  \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\huge}{\color{prussian}\thechapter}{0.6em}{}
-  \titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+% A run-in head names a paragraph without spending a line on it.
+\titleformat{\paragraph}[runin]{\normalfont\sffamily\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{0.6\baselineskip plus 0.2\baselineskip minus 0.1\baselineskip}{0.5em}
+
+% Contents in the furniture face: Prussian numbers and no dot leaders. An
+% unnumbered entry, such as the references, starts on the numbers' edge.
+\newcommand{\laboratory@contentsnumber}{\color{prussian}\thecontentslabel}
+\@ifundefined{chapter}{%
+  \titlecontents{section}[1.8em]{\addvspace{0.4\baselineskip}\sffamily\bfseries}
+    {\contentslabel[\laboratory@contentsnumber]{1.8em}}{\hspace*{-1.8em}}{\hfill\contentspage}
+  \titlecontents{subsection}[4.2em]{\sffamily}
+    {\contentslabel[\laboratory@contentsnumber]{2.4em}}{}{\hfill\contentspage}
+}{%
+  \titlecontents{chapter}[1.8em]{\addvspace{0.7\baselineskip}\sffamily\bfseries}
+    {\contentslabel[\laboratory@contentsnumber]{1.8em}}{\hspace*{-1.8em}}{\hfill\contentspage}
+  \titlecontents{section}[4.2em]{\sffamily}
+    {\contentslabel[\laboratory@contentsnumber]{2.4em}}{}{\hfill\contentspage}
+  \titlecontents{subsection}[7.2em]{\sffamily\small}
+    {\contentslabel[\laboratory@contentsnumber]{3em}}{}{\hfill\contentspage}
+  \iflaboratory@compact
+    % A chapter becomes a heading in the run of the text, so the contents, the
+    % chapters and the references follow on without a page break each. The
+    % document brings chapters in with \input, since \include starts a page.
+    \titleclass{\chapter}{straight}
+    % Without the page break, a chapter's floats would drift into the next
+    % chapter; the barrier sets them before the next chapter's heading.
+    \RequirePackage{placeins}
+    \AddToHook{cmd/chapter/before}{\FloatBarrier}
+    \titleformat{\chapter}[hang]{\normalfont\sffamily\bfseries\LARGE}{\llap{\color{prussian}\thechapter\hspace{0.6em}}}{0pt}{}
+    \titlespacing*{\chapter}{0pt}{2.4\baselineskip plus 0.4\baselineskip minus 0.2\baselineskip}{0.8\baselineskip}
+  \else
+    % A chapter opens a seventh of the way down its page: a large numeral in
+    % the light weight of the furniture face, the title, and the record strip's
+    % accent rule under it.
+    \newfontfamily\laboratory@light{SourceSans3}[Extension = .otf, UprightFont = *-Light, Scale = MatchUppercase]
+    \titleformat{\chapter}[display]
+      {\normalfont\sffamily\bfseries\huge}
+      {{\mdseries\laboratory@light\fontsize{60}{60}\selectfont\color{prussian}\thechapter}}
+      {0.9\baselineskip}
+      {}
+      [\vspace{0.7\baselineskip}{\color{prussian}\titlerule[\laboratory@accentrule]}]
+    \titlespacing*{\chapter}{0pt}{0.14\textheight}{2.2\baselineskip}
+  \fi
   \addto\captionsbritish{\renewcommand{\bibname}{References}}
 }
 
-\captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=quad, justification=justified, singlelinecheck=false}
-\captionsetup[table]{position=top, skip=6pt}
+% An en space after the label: a quad leaves a hole between "Table 1" and its text.
+\DeclareCaptionLabelSeparator{enspace}{\enspace}
+\captionsetup{font={small,sf}, labelfont={bf,color=prussian}, labelsep=enspace, justification=justified, singlelinecheck=false}
+% A table hangs from the left edge under its caption, so the two read as one
+% object at any width. The caption is ragged, which never hyphenates, and runs
+% no wider than two thirds of the measure.
+\captionsetup[table]{position=top, skip=6pt, justification=raggedright, margin={0pt, 0.33\linewidth}}
+
+% Rows in a table sit 15 per cent further apart than the class sets them, so a
+% row of exponents does not touch the row above. Arrays in maths are untouched.
+\AtBeginEnvironment{table}{\renewcommand{\arraystretch}{1.15}}
+% Notes under a table are furniture, like its caption.
+\appto\TPTnoteSettings{\sffamily\footnotesize}
+
+\setlist{itemsep=0.15\baselineskip, topsep=0.4\baselineskip}
+% A bulleted list hangs its bullets in the margin, as headings hang their
+% numbers; a numbered list keeps its indent. A bullet is the Prussian square
+% the slides use.
+\setlist[itemize,1]{label={\color{prussian}\raisebox{0.22ex}{\rule{0.36em}{0.36em}}}, leftmargin=0pt, labelsep=0.7em}
+% In a box, such as a statement block or a table cell, a hung bullet would sit
+% outside the box, so the items are indented instead.
+\newcommand{\laboratory@indentbullets}{\setlist[itemize,1]{leftmargin=*}}
+\AtBeginEnvironment{minipage}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabular}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabular*}{\laboratory@indentbullets}
+\AtBeginEnvironment{tabularx}{\laboratory@indentbullets}
+% Claims such as hypotheses, each with its badge as the item's label:
+% \item[\badgetarget{H1}].
+\newlist{claims}{itemize}{1}
+\setlist[claims]{label={}, leftmargin=0pt, labelsep=0.7em, labelwidth=2.2em, align=right, itemsep=0.45\baselineskip, topsep=0.5\baselineskip}
+% Milestones, marked with the diamond a Gantt chart uses for them.
+\newlist{milestones}{itemize}{1}
+\setlist[milestones]{label={\tikz[baseline=-0.6ex]\fill[seriesC] (0,0.3em) -- (0.3em,0) -- (0,-0.3em) -- (-0.3em,0) -- cycle;}, leftmargin=0pt, labelsep=0.7em}
+
+% The one or two sentences a reader must not miss, such as the aim, in the
+% Prussian tint of \keyrow with a tracked label run in. The block is a box, so
+% it never breaks across a page.
+\newlength{\laboratory@statementpad}
+\setlength{\laboratory@statementpad}{0.85em}
+\newsavebox{\laboratory@statementbox}
+\NewDocumentEnvironment{statement}{m}{%
+  \par\addvspace{0.9\baselineskip}\noindent
+  \begin{lrbox}{\laboratory@statementbox}%
+  \begin{minipage}{\dimexpr\linewidth-2\laboratory@statementpad\relax}%
+  {\sffamily\small\bfseries\color{prussian}\laboratory@tracked{#1}}\enspace\ignorespaces
+}{%
+  \end{minipage}\end{lrbox}%
+  {\setlength{\fboxsep}{\laboratory@statementpad}\colorbox{laboratory@keytint}{\usebox{\laboratory@statementbox}}}%
+  \par\addvspace{0.9\baselineskip}%
+}
 
 \lstset{
   language = Python,
@@ -65,18 +167,32 @@
 \newtheorem{definition}{Definition}[section]
 \newtheorem{example}{Example}[section]
 
+% The folio sits at the foot of every page, chapter openings included, and the
+% head carries only the running head, in grey: the title unless \runninghead
+% gives a shorter one.
+\newcommand{\laboratory@runninghead}{\@title}
+\newcommand{\runninghead}[1]{\renewcommand{\laboratory@runninghead}{#1}}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\sffamily\small\color{rulegrey}\@title}
-\fancyhead[R]{\sffamily\small\thepage}
+\fancyhead[L]{\sffamily\small\color{rulegrey}\laboratory@runninghead}
+\fancyfoot[R]{\sffamily\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{{\color{rulegrey}\hrule height \headrulewidth}}
 \fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[R]{\sffamily\small\thepage}}
+
+% A short line above the title naming the kind of document or the module,
+% left out when not given.
+\newcommand{\laboratory@kicker}{}
+\newcommand{\kicker}[1]{\renewcommand{\laboratory@kicker}{#1}}
 
 \renewcommand{\maketitle}{%
   \thispagestyle{plain}%
   \begingroup
   \raggedright
+  \ifx\laboratory@kicker\@empty\else
+    {\sffamily\small\bfseries\color{prussian}\laboratory@tracked{\laboratory@kicker}\par}%
+    \vspace{0.6\baselineskip}%
+  \fi
   {\sffamily\bfseries\fontsize{22}{26}\selectfont \@title\par}
   \vspace{1.2\baselineskip}
   \laboratory@recordstrip{\@author}{\@date}
@@ -86,7 +202,8 @@
 
 \renewenvironment{abstract}{%
   \small
-  \list{}{\leftmargin=0pt \rightmargin=0pt}%
+  % Indented on both sides so the abstract reads as a block apart from the text.
+  \list{}{\leftmargin=2em \rightmargin=2em}%
   \item\relax{\sffamily\bfseries\color{prussian}Abstract}\enspace\ignorespaces
 }{\endlist\vspace{0.6\baselineskip}}
 

@@ -8,6 +8,9 @@ latexmk runs in the document's folder with nonstop interaction, halting on the
 first error, and writes into DIR (default `build`, relative to the document).
 Every rule runs at least once (latexmk -g), so the log always comes from this
 build; a log, BibTeX log or PDF this run did not write is ignored as left over.
+The document's .aux, .log and latexmk's records of earlier runs are deleted
+first, so a run that stopped before the bibliography cannot leave BibTeX an
+.aux with no database in it: TeX always runs before BibTeX.
 Without --engine, a latexmkrc or .latexmkrc in the document's folder chooses
 the engine, as it does for an editor; with neither, LuaLaTeX is used.
 The TeX log and any BibTeX log are then read into findings. Defects need
@@ -77,6 +80,13 @@ DEFAULT_ENGINE = Engine.LUALATEX
 LATEXMKRC_NAMES = ("latexmkrc", ".latexmkrc")
 # The files a build writes, read only when this run wrote them.
 OUTPUTS = (".log", ".blg", ".pdf")
+# What latexmk carries from one run into the next, cleared before each build.
+# Once any of these records that the document uses BibTeX, latexmk -g runs
+# BibTeX before TeX. A run that stopped before \bibliography leaves an .aux
+# naming no database, so BibTeX fails and latexmk stops without running TeX.
+# Clearing these files, unlike latexmk -gg, keeps the PDF, so a failing build
+# still leaves something to look at.
+CARRIED_STATE = (".aux", ".fdb_latexmk", ".fls", ".log")
 
 
 class Severity(StrEnum):
@@ -130,8 +140,10 @@ WARNING = re.compile(
 CONTINUATION = re.compile(r"^\([A-Za-z][\w@-]*\)\s+(?P<text>.*)$")
 INPUT_LINE = re.compile(r"on input line (\d+)")
 MISSING_GLYPH = re.compile(r"^Missing character: There is no .+ in font .+!$")
-# pdfTeX writes these straight after page numbers, mid-line, without a source.
-PDFTEX_WARNING = re.compile(r"pdfTeX warning(?: \([^)]*\))?: .+$")
+# The PDF writer's warnings, such as a link to a destination never set. pdfTeX
+# writes them straight after page numbers, mid-line; LuaTeX's backend writes
+# them on a line of their own at the end of the run. Neither names a source.
+PDF_WRITER_WARNING = re.compile(r"(?:pdfTeX warning(?: \([^)]*\))?|warning  \(pdf backend\)): .+$")
 PARENTHESIS = re.compile(r"[()]")
 OPENED_FILE = re.compile(
     r'"(?P<quoted>[^"]+)"|(?P<bare>[^()"\s][^()"]*?\.[A-Za-z][A-Za-z0-9]*)(?=[\s()]|$)'
@@ -202,8 +214,8 @@ def _current_file(open_files: list[str | None]) -> str | None:
 
 
 def _read_plain_line(line: str, open_files: list[str | None]) -> list[Finding]:
-    """Track the files a line opens and closes, and report a pdfTeX warning in it."""
-    warning = PDFTEX_WARNING.search(line)
+    """Track the files a line opens and closes, and report a PDF writer warning in it."""
+    warning = PDF_WRITER_WARNING.search(line)
     if warning is None:
         _track_files(line, open_files)
         return []
@@ -641,9 +653,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     flags = engine_flags(args.engine, document.parent)
     engine_label = str(args.engine or DEFAULT_ENGINE) if flags else "engine from latexmkrc"
     log_path, bibtex_path, pdf = (outdir / f"{document.stem}{suffix}" for suffix in OUTPUTS)
-    before = {path: file_state(path) for path in (log_path, bibtex_path, pdf)}
+    before = {path: file_state(path) for path in (bibtex_path, pdf)}
+    for suffix in CARRIED_STATE:
+        carried = outdir / f"{document.stem}{suffix}"
+        try:
+            carried.unlink(missing_ok=True)
+        except PermissionError:
+            print(f"cannot clear {carried}: is another build using it?", file=sys.stderr)
+            return 2
     run = run_latexmk(latexmk, document, args.engine, outdir, args.timeout_seconds)
-    log = _read_rewritten(log_path, before[log_path])
+    # The log was cleared with the carried state, so any log is this run's.
+    log = _read_rewritten(log_path, before=None)
     bibtex_log = _read_rewritten(bibtex_path, before[bibtex_path])
     findings = assess(run, log, bibtex_log, args.timeout_seconds)
     written_pdf = pdf if is_rewritten(pdf, before[pdf]) else None

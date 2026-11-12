@@ -9,7 +9,6 @@ axes.titlesize: 28
 xtick.labelsize: 28
 ytick.labelsize: 28
 legend.fontsize: 28
-axes.titlepad: 10
 
 lines.linewidth: 3
 lines.markersize: 10

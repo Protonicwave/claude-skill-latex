@@ -3,7 +3,7 @@ import subprocess
 
 import pytest
 
-TEX_TOOLS = ("latexmk", "pdflatex", "lualatex", "pdftoppm", "pdfinfo")
+TEX_TOOLS = ("latexmk", "pdflatex", "lualatex", "pdftoppm", "pdfinfo", "pdftotext")
 LATEXMK_CHECK_TIMEOUT_SECONDS = 60
 
 

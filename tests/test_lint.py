@@ -91,6 +91,12 @@ def test_finds_nothing_in_an_empty_file(tmp_path: Path) -> None:
     assert result.findings == ()
 
 
+def test_reads_a_column_span_as_a_setting_not_a_range(tmp_path: Path) -> None:
+    document = write(tmp_path / "main.tex", "\\cmidrule(lr){1-2} \\cmidrule[0.4pt]{3-4}\n")
+
+    assert lint.lint(document).findings == ()
+
+
 def test_reads_a_file_that_inputs_itself_once(tmp_path: Path) -> None:
     document = write(tmp_path / "main.tex", "\\input{main}\nPages 3-5.\n")
 

@@ -1,6 +1,6 @@
 ---
 name: latex
-description: Typesets LaTeX documents for physics and computer science to a production standard. Use whenever writing, starting, fixing, restyling or auditing a .tex document, a Beamer talk or poster, or a matplotlib figure meant for LaTeX; whenever a LaTeX build fails, warns or shows overfull boxes, undefined references or citation errors; and whenever the user asks for a report, dissertation, lab report, paper, lecture notes, slides or poster in LaTeX. Starts new documents from per-profile skeletons in a house style, audits existing ones, respects module templates and journal classes, and hands nothing back until the build, the source lint and a look at the rendered pages are clean. The words themselves belong to /writing and the sources to /research.
+description: Typesets LaTeX documents for physics and computer science to a production standard. Use whenever writing, starting, fixing, restyling or auditing a .tex document, a Beamer talk or poster, or a matplotlib figure meant for LaTeX; whenever a LaTeX build fails, warns or shows overfull boxes, undefined references or citation errors; and whenever the user asks for a report, dissertation, lab report, project plan, paper, lecture notes, slides or poster in LaTeX. Starts new documents from per-profile skeletons in a house style, audits existing ones, respects module templates and journal classes, and hands nothing back until the build, the source lint and a look at the rendered pages are clean. The words themselves belong to /writing and the sources to /research.
 ---
 
 # LaTeX
@@ -39,6 +39,7 @@ A rule found in prose ("margins are 2 cm, the minimal font size is 11 pt") binds
 | report | project report, dissertation, thesis chapter set | `report` with the house style, LuaLaTeX | moderate | `profiles/report.md` |
 | labreport | laboratory or experiment report | `article` with the house style, LuaLaTeX | low | `profiles/labreport.md` |
 | notes | lecture, revision or derivation notes | `article` with the house style, LuaLaTeX | moderate | `profiles/notes.md` |
+| plan | project plan or proposal, with hypotheses, risks and a Gantt chart | `article` with the house style, LuaLaTeX | moderate | `profiles/plan.md` |
 | paper | journal submission or arXiv preprint | the journal's class (REVTeX 4.2 by default), pdfLaTeX | none | `profiles/paper.md` |
 | slides | talk, viva, group meeting | Beamer with the Laboratory theme, LuaLaTeX | high | `profiles/slides.md` |
 | poster | conference or project poster | Beamer with beamerposter and the LaboratoryPoster theme, LuaLaTeX | high | `profiles/poster.md` |
@@ -70,7 +71,7 @@ Scale it to the job: two or three lines for a fix to a lab report, every line fo
 python <skill-dir>/scripts/new_project.py PROFILE FOLDER
 ```
 
-It writes `main.tex` (and `chapters/` for a report), `refs.bib`, the house packages, `figures/pendulum.pdf` with the matching `.mplstyle` files, a `latexmkrc` that sets the engine and the `build/` folder, and `.vscode/settings.json` for LaTeX Workshop. It refuses, writing nothing, if any file it would write already exists. That includes a `refs.bib` that `/research` has already written: scaffold first, or move the file aside and put it back after. Each skeleton's comments state the convention for its element.
+It writes `main.tex` (with `chapters/` for a report, and for a plan the Gantt chart and `figures/gantt.py`, which redraws it from a table of tasks), `refs.bib`, the house packages, `figures/pendulum.pdf` with the matching `.mplstyle` files and the figure helper `laboratory.py`, a `latexmkrc` that sets the engine and the `build/` folder, and `.vscode/settings.json` for LaTeX Workshop. It refuses, writing nothing, if any file it would write already exists. That includes a `refs.bib` that `/research` has already written: scaffold first, or move the file aside and put it back after. Each skeleton's comments state the convention for its element.
 
 **Existing document.** Audit before changing anything: build, lint and render as in step 5, and report the findings ranked by what a reader would notice first. Fix defects. Change a tell where the house style or a local rule calls for it; leave a choice the author or the template made deliberately, and say so. Change only what a finding requires: no reformatting of the whole file, no reordering of the preamble for taste. If the document has its own build script, read it for the engine and the bibliography tool and pass the matching `--engine`. Build the document where it lives, since documents often include files from outside their folder (`../../results/figure.pdf`); if its folder already holds the author's own build output, pass `--outdir` with an absolute path in a temporary folder so the audit leaves that output untouched.
 

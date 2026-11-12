@@ -8,7 +8,7 @@ Load `babel` with `british`, so words break by British patterns and the captions
 
 ## Measure and leading
 
-The house measure is 175 mm, about 110 characters at 11 pt, by the user's choice (`design.md`). Under a template, the template's measure stands.
+The house measure is 150 mm, about 95 characters at 11 pt, by the user's choice (`design.md`). At that width the class's leading is enough for the eye to find the next line. Under a template, the template's measure stands.
 
 Leave the class's leading alone. LaTeX's 11 pt text already sits on a 13.6 pt baseline, about 1.24 times the type size, which is what a handbook means by single spacing. `\linespread` and `setspace` multiply that baseline, so a handbook's "1.0 to 1.15" is met by the default and exceeded by `\linespread{1.15}`. Never `\renewcommand{\baselinestretch}` inside the document body.
 
@@ -74,6 +74,6 @@ An underfull line at badness 10000 almost always comes from `\\` or `\newline` a
 
 ## Lists and code
 
-A list holds discrete parallel items: apparatus, steps, options. An argument is prose. Keep `itemize` to one level in documents and two on slides.
+A list holds discrete parallel items: apparatus, steps, options. An argument is prose. Keep `itemize` to one level in documents and two on slides. The house style hangs the bullets of `itemize` in the left margin, as it hangs section numbers, so the items start on the text's edge; the bullets are the Prussian squares of the slides. A numbered list keeps its indent, and a list in a box, such as a `statement` block or a table cell, is indented so its bullets stay inside the box.
 
 Inline identifiers go in `\texttt`, short code in `\lstinline`, and longer code in a `lstlisting` environment, which the house style draws with a Prussian rule. A listing the text refers to takes a `caption` and `label` like a float.

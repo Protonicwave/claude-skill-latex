@@ -219,7 +219,8 @@ SLOPPY = Rule(
 FORCED_FLOAT_PLACEMENT = Rule(
     "forced-float-placement",
     TELL,
-    "[h] or [H] pins a float where it is written, leaving gaps or pushing it to the end",
+    "an h in the placement, as in [h], [H] or [htbp], lets a float sit where it is"
+    " written, leaving gaps or pushing it to the end",
     "use [tbp] and place the float after the paragraph that refers to it",
 )
 RULED_TABLE = Rule(
@@ -401,7 +402,9 @@ PROSE_ARGUMENT = re.compile(
     r"|unit|ang|numrange|qtyrange|SIrange|tablenum|definecolor|color|textcolor|colorbox"
     r"|hypersetup|setlength|setcounter|newcommand|renewcommand|providecommand|newenvironment"
     r"|renewenvironment|DeclareMathOperator|pagestyle|thispagestyle|captionsetup|sisetup"
-    r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont)\*?\s*(?:\[[^\]]*\]\s*)*\{"
+    r"|geometry|setmainfont|setsansfont|setmonofont|setmathfont|cmidrule)\*?\s*(?:\[[^\]]*\]\s*)*"
+    # booktabs' \cmidrule takes its trim in parentheses before the column span.
+    r"(?:\([^)]*\)\s*)?\{"
 )
 OPTIONAL_ARGUMENT = re.compile(r"(?<!\\)\\[A-Za-z]+\*?\s*(\[[^\]]*\])")
 # Outside maths, an ellipsis between commas is pgf list syntax, as in a TikZ
@@ -578,7 +581,7 @@ PATTERN_CHECKS = (
     PatternCheck(
         FORCED_FLOAT_PLACEMENT,
         View.SOURCE,
-        re.compile(r"\\begin\{(?:figure|table)\*?\}\s*\[(?:H|!?h!?)\]"),
+        re.compile(r"\\begin\{(?:figure|table)\*?\}\s*\[[!tbp]*[hH][!htbpH]*\]"),
     ),
     PatternCheck(
         RULED_TABLE,

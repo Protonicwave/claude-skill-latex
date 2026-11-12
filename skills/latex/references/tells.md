@@ -25,7 +25,7 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 
 | Tell | Instead |
 |---|---|
-| `[h]`, `[H]` or `[!h]` on every float (`forced-float-placement`) | `[tbp]`, with the float written after the paragraph that first refers to it |
+| `[h]`, `[H]`, `[!h]` or `[htbp]` on a float (`forced-float-placement`) | `[tbp]`, with the float written after the paragraph that first refers to it |
 | A float written before its first reference (`float-before-reference`) | Move it below that paragraph; `flafter` then keeps it there |
 | A figure or table the text never mentions (`unreferenced-float`) | Refer to it where the text discusses it, or remove it |
 | `center` inside a float (`centre-environment-in-float`) | `\centering` |
@@ -55,6 +55,8 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 | Numbers centred in their column | Aligned on the decimal marker with an `S` column |
 | `\resizebox` around a tabular | A table that fits the measure: fewer columns, abbreviated heads, or landscape |
 | Units repeated in every cell | Once, in the column head |
+| A table centred under a caption wider than itself | The table hung from the left edge under its caption, or `tabular*` at `\linewidth` for a wide one |
+| Integers and scientific notation mixed in one column | One format a column, with the same significant figures |
 
 ## Figures
 
@@ -63,7 +65,7 @@ LaTeX's defaults date from the 1980s and suit a printed article read at arm's le
 | A bitmap plot (`raster-figure`) | A PDF drawn by the plotting code; bitmaps only for photographs |
 | A figure sized in centimetres or by `scale` (`fixed-figure-width`) | A fraction of `\linewidth`, with the figure drawn at that width |
 | DejaVu Sans labels against a serif text, type far larger or smaller than the caption | The house mplstyle, or the document's faces in the pgf preamble |
-| Matplotlib's default blue and orange, the jet colour map | The house cycle; viridis or cividis for a continuous map |
+| Matplotlib's default blue and orange, the jet colour map | The house colours; the house maps `laboratory` and `laboratory_diverging` for a continuous quantity |
 | A title inside the axes repeating the caption | No title; the caption carries it |
 | Colour as the only way to tell series apart | Marker shape or line style as well |
 
