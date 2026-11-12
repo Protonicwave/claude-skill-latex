@@ -1,10 +1,10 @@
 # Laboratory house style for matplotlib figures at document size: 9 pt type in
 # the document's own faces, typeset by LuaLaTeX through the pgf backend.
 #
-# A style cannot choose the backend, so save with
-#     figure.savefig("name.pdf", backend="pgf")
-# and draw each figure at the width the document includes it, so its type
-# stays at the size set here. The default size is the full 150 mm measure.
+# A style cannot choose the backend, so call matplotlib.use("pgf") before
+# drawing; laboratory.py, the figure helper beside this file, measures labels
+# on that canvas. Draw each figure at the width the document includes it, so
+# its type stays at the size set here. The default size is the full 150 mm measure.
 #
 # The preamble repeats the faces laboratory-base.sty sets, because the pgf
 # backend runs LuaLaTeX in a temporary folder where that package cannot be found.
@@ -17,15 +17,12 @@ pgf.preamble: \usepackage{fontspec}\usepackage{unicode-math}\setmainfont{Erewhon
 
 # The text face, not the sans: tick labels on a log axis and every symbol in an
 # axis label are maths, set in Erewhon Math, so serif words beside them keep
-# one design in the figure.
+# one design in the figure. The helper sets panel letters in bold sans, as
+# labels like "Figure 1" are.
 font.family: serif
 font.size: 9
 axes.labelsize: 9
 axes.titlesize: 9
-# Panel labels, (a) and (b), set as the axes title above the top left corner.
-axes.titleweight: bold
-axes.titlelocation: left
-axes.titlepad: 4
 xtick.labelsize: 9
 ytick.labelsize: 9
 legend.fontsize: 9
