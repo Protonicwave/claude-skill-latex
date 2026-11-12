@@ -10,8 +10,9 @@ written at all.
 
 The folder receives the skeleton (main.tex and any chapter files), refs.bib,
 the house packages the profile loads, an example figure in figures/ with the
-mplstyle files that drew it at the profile's size, a latexmkrc that selects
-the profile's engine and .vscode/settings.json for LaTeX Workshop.
+mplstyle files that drew it at the profile's size and the figure helper,
+laboratory.py, a latexmkrc that selects the profile's engine and
+.vscode/settings.json for LaTeX Workshop.
 
 Exit code 0 means the project was written, 2 means a file was already there or
 the folder could not be written. A write that fails part way leaves the files
@@ -74,6 +75,7 @@ def project_files(profile_name: str) -> dict[str, bytes]:
         files[f"figures/{style}.mplstyle"] = (
             ASSETS / "mplstyle" / f"{style}.mplstyle"
         ).read_bytes()
+    files["figures/laboratory.py"] = (ASSETS / "mplstyle" / "laboratory.py").read_bytes()
     files[FIGURE_NAME] = (ASSETS / "figures" / f"{profile.medium}.pdf").read_bytes()
     engine_line = f"$pdf_mode = {LATEXMK_PDF_MODES[profile.engine]};  # {profile.engine}\n"
     files["latexmkrc"] = engine_line.encode("utf-8") + (ASSETS / "latexmkrc").read_bytes()

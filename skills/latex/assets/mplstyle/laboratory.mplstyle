@@ -13,7 +13,7 @@
 
 pgf.texsystem: lualatex
 pgf.rcfonts: False
-pgf.preamble: \usepackage{fontspec}\usepackage{unicode-math}\setmainfont{Erewhon}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,Scale=0.95]\setsansfont{SourceSans3}[Extension=.otf,UprightFont=*-Regular,ItalicFont=*-RegularIt,Scale=MatchUppercase]\setmathfont{Erewhon-Math.otf}[Scale=0.95]\AtBeginDocument{\Umathcharnumdef\laboratoryslash=\Umathcodenum`\/\relax\begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\laboratoryslash\mkern-2mu}\mathcode`\/=32768\relax}
+pgf.preamble: \usepackage{fontspec}\usepackage{unicode-math}\setmainfont{Erewhon}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,Scale=0.95]\setsansfont{SourceSans3}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Semibold,ItalicFont=*-RegularIt,Scale=MatchUppercase]\setmathfont{Erewhon-Math.otf}[Scale=0.95]\AtBeginDocument{\Umathcharnumdef\laboratoryslash=\Umathcodenum`\/\relax\begingroup\lccode`\~=`\/\lowercase{\endgroup\def~}{\mkern-2mu\laboratoryslash\mkern-2mu}\mathcode`\/=32768\relax}
 
 # The text face, not the sans: tick labels on a log axis and every symbol in an
 # axis label are maths, set in Erewhon Math, so serif words beside them keep

@@ -20,6 +20,7 @@ def test_every_profile_has_a_main_document_and_its_assets(profile: str) -> None:
     assert {"main.tex", "refs.bib", "latexmkrc", ".vscode/settings.json"} <= files.keys()
     assert "figures/pendulum.pdf" in files
     assert "figures/laboratory.mplstyle" in files
+    assert "figures/laboratory.py" in files
 
 
 @pytest.mark.parametrize(("profile", "pdf_mode"), [("labreport", 4), ("paper", 1)])
